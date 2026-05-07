@@ -1,0 +1,64 @@
+<svg width="720" height="720" viewBox="0 0 720 720" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">NiveshScope 3D logo</title>
+  <desc id="desc">A dimensional scope and rising signal mark for an Indian equity research desk.</desc>
+  <defs>
+    <linearGradient id="baseTop" x1="128" y1="116" x2="588" y2="534" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#25322C"/>
+      <stop offset="0.52" stop-color="#111815"/>
+      <stop offset="1" stop-color="#2E3C34"/>
+    </linearGradient>
+    <linearGradient id="baseSide" x1="146" y1="442" x2="590" y2="622" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#080D0B"/>
+      <stop offset="0.55" stop-color="#174B3F"/>
+      <stop offset="1" stop-color="#D7812A"/>
+    </linearGradient>
+    <linearGradient id="scopeRing" x1="202" y1="168" x2="520" y2="500" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#EAF8F1"/>
+      <stop offset="0.38" stop-color="#43B782"/>
+      <stop offset="1" stop-color="#11634F"/>
+    </linearGradient>
+    <linearGradient id="scopeGlass" x1="258" y1="198" x2="488" y2="452" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F8FFFA"/>
+      <stop offset="0.46" stop-color="#B9F1D3"/>
+      <stop offset="1" stop-color="#1D7A61"/>
+    </linearGradient>
+    <linearGradient id="saffron" x1="366" y1="246" x2="524" y2="492" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFD978"/>
+      <stop offset="0.54" stop-color="#E69132"/>
+      <stop offset="1" stop-color="#9F5417"/>
+    </linearGradient>
+    <filter id="shadow" x="42" y="54" width="642" height="650" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+      <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+      <feOffset dy="32"/>
+      <feGaussianBlur stdDeviation="30"/>
+      <feComposite in2="hardAlpha" operator="out"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 0.03 0 0 0 0 0.05 0 0 0 0 0.04 0 0 0 0.36 0"/>
+      <feBlend mode="normal" in2="BackgroundImageFix" result="drop"/>
+      <feBlend mode="normal" in="SourceGraphic" in2="drop" result="shape"/>
+    </filter>
+  </defs>
+  <rect width="720" height="720" rx="156" fill="#F3F5EF"/>
+  <g filter="url(#shadow)">
+    <path d="M132 158H486L604 276V586H250L132 468V158Z" fill="url(#baseSide)"/>
+    <path d="M132 158H486L604 276H250L132 158Z" fill="#36463D"/>
+    <path d="M250 276H604V586H250V276Z" fill="url(#baseTop)"/>
+    <path d="M132 158L250 276V586L132 468V158Z" fill="#0B100E"/>
+    <circle cx="378" cy="361" r="160" fill="#07100D"/>
+    <circle cx="358" cy="340" r="160" fill="url(#scopeRing)"/>
+    <circle cx="358" cy="340" r="111" fill="url(#scopeGlass)"/>
+    <path d="M462 444L570 552" stroke="#080E0C" stroke-width="50" stroke-linecap="round"/>
+    <path d="M447 429L555 537" stroke="url(#saffron)" stroke-width="50" stroke-linecap="round"/>
+    <path d="M292 405V273L423 405V273" stroke="#08100D" stroke-width="48" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M276 389V257L407 389V257" stroke="#F7FFF9" stroke-width="48" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M276 389V257L407 389V257" stroke="#105B4A" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M292 438H435" stroke="#08100D" stroke-width="24" stroke-linecap="round"/>
+    <path d="M276 422H419" stroke="url(#saffron)" stroke-width="24" stroke-linecap="round"/>
+    <path d="M455 226L503 226L503 390L455 390L455 226Z" fill="#08100D"/>
+    <path d="M439 210H487V374H439V210Z" fill="url(#saffron)"/>
+    <path d="M132 158H486L530 202H176L132 158Z" fill="white" fill-opacity="0.18"/>
+    <path d="M250 276H604V314H250V276Z" fill="white" fill-opacity="0.04"/>
+    <path d="M260 240C314 186 405 178 468 221" stroke="white" stroke-width="20" stroke-linecap="round" stroke-opacity="0.34"/>
+    <circle cx="314" cy="285" r="18" fill="white" fill-opacity="0.46"/>
+  </g>
+</svg>
