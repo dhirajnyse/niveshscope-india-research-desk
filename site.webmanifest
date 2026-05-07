@@ -1,0 +1,17 @@
+{
+  "name": "NiveshScope",
+  "short_name": "NiveshScope",
+  "description": "Evidence-backed Indian equity research across annual reports, exchange announcements, concalls, shareholding patterns, and valuation scenarios.",
+  "start_url": "/niveshscope-india-research-desk/",
+  "display": "standalone",
+  "background_color": "#f3f5ef",
+  "theme_color": "#111815",
+  "icons": [
+    {
+      "src": "assets/niveshscope-logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
