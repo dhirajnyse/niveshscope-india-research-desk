@@ -9,7 +9,7 @@ const STORAGE_KEYS = {
 };
 
 const WAITLIST_ENDPOINT = "https://formsubmit.co/ajax/dhirajnyse@gmail.com";
-const DATA_VERSION = "20260508-5";
+const DATA_VERSION = "20260508-6";
 const DATA_FILES = {
   companies: "data/companies.json",
   documents: "data/documents.json",
@@ -54,6 +54,42 @@ const REAL_SOURCE_REQUIREMENTS = [
     instruction: "Collect the exact exchange announcement text for material orders, capex, transactions, ratings, regulatory actions, or governance events."
   }
 ];
+
+const MARKET_SOURCE_LINKS = {
+  "annual-report": [
+    { label: "NSE annual reports", url: "https://www.nseindia.com/companies-listing/corporate-filings-annual-reports" },
+    { label: "SEBI filing map", url: "https://www.sebi.gov.in/curation/corporate_filings.html" }
+  ],
+  concall: [
+    { label: "NSE announcements", url: "https://www.nseindia.com/companies-listing/corporate-filings-announcements" },
+    { label: "BSE announcements", url: "https://www.bseindia.com/corporates/ann.html" }
+  ],
+  results: [
+    { label: "NSE financial results", url: "https://www.nseindia.com/companies-listing/corporate-filings-financial-results" },
+    { label: "BSE financial results", url: "https://www.bseindia.com/corporates/Comp_Resultsnew.aspx" }
+  ],
+  shareholding: [
+    { label: "NSE shareholding", url: "https://www.nseindia.com/companies-listing/corporate-filings-shareholding-pattern" },
+    { label: "BSE shareholding", url: "https://www.bseindia.com/corporates/Sharehold_Searchnew.aspx" }
+  ],
+  announcement: [
+    { label: "NSE announcements", url: "https://www.nseindia.com/companies-listing/corporate-filings-announcements" },
+    { label: "BSE announcements", url: "https://www.bseindia.com/corporates/ann.html" }
+  ]
+};
+
+const COMPANY_IR_LINKS = {
+  RELIANCE: "https://www.rilofficial.com/investors/investor-relations.html",
+  TCS: "https://www.tcs.com/investor-relations",
+  HDFCBANK: "https://www.hdfc.bank.in/about-us/investor-relations",
+  INFY: "https://www.infosys.com/investors/reports-filings.html",
+  ICICIBANK: "https://www.icicibank.com/about-us/investor-relations",
+  SBIN: "https://sbi.co.in/web/investor-relations",
+  TATAMOTORS: "https://www.tatamotors.com/investors/",
+  LT: "https://www.larsentoubro.com/corporate/investors/",
+  BAJFINANCE: "https://www.bajajfinserv.in/corporate-bajaj-finance/investor-relations",
+  ADANIENT: "https://www.adanienterprises.com/investors"
+};
 
 let SAMPLE_COMPANIES = [];
 let PUBLIC_TICKER_ALIASES = {};
@@ -255,6 +291,8 @@ async function init() {
   renderSourcePackList();
   renderSourceQueueOptions();
   renderSourceQueue();
+  renderSourceHubOptions();
+  renderSourceHub();
   renderTemplates();
   renderCoverage();
   renderLibrary();
@@ -391,6 +429,14 @@ function cacheElements() {
   els.sourceQueueSummary = document.querySelector("#sourceQueueSummary");
   els.sourceQueueList = document.querySelector("#sourceQueueList");
   els.sourceQueueResult = document.querySelector("#sourceQueueResult");
+  els.hubTickerSelect = document.querySelector("#hubTickerSelect");
+  els.hubRequirementSelect = document.querySelector("#hubRequirementSelect");
+  els.sourceHubTask = document.querySelector("#sourceHubTask");
+  els.sourceLinkPanel = document.querySelector("#sourceLinkPanel");
+  els.loadHubTask = document.querySelector("#loadHubTask");
+  els.copyHubTask = document.querySelector("#copyHubTask");
+  els.exportAssistantTasks = document.querySelector("#exportAssistantTasks");
+  els.sourceHubResult = document.querySelector("#sourceHubResult");
 }
 
 function normalizeCompanyRecord(company) {
@@ -626,6 +672,29 @@ function bindEvents() {
 
   if (els.copyChecklistCsv) {
     els.copyChecklistCsv.addEventListener("click", copySourceChecklistCsv);
+  }
+
+  if (els.hubTickerSelect) {
+    els.hubTickerSelect.addEventListener("change", renderSourceHub);
+  }
+
+  if (els.hubRequirementSelect) {
+    els.hubRequirementSelect.addEventListener("change", renderSourceHub);
+  }
+
+  if (els.loadHubTask) {
+    els.loadHubTask.addEventListener("click", () => {
+      const item = getCurrentSourceHubItem();
+      if (item) loadSourceTaskIntoBuilder(item.company.ticker, item.requirement.key);
+    });
+  }
+
+  if (els.copyHubTask) {
+    els.copyHubTask.addEventListener("click", copySourceHubTask);
+  }
+
+  if (els.exportAssistantTasks) {
+    els.exportAssistantTasks.addEventListener("click", exportAssistantTaskList);
   }
 }
 
@@ -932,7 +1001,11 @@ function renderSourceQueue() {
         <span>Current evidence</span>
         <strong>${escapeHtml(item.currentEvidence)}</strong>
       </div>
+      <div class="source-task-linkbar">
+        ${sourceLinksForTask(item).slice(0, 3).map((link) => `<a href="${escapeAttr(link.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(link.label)}</a>`).join("")}
+      </div>
       <div class="source-task-actions">
+        <button class="secondary-button" type="button" data-hub-ticker="${escapeAttr(item.company.ticker)}" data-hub-key="${escapeAttr(item.requirement.key)}">Collect links</button>
         <button class="secondary-button" type="button" data-queue-ticker="${escapeAttr(item.company.ticker)}" data-queue-key="${escapeAttr(item.requirement.key)}">Open in studio</button>
       </div>
     </article>
@@ -941,6 +1014,11 @@ function renderSourceQueue() {
   els.sourceQueueList.querySelectorAll("button[data-queue-ticker]").forEach((button) => {
     button.addEventListener("click", () => {
       loadSourceTaskIntoBuilder(button.dataset.queueTicker, button.dataset.queueKey);
+    });
+  });
+  els.sourceQueueList.querySelectorAll("button[data-hub-ticker]").forEach((button) => {
+    button.addEventListener("click", () => {
+      openSourceTaskInHub(button.dataset.hubTicker, button.dataset.hubKey);
     });
   });
 }
@@ -1046,6 +1124,163 @@ function flashSourceQueueResult(message, tone = "neutral") {
   if (!els.sourceQueueResult) return;
   els.sourceQueueResult.className = `builder-result is-${tone}`;
   els.sourceQueueResult.textContent = message;
+}
+
+function renderSourceHubOptions() {
+  if (!els.hubTickerSelect || !els.hubRequirementSelect) return;
+  const currentTicker = els.hubTickerSelect.value || state.selectedTicker || getCompanies()[0]?.ticker || "";
+  const currentRequirement = els.hubRequirementSelect.value || "annual-report";
+  els.hubTickerSelect.innerHTML = getCompanies().map((company) => {
+    return `<option value="${escapeAttr(company.ticker)}">${escapeHtml(company.ticker)} - ${escapeHtml(company.name)}</option>`;
+  }).join("");
+  els.hubRequirementSelect.innerHTML = REAL_SOURCE_REQUIREMENTS.map((requirement) => {
+    return `<option value="${escapeAttr(requirement.key)}">${escapeHtml(requirement.label)}</option>`;
+  }).join("");
+  els.hubTickerSelect.value = getCompany(currentTicker) ? currentTicker : getCompanies()[0]?.ticker || "";
+  els.hubRequirementSelect.value = REAL_SOURCE_REQUIREMENTS.some((item) => item.key === currentRequirement) ? currentRequirement : "annual-report";
+}
+
+function renderSourceHub() {
+  if (!els.sourceHubTask || !els.sourceLinkPanel) return;
+  const item = getCurrentSourceHubItem();
+  if (!item) {
+    els.sourceHubTask.innerHTML = `<div class="empty-list">Select a company and source type.</div>`;
+    els.sourceLinkPanel.innerHTML = "";
+    return;
+  }
+  const links = sourceLinksForTask(item);
+  els.sourceHubTask.innerHTML = `
+    <span class="source-badge ${escapeAttr(item.className.replace("is-", "source-"))}">${escapeHtml(item.statusLabel)}</span>
+    <h3>${escapeHtml(item.company.ticker)} ${escapeHtml(item.requirement.label)} collection task</h3>
+    <p>${escapeHtml(item.requirement.instruction)}</p>
+    <div class="source-task-meta">
+      <span>Current evidence</span>
+      <strong>${escapeHtml(item.currentEvidence)}</strong>
+    </div>
+  `;
+  els.sourceLinkPanel.innerHTML = `
+    <div class="panel-heading">
+      <h2>Source Links</h2>
+      <span>${escapeHtml(item.company.ticker)}</span>
+    </div>
+    <div class="source-link-list">
+      ${links.map((link) => `
+        <a href="${escapeAttr(link.url)}" target="_blank" rel="noopener noreferrer">
+          <span>${escapeHtml(link.label)}</span>
+          <strong>${escapeHtml(link.note)}</strong>
+        </a>
+      `).join("")}
+    </div>
+  `;
+}
+
+function getCurrentSourceHubItem() {
+  const ticker = normalizeTicker(els.hubTickerSelect ? els.hubTickerSelect.value : state.selectedTicker);
+  const requirementKey = els.hubRequirementSelect ? els.hubRequirementSelect.value : "annual-report";
+  const company = getCompany(ticker);
+  const requirement = REAL_SOURCE_REQUIREMENTS.find((item) => item.key === requirementKey);
+  if (!company || !requirement) return null;
+  const status = getRequirementStatus(getCompanyDocs(company.ticker), requirement);
+  return {
+    company,
+    requirement,
+    ...status,
+    currentEvidence: status.doc
+      ? `${shortSourceStatus(status.doc)} ${status.doc.type} (${status.doc.period || status.doc.date || "current"})`
+      : "No matching source record"
+  };
+}
+
+function openSourceTaskInHub(ticker, requirementKey) {
+  if (!els.hubTickerSelect || !els.hubRequirementSelect) return;
+  els.hubTickerSelect.value = normalizeTicker(ticker);
+  els.hubRequirementSelect.value = requirementKey;
+  renderSourceHub();
+  flashSourceHubResult("Collection links loaded for the selected task.", "neutral");
+  document.querySelector("#source-hub")?.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function sourceLinksForTask(item) {
+  const ticker = item.company.ticker;
+  const encodedTicker = encodeURIComponent(ticker);
+  const companySearch = encodeURIComponent(`${ticker} ${item.company.name} ${item.requirement.label}`);
+  const links = [
+    {
+      label: "Company IR",
+      url: COMPANY_IR_LINKS[ticker] || `https://www.google.com/search?q=${companySearch}+investor+relations`,
+      note: "Primary source for annual reports, presentations, concall transcripts, and investor updates."
+    },
+    ...((MARKET_SOURCE_LINKS[item.requirement.key] || []).map((link) => ({
+      ...link,
+      note: "Official market filing page. Search or filter by ticker, company name, period, and filing type."
+    }))),
+    {
+      label: "Screener company page",
+      url: `https://www.screener.in/company/${encodedTicker}/consolidated/`,
+      note: "Fast cross-check for company documents, ratios, and notes before the source is pasted into NiveshScope."
+    },
+    {
+      label: "Web source search",
+      url: `https://www.google.com/search?q=${companySearch}+site%3A${encodeURIComponent(new URL(COMPANY_IR_LINKS[ticker] || "https://www.nseindia.com").hostname)}`,
+      note: "Fallback search scoped to the likely official site."
+    }
+  ];
+  return links.filter((link) => link.url);
+}
+
+function makeSourceHubTaskText(item = getCurrentSourceHubItem()) {
+  if (!item) return "";
+  const links = sourceLinksForTask(item).map((link) => `- ${link.label}: ${link.url}`).join("\n");
+  return [
+    `# NiveshScope Source Task: ${item.company.ticker} ${item.requirement.label}`,
+    "",
+    `Company: ${item.company.name}`,
+    `Ticker: ${item.company.ticker}`,
+    `Status: ${item.statusLabel}`,
+    `Current evidence: ${item.currentEvidence}`,
+    "",
+    "Collection note:",
+    item.requirement.instruction,
+    "",
+    "Open these sources:",
+    links,
+    "",
+    "Paste into Source Pack Studio:",
+    getSourceSectionTemplates(item.requirement.type).map((section) => `- ${section}`).join("\n"),
+    "",
+    "Mark as REAL only after the source URL, period, date, and pasted sections have been checked."
+  ].join("\n");
+}
+
+function copySourceHubTask() {
+  const task = makeSourceHubTaskText();
+  if (!task) return;
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(task).catch(() => fallbackCopy(task));
+  } else {
+    fallbackCopy(task);
+  }
+  flashSourceHubResult("Copied the selected acquisition task.", "success");
+}
+
+function exportAssistantTaskList() {
+  const priorityTasks = buildSourceQueueItems().filter((item) => item.statusKey === "missing" || item.statusKey === "synthetic");
+  const content = [
+    "# NiveshScope Source Acquisition Task List",
+    "",
+    `Generated: ${new Date().toLocaleString()}`,
+    "",
+    ...priorityTasks.map((item) => makeSourceHubTaskText(item))
+  ].join("\n\n---\n\n");
+  const filename = `niveshscope-source-acquisition-tasks-${new Date().toISOString().slice(0, 10)}.md`;
+  downloadTextFile(filename, content, "text/markdown;charset=utf-8");
+  flashSourceHubResult(`Exported ${priorityTasks.length} priority source task${priorityTasks.length === 1 ? "" : "s"}.`, "success");
+}
+
+function flashSourceHubResult(message, tone = "neutral") {
+  if (!els.sourceHubResult) return;
+  els.sourceHubResult.className = `builder-result is-${tone}`;
+  els.sourceHubResult.textContent = message;
 }
 
 function renderTemplates() {
@@ -1997,6 +2232,8 @@ function rebuildDocumentCorpus() {
   renderSourceBuilderTickerOptions();
   renderSourceQueueOptions();
   renderSourceQueue();
+  renderSourceHubOptions();
+  renderSourceHub();
   renderContextBand();
   renderValuationOptions();
   renderCompanyDossier();

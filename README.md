@@ -19,6 +19,7 @@ Evidence-backed Indian equity research for investors who want cited answers inst
 - Phase 6 Source Pack Studio for creating verified source records in the browser and exporting source-pack JSON.
 - Phase 7 real-source collection workflow with source-pack JSON import, full `documents.json` export, and per-company real-data checklists.
 - Phase 8 real-source starter queue with collection tasks, status filters, Source Pack Studio handoff, and CSV export.
+- Phase 9 Source Acquisition Hub with company IR links, NSE/BSE collection links, selected-task copy, and Markdown task-list export.
 - INR crore valuation lens with revenue CAGR, FCF margin, terminal multiple, and discount-rate sensitivities.
 - Saved valuation cases stored locally in the browser.
 - One-click research outputs for risk memos, concall tone, valuation assumptions, peer comparison, and investment committee briefs.
@@ -73,6 +74,7 @@ v7 and v8 add a repeatable collection workflow:
 - Export the full merged `documents.json` with starter, builder, and uploaded records.
 - Use each company dossier checklist to see whether annual report, concall, results, shareholding, and announcement records are still synthetic, imported, real, or missing.
 - Use the `Real Source Queue` to filter missing or synthetic records, open the next task in Source Pack Studio, and export the full collection checklist as CSV.
+- Use the `Source Acquisition Hub` to open official company, NSE, and BSE source pages, copy a clean collection task, or export a priority task list for a research assistant.
 
 ## Waitlist capture
 

@@ -1748,9 +1748,114 @@ input[type="range"] {
   line-height: 1.35;
 }
 
+.source-task-linkbar {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.source-task-linkbar a {
+  min-height: 28px;
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid rgba(47, 101, 176, 0.24);
+  border-radius: 999px;
+  padding: 0 9px;
+  color: var(--blue);
+  background: var(--blue-soft);
+  font-size: 11px;
+  font-weight: 850;
+  text-decoration: none;
+}
+
 .source-task-actions {
   display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
   justify-content: flex-end;
+}
+
+.source-hub-section {
+  padding: 22px;
+}
+
+.source-hub-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(310px, 0.9fr);
+  gap: 14px;
+  align-items: start;
+}
+
+.source-hub-card,
+.source-link-panel {
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.96);
+}
+
+.source-hub-card {
+  display: grid;
+  gap: 12px;
+}
+
+.source-hub-task {
+  min-height: 210px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel-strong);
+}
+
+.source-hub-task h3 {
+  margin: 10px 0 0;
+  color: var(--ink);
+  font-size: 24px;
+  line-height: 1.15;
+}
+
+.source-hub-task p {
+  margin: 10px 0 0;
+  color: var(--ink-soft);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.source-link-list {
+  display: grid;
+  gap: 8px;
+}
+
+.source-link-list a {
+  display: grid;
+  gap: 5px;
+  min-height: 66px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: inherit;
+  background: var(--panel-strong);
+  text-decoration: none;
+}
+
+.source-link-list a:hover {
+  border-color: rgba(20, 118, 111, 0.34);
+  background: #ffffff;
+}
+
+.source-link-list span {
+  color: var(--teal);
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.source-link-list strong {
+  color: var(--ink-soft);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.35;
 }
 
 .source-builder-form,
@@ -2015,6 +2120,7 @@ input[type="range"] {
   }
 
   .source-builder-layout,
+  .source-hub-layout,
   .real-data-workflow,
   .source-queue-summary,
   .builder-grid,
@@ -2129,6 +2235,7 @@ input[type="range"] {
 
   .source-queue-toolbar label,
   .source-queue-toolbar button,
+  .source-task-actions button,
   .source-queue-list {
     width: 100%;
   }

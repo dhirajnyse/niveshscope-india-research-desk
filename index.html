@@ -14,7 +14,7 @@
     <link rel="canonical" href="https://dhirajnyse.github.io/niveshscope-india-research-desk/" />
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="assets/niveshscope-logo.svg" />
-    <link rel="manifest" href="site.webmanifest?v=20260508-5" />
+    <link rel="manifest" href="site.webmanifest?v=20260508-6" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="NiveshScope" />
     <meta property="og:title" content="NiveshScope | Ask Indian disclosures. See the evidence." />
@@ -31,8 +31,8 @@
       content="Evidence-backed Indian equity research across filings, concalls, exchange announcements, shareholding, and valuation."
     />
     <meta name="twitter:image" content="https://dhirajnyse.github.io/niveshscope-india-research-desk/assets/niveshscope-social-card.svg" />
-    <link rel="stylesheet" href="styles.css?v=20260508-5" />
-    <link rel="stylesheet" href="launch.css?v=20260508-5" />
+    <link rel="stylesheet" href="styles.css?v=20260508-6" />
+    <link rel="stylesheet" href="launch.css?v=20260508-6" />
   </head>
   <body>
     <div class="app-shell">
@@ -49,7 +49,7 @@
           <span class="status-pill">NSE/BSE</span>
           <span class="status-pill">Concall tone</span>
           <span class="status-pill">INR valuation</span>
-          <span class="status-pill">Source queue v8</span>
+          <span class="status-pill">Acquisition hub v9</span>
         </div>
         <div class="top-actions">
           <button class="icon-button" id="copyBrief" type="button" title="Copy current brief" aria-label="Copy current brief">
@@ -79,6 +79,7 @@
             <a class="primary-link" href="#desk">Open the desk</a>
             <a class="secondary-link" href="#source-builder">Source studio</a>
             <a class="secondary-link" href="#source-queue">Source queue</a>
+            <a class="secondary-link" href="#source-hub">Acquisition hub</a>
             <a class="secondary-link" href="#waitlist">Join pilot</a>
           </div>
           <div class="workflow-strip" aria-label="NiveshScope workflow">
@@ -461,6 +462,38 @@
         <div class="builder-result" id="sourceQueueResult" aria-live="polite"></div>
       </section>
 
+      <section class="launch-section source-hub-section" aria-labelledby="sourceHubTitle" id="source-hub">
+        <div class="section-heading">
+          <span>Source Acquisition Hub</span>
+          <h2 id="sourceHubTitle">Open the right source, capture the right text.</h2>
+          <p>
+            Pick a ticker and document type to get official exchange links, company IR links, and a clean task brief for replacing starter evidence.
+          </p>
+        </div>
+        <div class="source-hub-layout">
+          <div class="source-hub-card">
+            <div class="builder-grid">
+              <label>
+                <span>Company</span>
+                <select id="hubTickerSelect"></select>
+              </label>
+              <label>
+                <span>Document type</span>
+                <select id="hubRequirementSelect"></select>
+              </label>
+            </div>
+            <div class="source-hub-task" id="sourceHubTask"></div>
+            <div class="builder-actions">
+              <button class="primary-button" id="loadHubTask" type="button">Open in studio</button>
+              <button class="secondary-button" id="copyHubTask" type="button">Copy task</button>
+              <button class="secondary-button" id="exportAssistantTasks" type="button">Export task list</button>
+            </div>
+            <div class="builder-result" id="sourceHubResult" aria-live="polite"></div>
+          </div>
+          <aside class="source-link-panel" id="sourceLinkPanel" aria-label="Source acquisition links"></aside>
+        </div>
+      </section>
+
       <section class="launch-section data-section" aria-labelledby="dataTitle" id="data">
         <div class="section-heading">
           <span>Data Roadmap</span>
@@ -650,6 +683,6 @@
       </footer>
     </div>
 
-    <script src="app.js?v=20260508-5"></script>
+    <script src="app.js?v=20260508-6"></script>
   </body>
 </html>
