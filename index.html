@@ -14,7 +14,7 @@
     <link rel="canonical" href="https://dhirajnyse.github.io/niveshscope-india-research-desk/" />
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="assets/niveshscope-logo.svg" />
-    <link rel="manifest" href="site.webmanifest?v=20260507-3" />
+    <link rel="manifest" href="site.webmanifest?v=20260508-1" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="NiveshScope" />
     <meta property="og:title" content="NiveshScope | Ask Indian disclosures. See the evidence." />
@@ -31,8 +31,8 @@
       content="Evidence-backed Indian equity research across filings, concalls, exchange announcements, shareholding, and valuation."
     />
     <meta name="twitter:image" content="https://dhirajnyse.github.io/niveshscope-india-research-desk/assets/niveshscope-social-card.svg" />
-    <link rel="stylesheet" href="styles.css?v=20260507-3" />
-    <link rel="stylesheet" href="launch.css?v=20260507-3" />
+    <link rel="stylesheet" href="styles.css?v=20260508-1" />
+    <link rel="stylesheet" href="launch.css?v=20260508-1" />
   </head>
   <body>
     <div class="app-shell">
@@ -49,7 +49,7 @@
           <span class="status-pill">NSE/BSE</span>
           <span class="status-pill">Concall tone</span>
           <span class="status-pill">INR valuation</span>
-          <span class="status-pill">Phase 2 desk</span>
+          <span class="status-pill">Watchlist v4</span>
         </div>
         <div class="top-actions">
           <button class="icon-button" id="copyBrief" type="button" title="Copy current brief" aria-label="Copy current brief">
@@ -106,7 +106,7 @@
             <strong>88%</strong>
           </div>
           <h3>Which company handles high rates better if deposits stay expensive?</h3>
-          <p>TCSQ leads because cash conversion and net cash reduce rate sensitivity, while HDFQ needs deposit-cost stabilisation.</p>
+          <p>TCS leads because cash conversion and net cash reduce rate sensitivity, while HDFCBANK needs deposit-cost stabilisation.</p>
           <div class="preview-evidence">
             <div>
               <span>C1</span>
@@ -136,8 +136,8 @@
             </div>
             <div class="template-stack" id="templateStack"></div>
             <div class="demo-proxy-note">
-              <strong>Demo ticker map</strong>
-              <span>$RELIANCE -> RILP, $TCS -> TCSQ, $HDFCBANK -> HDFQ, $TATAMOTORS/$MM -> SUNM until live exchange APIs are connected.</span>
+              <strong>Starter watchlist</strong>
+              <span>RELIANCE, TCS, HDFCBANK, INFY, ICICIBANK, SBIN, TATAMOTORS, LT, BAJFINANCE, and ADANIENT. Import real sources to replace the synthetic starter evidence.</span>
             </div>
           </section>
 
@@ -173,6 +173,10 @@
             </div>
             <form class="paste-form" id="pasteForm">
               <div class="field-row">
+                <label>
+                  <span>Company</span>
+                  <select id="importTickerSelect" aria-label="Import company"></select>
+                </label>
                 <label>
                   <span>Ticker</span>
                   <input id="pasteTicker" type="text" maxlength="12" value="CUSTOM" />
@@ -214,6 +218,13 @@
                 rows="4"
                 placeholder="Example: Compare $TCS and $HDFCBANK on margin durability and cash conversion."
               ></textarea>
+              <div class="memo-shortcuts" aria-label="Research output shortcuts">
+                <button type="button" data-memo="risk">Risk memo</button>
+                <button type="button" data-memo="tone">Concall tone</button>
+                <button type="button" data-memo="valuation">Valuation assumptions</button>
+                <button type="button" data-memo="peer">Peer compare</button>
+                <button type="button" data-memo="committee">Committee brief</button>
+              </div>
               <div class="query-actions">
                 <div class="segmented" role="group" aria-label="Answer depth">
                   <button type="button" class="segment is-active" data-depth="brief">Brief</button>
@@ -322,18 +333,18 @@
           <span>Data Roadmap</span>
           <h2 id="dataTitle">Built as a prototype. Designed for live Indian market data.</h2>
           <p>
-            The current desk uses a synthetic corpus so visitors can test the workflow safely. The next build connects real documents and quote context while keeping every answer source-linked.
+            The current desk uses a real Indian ticker watchlist with synthetic starter evidence so visitors can test the workflow safely. The next build connects real documents and quote context while keeping every answer source-linked.
           </p>
         </div>
         <div class="data-grid" aria-label="NiveshScope live data roadmap">
           <article>
             <span>Now</span>
-            <h3>Manual source imports</h3>
-            <p>Annual reports, results notes, concall snippets, shareholding extracts, rating notes, and analyst model text can be pasted or uploaded into the browser corpus.</p>
+            <h3>Watchlist and source imports</h3>
+            <p>Ten Indian tickers ship with company dossiers. Annual reports, results notes, concall snippets, shareholding extracts, rating notes, and analyst model text can be pasted or uploaded into the browser corpus.</p>
             <ul>
               <li>Runs fully static on GitHub Pages</li>
               <li>Answers cite retrieved source passages</li>
-              <li>No user account or backend required</li>
+              <li>Guided company and source-type import</li>
             </ul>
           </article>
           <article>
@@ -506,6 +517,6 @@
       </footer>
     </div>
 
-    <script src="app.js?v=20260507-3"></script>
+    <script src="app.js?v=20260508-1"></script>
   </body>
 </html>
