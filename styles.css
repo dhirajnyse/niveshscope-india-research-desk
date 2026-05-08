@@ -2410,6 +2410,49 @@ input[type="range"] {
   font-weight: 900;
 }
 
+.source-assistant-card {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid rgba(47, 101, 176, 0.28);
+  border-radius: 8px;
+  background: linear-gradient(180deg, var(--blue-soft), #ffffff 92%);
+}
+
+.source-assistant-card span {
+  display: block;
+  color: var(--blue);
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.source-assistant-card strong {
+  display: block;
+  margin-top: 5px;
+  color: var(--ink);
+  font-size: 17px;
+  line-height: 1.2;
+}
+
+.source-assistant-card p {
+  max-width: 780px;
+  margin: 6px 0 0;
+  color: var(--ink-soft);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.source-assistant-card textarea {
+  min-height: 142px;
+}
+
+.source-assistant-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
 .builder-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(150px, 1fr));

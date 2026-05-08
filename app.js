@@ -10,7 +10,7 @@ const STORAGE_KEYS = {
 };
 
 const WAITLIST_ENDPOINT = "https://formsubmit.co/ajax/dhirajnyse@gmail.com";
-const DATA_VERSION = "20260508-15";
+const DATA_VERSION = "20260508-16";
 const DATA_FILES = {
   companies: "data/companies.json",
   documents: "data/documents.json",
@@ -433,6 +433,10 @@ function cacheElements() {
   els.sourceBuilderTitleInput = document.querySelector("#sourceBuilderTitleInput");
   els.sourceBuilderSections = document.querySelector("#sourceBuilderSections");
   els.activeSourceTask = document.querySelector("#activeSourceTask");
+  els.sourceAssistantText = document.querySelector("#sourceAssistantText");
+  els.applySourceAssistant = document.querySelector("#applySourceAssistant");
+  els.clearSourceAssistant = document.querySelector("#clearSourceAssistant");
+  els.sourceAssistantResult = document.querySelector("#sourceAssistantResult");
   els.sourceBuilderResult = document.querySelector("#sourceBuilderResult");
   els.exportSourcePack = document.querySelector("#exportSourcePack");
   els.exportMergedDocuments = document.querySelector("#exportMergedDocuments");
@@ -672,6 +676,17 @@ function bindEvents() {
 
   els.sourceBuilderType.addEventListener("change", renderSourceBuilderSections);
 
+  if (els.applySourceAssistant) {
+    els.applySourceAssistant.addEventListener("click", applySourceAssistant);
+  }
+
+  if (els.clearSourceAssistant) {
+    els.clearSourceAssistant.addEventListener("click", () => {
+      els.sourceAssistantText.value = "";
+      flashSourceAssistantResult("Paste cleared.", "neutral");
+    });
+  }
+
   els.sourcePackForm.addEventListener("submit", (event) => {
     event.preventDefault();
     addSourcePackDocFromBuilder();
@@ -872,6 +887,173 @@ function getSourceSectionTemplates(type) {
   if (/rating|credit/i.test(type)) return ["Rating action", "Credit strengths", "Credit risks"];
   if (/valuation|model/i.test(type)) return ["Scenario assumptions", "Valuation bridge", "Sensitivity notes"];
   return ["Source summary", "Key evidence", "Risks and watch items"];
+}
+
+function applySourceAssistant() {
+  if (!els.sourceAssistantText) return;
+  const rawText = els.sourceAssistantText.value.trim();
+  if (rawText.replace(/\s+/g, "").length < 120) {
+    els.sourceAssistantText.focus();
+    flashSourceAssistantResult("Paste at least a few paragraphs from the source before detecting sections.", "error");
+    return;
+  }
+  const draft = makeSourceAssistantDraft(rawText);
+  const company = getCompany(draft.ticker);
+  state.selectedTicker = draft.ticker;
+  renderSourceBuilderTickerOptions();
+  els.sourceBuilderTicker.value = draft.ticker;
+  els.sourceBuilderType.value = draft.type;
+  els.sourceBuilderStatus.value = "real";
+  els.sourceBuilderPeriod.value = draft.period;
+  els.sourceBuilderDate.value = new Date().toISOString().slice(0, 10);
+  els.sourceBuilderTitleInput.value = draft.title;
+  renderSourceBuilderSections();
+  fillSourceBuilderSections(draft.sections);
+  renderImportTickerOptions();
+  renderValuationOptions();
+  renderCompanyDossier();
+  updateValuationFromCompany();
+  updateValuation();
+  drawSignalMap();
+  const urlWarning = els.sourceBuilderUrl.value.trim() ? "" : " Add the source URL before shipping as REAL.";
+  flashSourceAssistantResult(`${company ? company.ticker : draft.ticker} ${draft.type} detected with ${draft.sections.length} citation section${draft.sections.length === 1 ? "" : "s"}.${urlWarning}`, urlWarning ? "neutral" : "success");
+}
+
+function makeSourceAssistantDraft(rawText) {
+  const text = normalizeSourceAssistantText(rawText);
+  const ticker = detectAssistantTicker(text);
+  const type = detectAssistantSourceType(text);
+  const period = detectAssistantPeriod(text, type);
+  const company = getCompany(ticker);
+  return {
+    ticker,
+    type,
+    period,
+    title: `${company ? company.name : ticker} ${shortDocType(type)} source ${period}`.trim(),
+    sections: makeAssistantSections(text, type)
+  };
+}
+
+function normalizeSourceAssistantText(text) {
+  return String(text || "")
+    .replace(/\r/g, "")
+    .replace(/[ \t]+/g, " ")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
+function detectAssistantTicker(text) {
+  const haystack = text.toLowerCase();
+  const selected = normalizeTicker(els.sourceBuilderTicker ? els.sourceBuilderTicker.value : state.selectedTicker);
+  const found = getCompanies().find((company) => {
+    const nameWords = company.name.toLowerCase().split(/\s+/).filter((word) => word.length > 4);
+    return haystack.includes(company.ticker.toLowerCase()) || haystack.includes(company.name.toLowerCase()) || nameWords.some((word) => haystack.includes(word));
+  });
+  return found ? found.ticker : selected || "CUSTOM";
+}
+
+function detectAssistantSourceType(text) {
+  const lower = text.toLowerCase();
+  if (/shareholding|promoter holding|pledge|public shareholding|institutional ownership/.test(lower)) return "Shareholding pattern";
+  if (/exchange announcement|corporate announcement|regulation 30|nse|bse|order win|rating action|press release/.test(lower)) return "Exchange announcement";
+  if (/analyst q&a|question-and-answer|earnings call|conference call|concall|transcript|prepared remarks/.test(lower)) return "Concall transcript";
+  if (/quarterly results|results summary|quarter ended|segment revenue|ebitda|profit after tax|financial results/.test(lower)) return "Quarterly results";
+  if (/credit rating|rating rationale|credit strengths|credit risks/.test(lower)) return "Credit rating note";
+  if (/valuation|dcf|terminal multiple|scenario|sensitivity/.test(lower)) return "Valuation model";
+  if (/annual report|board's report|management discussion|mda|md&a|risk factors|liquidity and capital resources/.test(lower)) return "Annual report";
+  return els.sourceBuilderType ? els.sourceBuilderType.value || "Research note" : "Research note";
+}
+
+function detectAssistantPeriod(text, type) {
+  const clean = text.replace(/\s+/g, " ");
+  const quarter = clean.match(/\bQ[1-4]\s*(?:FY|FY\s*)?20\d{2}\b/i);
+  if (quarter) return quarter[0].replace(/\s+/g, " ").toUpperCase();
+  const quarterEnded = clean.match(/\bquarter ended\s+([A-Za-z]+\s+\d{1,2},?\s+20\d{2}|[A-Za-z]+\s+20\d{2}|20\d{2})/i);
+  if (quarterEnded) return `Quarter ended ${quarterEnded[1]}`;
+  const fy = clean.match(/\bFY\s?20\d{2}\b/i) || clean.match(/\b20\d{2}\s?-\s?\d{2}\b/);
+  if (fy) return fy[0].replace(/\s+/g, "").replace("-", "-").toUpperCase().replace(/^20(\d{2})-(\d{2})$/, "FY20$1-$2");
+  if (/quarter|results|concall/i.test(type)) return "Q4 FY2025";
+  return "FY2025";
+}
+
+function makeAssistantSections(text, type) {
+  const templates = getSourceSectionTemplates(type);
+  const sectionized = sectionizeImportedText(text);
+  const sourceSections = sectionized.length ? sectionized : splitSourceTextIntoSections(text, templates.length);
+  return templates.map((title, index) => {
+    const matched = findBestAssistantSection(title, sourceSections);
+    const fallback = sourceSections[index] || sourceSections[0] || { text };
+    return {
+      title,
+      text: snippetLong((matched || fallback).text, index === 0 ? 1200 : 950)
+    };
+  }).filter((section) => section.text.replace(/\s+/g, "").length > 30);
+}
+
+function findBestAssistantSection(title, sections) {
+  const keywords = assistantSectionKeywords(title);
+  let best = null;
+  let bestScore = 0;
+  for (const section of sections) {
+    const haystack = `${section.title || ""} ${section.text || ""}`.toLowerCase();
+    const score = keywords.reduce((sum, word) => sum + (haystack.includes(word) ? 1 : 0), 0);
+    if (score > bestScore) {
+      best = section;
+      bestScore = score;
+    }
+  }
+  return bestScore ? best : null;
+}
+
+function assistantSectionKeywords(title) {
+  const lower = title.toLowerCase();
+  if (/business/.test(lower)) return ["business", "overview", "segment", "revenue", "operations"];
+  if (/discussion|analysis|commentary|prepared/.test(lower)) return ["management", "discussion", "analysis", "commentary", "outlook", "prepared"];
+  if (/risk/.test(lower)) return ["risk", "uncertain", "volatility", "competition", "regulatory", "inflation"];
+  if (/liquidity|capital|cash/.test(lower)) return ["liquidity", "capital", "cash", "debt", "borrowings", "capex"];
+  if (/q&a|tone/.test(lower)) return ["question", "answer", "analyst", "management", "expects", "guidance"];
+  if (/results|segment/.test(lower)) return ["results", "revenue", "margin", "profit", "segment", "ebitda"];
+  if (/shareholding|promoter|pledge|institutional/.test(lower)) return ["shareholding", "promoter", "pledge", "institutional", "public"];
+  if (/announcement|rationale|impact/.test(lower)) return ["announcement", "order", "approval", "transaction", "rationale", "impact"];
+  return ["source", "summary", "evidence", "watch"];
+}
+
+function splitSourceTextIntoSections(text, count) {
+  const sentences = text.replace(/\n+/g, " ").match(/[^.!?]+[.!?]+|[^.!?]+$/g) || [text];
+  const sections = [];
+  const target = Math.max(450, Math.ceil(text.length / Math.max(count, 1)));
+  let buffer = [];
+  for (const sentence of sentences) {
+    buffer.push(sentence.trim());
+    if (buffer.join(" ").length >= target && sections.length < count - 1) {
+      sections.push({ title: `Detected section ${sections.length + 1}`, text: buffer.join(" ") });
+      buffer = [];
+    }
+  }
+  if (buffer.length) sections.push({ title: `Detected section ${sections.length + 1}`, text: buffer.join(" ") });
+  return sections;
+}
+
+function fillSourceBuilderSections(sections) {
+  const textareas = Array.from(els.sourceBuilderSections.querySelectorAll("textarea"));
+  sections.forEach((section, index) => {
+    if (!textareas[index]) return;
+    textareas[index].dataset.sectionTitle = section.title;
+    textareas[index].previousElementSibling.textContent = section.title;
+    textareas[index].value = section.text;
+  });
+}
+
+function snippetLong(text, maxLength) {
+  const clean = String(text || "").replace(/\s+/g, " ").trim();
+  if (clean.length <= maxLength) return clean;
+  return `${clean.slice(0, maxLength - 1).replace(/\s+\S*$/, "")}.`;
+}
+
+function flashSourceAssistantResult(message, tone = "neutral") {
+  if (!els.sourceAssistantResult) return;
+  els.sourceAssistantResult.className = `builder-result is-${tone}`;
+  els.sourceAssistantResult.textContent = message;
 }
 
 function addSourcePackDocFromBuilder() {

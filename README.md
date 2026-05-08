@@ -29,6 +29,7 @@ Evidence-backed Indian equity research for investors who want cited answers inst
 - Phase 16 Coverage Command Center with a company-by-source matrix, filtered gap views, next-gap action, and copyable matrix CSV.
 - Phase 17 Coverage CSV Reliability with verified clipboard copy, CSV download, and a manual CSV preview fallback when browser clipboard access is blocked.
 - Phase 18 PDF Reports with SEC-desk-style direct PDF export for the current research brief and saved briefs, plus separate Markdown export.
+- Phase 19 Real Source Paste Assistant that detects source type, period, title, ticker, and citation sections from pasted annual report, concall, results, shareholding, or announcement text.
 - INR crore valuation lens with revenue CAGR, FCF margin, terminal multiple, and discount-rate sensitivities.
 - Saved valuation cases stored locally in the browser.
 - One-click research outputs for risk memos, concall tone, valuation assumptions, peer comparison, and investment committee briefs.
@@ -93,6 +94,7 @@ v7 and v8 add a repeatable collection workflow:
 - The `Coverage Command Center` gives a matrix view of every company against annual report, concall, results, shareholding, and announcement coverage. Filter to gaps, open the next missing source in Source Pack Studio, or copy the visible matrix as CSV.
 - Coverage CSV export now has two paths: `Copy matrix CSV` verifies whether the clipboard copy succeeded, while `Download CSV` saves the same visible matrix as a file. If the browser blocks clipboard access, the CSV appears in a selectable text area.
 - Use the top-right `PDF` button after running a report to download a branded research memo. Use `MD` for editable Markdown. Saved briefs also include a `PDF` action in the saved brief card.
+- The Source Pack Studio now includes a `Real Source Paste Assistant`: paste raw source text, click `Detect and fill builder`, review the auto-filled source record, add the official source URL, then add it to the live corpus as REAL evidence.
 
 ## Waitlist capture
 
