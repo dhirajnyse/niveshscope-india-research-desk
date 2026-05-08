@@ -2125,6 +2125,53 @@ input[type="range"] {
   gap: 12px;
 }
 
+.active-source-task {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  padding: 12px;
+  border: 1px solid rgba(20, 118, 111, 0.28);
+  border-radius: 8px;
+  background: var(--teal-soft);
+}
+
+.active-source-task[hidden] {
+  display: none;
+}
+
+.active-source-task span {
+  color: var(--teal);
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.active-source-task strong {
+  display: block;
+  margin-top: 5px;
+  color: var(--ink);
+  font-size: 18px;
+}
+
+.active-source-task p {
+  margin: 5px 0 0;
+  color: var(--ink-soft);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.active-source-task button {
+  min-height: 36px;
+  border: 1px solid rgba(20, 118, 111, 0.28);
+  border-radius: 8px;
+  padding: 0 12px;
+  color: var(--teal);
+  background: #ffffff;
+  font-size: 12px;
+  font-weight: 900;
+}
+
 .builder-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(150px, 1fr));
@@ -2155,10 +2202,18 @@ input[type="range"] {
 }
 
 .builder-actions {
+  position: sticky;
+  bottom: 8px;
+  z-index: 4;
   display: flex;
   gap: 8px;
   align-items: center;
   flex-wrap: wrap;
+  padding: 8px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 12px 24px rgba(17, 24, 21, 0.08);
 }
 
 .json-import-button {
@@ -2579,6 +2634,7 @@ input[type="range"] {
   .source-workspace-list,
   .workspace-task-top,
   .evidence-guard-toggle,
+  .active-source-task,
   .source-task-head {
     grid-template-columns: 1fr;
   }

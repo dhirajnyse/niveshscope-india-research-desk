@@ -14,7 +14,7 @@
     <link rel="canonical" href="https://dhirajnyse.github.io/niveshscope-india-research-desk/" />
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="assets/niveshscope-logo.svg" />
-    <link rel="manifest" href="site.webmanifest?v=20260508-10" />
+    <link rel="manifest" href="site.webmanifest?v=20260508-11" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="NiveshScope" />
     <meta property="og:title" content="NiveshScope | Ask Indian disclosures. See the evidence." />
@@ -31,8 +31,8 @@
       content="Evidence-backed Indian equity research across filings, concalls, exchange announcements, shareholding, and valuation."
     />
     <meta name="twitter:image" content="https://dhirajnyse.github.io/niveshscope-india-research-desk/assets/niveshscope-social-card.svg" />
-    <link rel="stylesheet" href="styles.css?v=20260508-10" />
-    <link rel="stylesheet" href="launch.css?v=20260508-10" />
+    <link rel="stylesheet" href="styles.css?v=20260508-11" />
+    <link rel="stylesheet" href="launch.css?v=20260508-11" />
   </head>
   <body>
     <div class="app-shell">
@@ -49,7 +49,7 @@
           <span class="status-pill">NSE/BSE</span>
           <span class="status-pill">Concall tone</span>
           <span class="status-pill">INR valuation</span>
-          <span class="status-pill">Real source upgrade v13</span>
+          <span class="status-pill">Capture polish v14</span>
         </div>
         <div class="top-actions">
           <button class="icon-button" id="copyBrief" type="button" title="Copy current brief" aria-label="Copy current brief">
@@ -369,6 +369,7 @@
         </div>
         <div class="source-builder-layout">
           <form class="source-builder-form" id="sourcePackForm">
+            <div class="active-source-task" id="activeSourceTask" hidden></div>
             <div class="builder-grid">
               <label>
                 <span>Company</span>
@@ -417,6 +418,7 @@
               <button class="primary-button" id="addSourcePackDoc" type="submit">Add to live corpus</button>
               <button class="secondary-button" id="exportSourcePack" type="button">Export documents JSON</button>
               <button class="secondary-button" id="exportMergedDocuments" type="button">Export full documents.json</button>
+              <button class="secondary-button" id="returnToDossier" type="button">Return to dossier</button>
               <label class="json-import-button">
                 <span>Import source-pack JSON</span>
                 <input id="sourcePackJsonInput" type="file" accept=".json,application/json" />
@@ -725,6 +727,6 @@
       </footer>
     </div>
 
-    <script src="app.js?v=20260508-10"></script>
+    <script src="app.js?v=20260508-11"></script>
   </body>
 </html>

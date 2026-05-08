@@ -10,7 +10,7 @@ const STORAGE_KEYS = {
 };
 
 const WAITLIST_ENDPOINT = "https://formsubmit.co/ajax/dhirajnyse@gmail.com";
-const DATA_VERSION = "20260508-10";
+const DATA_VERSION = "20260508-11";
 const DATA_FILES = {
   companies: "data/companies.json",
   documents: "data/documents.json",
@@ -261,6 +261,7 @@ const state = {
   importReport: null,
   lastBrief: null,
   lastAnswerMeta: null,
+  activeSourceTask: null,
   currentCitations: [],
   onlySelectedTicker: true,
   isRunning: false
@@ -428,9 +429,11 @@ function cacheElements() {
   els.sourceBuilderUrl = document.querySelector("#sourceBuilderUrl");
   els.sourceBuilderTitleInput = document.querySelector("#sourceBuilderTitleInput");
   els.sourceBuilderSections = document.querySelector("#sourceBuilderSections");
+  els.activeSourceTask = document.querySelector("#activeSourceTask");
   els.sourceBuilderResult = document.querySelector("#sourceBuilderResult");
   els.exportSourcePack = document.querySelector("#exportSourcePack");
   els.exportMergedDocuments = document.querySelector("#exportMergedDocuments");
+  els.returnToDossier = document.querySelector("#returnToDossier");
   els.sourcePackJsonInput = document.querySelector("#sourcePackJsonInput");
   els.clearSourcePack = document.querySelector("#clearSourcePack");
   els.sourcePackList = document.querySelector("#sourcePackList");
@@ -661,6 +664,10 @@ function bindEvents() {
   els.exportSourcePack.addEventListener("click", exportSourcePackJson);
   els.exportMergedDocuments.addEventListener("click", exportMergedDocumentsJson);
 
+  if (els.returnToDossier) {
+    els.returnToDossier.addEventListener("click", returnToDossier);
+  }
+
   els.sourcePackJsonInput.addEventListener("change", async () => {
     const file = els.sourcePackJsonInput.files && els.sourcePackJsonInput.files[0];
     if (file) {
@@ -841,7 +848,13 @@ function addSourcePackDocFromBuilder() {
   renderSourcePackList();
   state.importReport = makeImportReport([doc], []);
   renderImportSummary();
-  flashBuilderResult(`${doc.ticker} ${doc.type} added as ${shortSourceStatus(doc)} evidence and enabled in the live corpus.`, "success");
+  flashBuilderResult(`${doc.ticker} ${doc.type} added as ${shortSourceStatus(doc)} evidence and enabled in the live corpus. Use Return to dossier to confirm completeness.`, "success");
+  renderActiveSourceTask({
+    ticker: doc.ticker,
+    label: shortDocType(doc.type),
+    status: "Saved to live corpus",
+    instruction: "Return to the dossier to confirm completeness, or export documents JSON when this source is ready to ship."
+  });
 }
 
 function makeSourcePackDocFromBuilder() {
@@ -1138,6 +1151,14 @@ function loadSourceTaskIntoBuilder(ticker, requirementKey) {
   els.sourceBuilderUrl.value = "";
   els.sourceBuilderTitleInput.value = `${company ? company.name : state.selectedTicker} ${requirement.label} source`;
   renderSourceBuilderSections();
+  state.activeSourceTask = {
+    ticker: state.selectedTicker,
+    requirementKey: requirement.key,
+    label: requirement.label,
+    status: "Replacement task loaded",
+    instruction: requirement.instruction
+  };
+  renderActiveSourceTask(state.activeSourceTask);
   renderImportTickerOptions();
   renderValuationOptions();
   renderCompanyDossier();
@@ -1146,6 +1167,36 @@ function loadSourceTaskIntoBuilder(ticker, requirementKey) {
   drawSignalMap();
   flashBuilderResult(`${state.selectedTicker} ${requirement.label} task loaded. Paste the source text and add it as REAL evidence.`, "neutral");
   document.querySelector("#source-builder")?.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function renderActiveSourceTask(task = state.activeSourceTask) {
+  if (!els.activeSourceTask) return;
+  if (!task) {
+    els.activeSourceTask.hidden = true;
+    els.activeSourceTask.innerHTML = "";
+    return;
+  }
+  const company = getCompany(task.ticker);
+  els.activeSourceTask.hidden = false;
+  els.activeSourceTask.innerHTML = `
+    <div>
+      <span>Active replacement task</span>
+      <strong>${escapeHtml(task.ticker)} ${escapeHtml(task.label)}</strong>
+      <p>${escapeHtml(task.instruction || "Paste verified source sections, add the source URL, then add to live corpus.")}</p>
+    </div>
+    <button type="button" data-active-task-return="${escapeAttr(company ? company.ticker : task.ticker)}">Return to dossier</button>
+  `;
+  const button = els.activeSourceTask.querySelector("button[data-active-task-return]");
+  if (button) button.addEventListener("click", returnToDossier);
+}
+
+function returnToDossier() {
+  const ticker = state.activeSourceTask ? state.activeSourceTask.ticker : state.selectedTicker;
+  if (ticker) {
+    state.selectedTicker = ticker;
+    renderCompanyDossier();
+  }
+  document.querySelector(".dossier-panel")?.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
 function makeSourceChecklistCsv() {
