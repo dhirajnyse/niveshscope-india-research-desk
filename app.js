@@ -10,7 +10,7 @@ const STORAGE_KEYS = {
 };
 
 const WAITLIST_ENDPOINT = "https://formsubmit.co/ajax/dhirajnyse@gmail.com";
-const DATA_VERSION = "20260508-20";
+const DATA_VERSION = "20260508-21";
 const MAX_IMPORT_FILE_BYTES = 2 * 1024 * 1024;
 const MAX_IMPORT_TOTAL_BYTES = 8 * 1024 * 1024;
 const MAX_SOURCE_TEXT_CHARS = 120000;
@@ -706,7 +706,15 @@ function bindEvents() {
   els.sourceBuilderType.addEventListener("change", () => {
     renderSourceBuilderSections();
     renderSourceAssistantLinks();
+    renderActiveSourceTask();
   });
+
+  if (els.sourceBuilderUrl) {
+    els.sourceBuilderUrl.addEventListener("input", () => {
+      if (normalizeExternalUrl(els.sourceBuilderUrl.value)) markActiveSourceTaskStage("collected");
+      renderActiveSourceTask();
+    });
+  }
 
   if (els.applySourceAssistant) {
     els.applySourceAssistant.addEventListener("click", applySourceAssistant);
@@ -949,6 +957,7 @@ function applySourceAssistant() {
   updateValuationFromCompany();
   updateValuation();
   drawSignalMap();
+  markActiveSourceTaskStage("pasted");
   const urlWarning = els.sourceBuilderUrl.value.trim() ? "" : " Add the source URL before shipping as REAL.";
   flashSourceAssistantResult(`${company ? company.ticker : draft.ticker} ${draft.type} detected with ${draft.sections.length} citation section${draft.sections.length === 1 ? "" : "s"}.${urlWarning}`, urlWarning ? "neutral" : "success");
 }
@@ -1156,18 +1165,35 @@ function renderSourceAssistantLinks() {
       </div>
       <button type="button" data-open-hub-from-helper="${escapeAttr(company.ticker)}" data-open-hub-key="${escapeAttr(requirement.key)}">Open hub</button>
     </div>
+    <div class="source-collection-guide">
+      <strong>Beginner flow for ${escapeHtml(company.ticker)} ${escapeHtml(requirement.label)}</strong>
+      <ol>
+        <li>Click <b>Open source site</b> for NSE, BSE, or Company IR.</li>
+        <li>Search the company, open the latest matching document, and copy useful text.</li>
+        <li>Return here, click <b>Fill URL</b>, paste the text above, then click <b>Detect and fill builder</b>.</li>
+      </ol>
+    </div>
     <div class="source-url-helper-list">
       ${links.map((link) => `
         <article>
-          <a href="${escapeAttr(link.url)}" target="_blank" rel="noopener noreferrer">
+          <div class="source-url-copy">
             <span>${escapeHtml(link.label)}</span>
             <strong>${escapeHtml(link.note)}</strong>
-          </a>
-          <button type="button" data-use-source-url="${escapeAttr(link.url)}">Use URL</button>
+          </div>
+          <div class="source-url-actions">
+            <a href="${escapeAttr(link.url)}" target="_blank" rel="noopener noreferrer" data-open-source-url="${escapeAttr(link.url)}">Open source site</a>
+            <button type="button" data-use-source-url="${escapeAttr(link.url)}">Fill URL</button>
+          </div>
         </article>
       `).join("")}
     </div>
   `;
+  els.sourceAssistantLinks.querySelectorAll("a[data-open-source-url]").forEach((link) => {
+    link.addEventListener("click", () => {
+      markActiveSourceTaskStage("collected");
+      flashSourceAssistantResult("Source site opened. Search the company, open the latest matching document, then copy citation text back here.", "neutral");
+    });
+  });
   els.sourceAssistantLinks.querySelectorAll("button[data-use-source-url]").forEach((button) => {
     button.addEventListener("click", () => {
       const url = normalizeExternalUrl(button.dataset.useSourceUrl || "");
@@ -1176,7 +1202,9 @@ function renderSourceAssistantLinks() {
         return;
       }
       els.sourceBuilderUrl.value = url;
-      flashSourceAssistantResult(`Source URL filled. Open the link, verify the exact document, then paste the citation text. ${sourceUrlTrustNote(url)}`, "success");
+      markActiveSourceTaskStage("collected");
+      renderActiveSourceTask();
+      flashSourceAssistantResult(`Source URL filled. Now paste source text above and click Detect and fill builder. ${sourceUrlTrustNote(url)}`, "success");
     });
   });
   const hubButton = els.sourceAssistantLinks.querySelector("button[data-open-hub-from-helper]");
@@ -1989,17 +2017,84 @@ function renderActiveSourceTask(task = state.activeSourceTask) {
     return;
   }
   const company = getCompany(task.ticker);
+  const steps = makeSourceCollectionSteps(task);
   els.activeSourceTask.hidden = false;
   els.activeSourceTask.innerHTML = `
-    <div>
-      <span>Active replacement task</span>
-      <strong>${escapeHtml(task.ticker)} ${escapeHtml(task.label)}</strong>
-      <p>${escapeHtml(task.instruction || "Paste verified source sections, add the source URL, then add to live corpus.")}</p>
+    <div class="active-source-head">
+      <div>
+        <span>Active replacement task</span>
+        <strong>${escapeHtml(task.ticker)} ${escapeHtml(task.label)}</strong>
+        <p>${escapeHtml(task.instruction || "Paste verified source sections, add the source URL, then add to live corpus.")}</p>
+      </div>
+      <button type="button" data-active-task-return="${escapeAttr(company ? company.ticker : task.ticker)}">Return to dossier</button>
     </div>
-    <button type="button" data-active-task-return="${escapeAttr(company ? company.ticker : task.ticker)}">Return to dossier</button>
+    <div class="source-collection-steps" aria-label="Source collection steps">
+      ${steps.map((step, index) => `
+        <div class="${step.done ? "is-done" : "is-next"}">
+          <span>${index + 1}</span>
+          <strong>${escapeHtml(step.label)}</strong>
+          <p>${escapeHtml(step.help)}</p>
+        </div>
+      `).join("")}
+    </div>
   `;
   const button = els.activeSourceTask.querySelector("button[data-active-task-return]");
   if (button) button.addEventListener("click", returnToDossier);
+}
+
+function makeSourceCollectionSteps(task) {
+  const taskId = sourceTaskId(task.ticker, task.requirementKey);
+  const progress = state.sourceProgress[taskId] || { stage: "queued" };
+  const stageRank = { queued: 0, collected: 1, pasted: 2, verified: 3 };
+  const rank = stageRank[progress.stage] || 0;
+  const sourceUrl = normalizeExternalUrl(els.sourceBuilderUrl ? els.sourceBuilderUrl.value : "");
+  const hasSections = els.sourceBuilderSections
+    ? Array.from(els.sourceBuilderSections.querySelectorAll("textarea")).some((textarea) => textarea.value.replace(/\s+/g, "").length > 80)
+    : false;
+  return [
+    {
+      label: "Open source site",
+      help: "Use the buttons below to open NSE, BSE, Company IR, or Screener.",
+      done: rank >= 1
+    },
+    {
+      label: "Fill source URL",
+      help: "Click Fill URL after choosing the official source page.",
+      done: Boolean(sourceUrl)
+    },
+    {
+      label: "Paste source text",
+      help: "Paste relevant results, concall, annual report, shareholding, or announcement text into the big box.",
+      done: rank >= 2 || hasSections
+    },
+    {
+      label: "Detect and review",
+      help: "Click Detect and fill builder, then review the filled source sections.",
+      done: hasSections
+    },
+    {
+      label: "Add to live corpus",
+      help: "Only add as REAL after the URL and pasted text match the official source.",
+      done: rank >= 3
+    }
+  ];
+}
+
+function markActiveSourceTaskStage(stage) {
+  if (!state.activeSourceTask) return;
+  const taskId = sourceTaskId(state.activeSourceTask.ticker, state.activeSourceTask.requirementKey);
+  const normalizedStage = SOURCE_PROGRESS_STAGES.some((item) => item.id === stage) ? stage : "queued";
+  const current = state.sourceProgress[taskId];
+  const rank = { queued: 0, collected: 1, pasted: 2, verified: 3 };
+  if (current && (rank[current.stage] || 0) > (rank[normalizedStage] || 0)) return;
+  state.sourceProgress[taskId] = {
+    ...(current || {}),
+    taskId,
+    stage: normalizedStage,
+    updatedAt: new Date().toISOString()
+  };
+  saveJson(STORAGE_KEYS.sourceProgress, state.sourceProgress);
+  renderSourceWorkspace();
 }
 
 function returnToDossier() {
@@ -2173,6 +2268,9 @@ function setSourceTaskProgress(taskId, stage) {
   };
   saveJson(STORAGE_KEYS.sourceProgress, state.sourceProgress);
   renderSourceWorkspace();
+  if (state.activeSourceTask && sourceTaskId(state.activeSourceTask.ticker, state.activeSourceTask.requirementKey) === taskId) {
+    renderActiveSourceTask();
+  }
   flashSourceWorkspaceResult(`Task marked ${progressStageLabel(normalizedStage)}.`, "success");
 }
 
@@ -2189,6 +2287,9 @@ function updateProgressFromSourceDoc(doc) {
   };
   saveJson(STORAGE_KEYS.sourceProgress, state.sourceProgress);
   renderSourceWorkspace();
+  if (state.activeSourceTask && sourceTaskId(state.activeSourceTask.ticker, state.activeSourceTask.requirementKey) === taskId) {
+    renderActiveSourceTask();
+  }
 }
 
 function sourceTaskId(ticker, requirementKey) {

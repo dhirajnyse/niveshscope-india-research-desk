@@ -34,6 +34,7 @@ Evidence-backed Indian equity research for investors who want cited answers inst
 - Phase 21 Security Hardening Baseline with a browser content security policy, validated external source URLs, HTTPS-only REAL source records, upload size limits, and launch security documentation.
 - Phase 22 Production Foundation with a visible launch-plan section, architecture docs, data provenance rules, repository operations guidance, and automated static checks.
 - Phase 23 Real Source Starter Pack with priority readiness cards for RELIANCE, TCS, and HDFCBANK, source-type replacement actions, and investment-use readiness warnings inside reports.
+- Phase 24 Source Collection Assistant with beginner collection steps, explicit `Open source site` and `Fill URL` actions, and progress memory while replacing synthetic sources.
 - INR crore valuation lens with revenue CAGR, FCF margin, terminal multiple, and discount-rate sensitivities.
 - Saved valuation cases stored locally in the browser.
 - One-click research outputs for risk memos, concall tone, valuation assumptions, peer comparison, and investment committee briefs.
@@ -99,7 +100,7 @@ v7 and v8 add a repeatable collection workflow:
 - Coverage CSV export now has two paths: `Copy matrix CSV` verifies whether the clipboard copy succeeded, while `Download CSV` saves the same visible matrix as a file. If the browser blocks clipboard access, the CSV appears in a selectable text area.
 - Use the top-right `PDF` button after running a report to download a branded research memo. Use `MD` for editable Markdown. Saved briefs also include a `PDF` action in the saved brief card.
 - The Source Pack Studio now includes a `Real Source Paste Assistant`: paste raw source text, click `Detect and fill builder`, review the auto-filled source record, add the official source URL, then add it to the live corpus as REAL evidence.
-- The paste assistant now shows official source links for the selected company and source type. Use `Use URL` to fill the Source URL field, or `Open hub` to jump into the broader acquisition workspace.
+- The paste assistant now shows official source links for the selected company and source type. Use `Open source site` to open NSE/BSE/company pages, `Fill URL` to populate the Source URL field, or `Open hub` to jump into the broader acquisition workspace.
 - REAL source records now require a valid `https://` source URL before they can be added to the live corpus. Browser imports are limited to supported text/PDF-style file types and capped by file and batch size to reduce accidental abuse.
 
 ## Security baseline
@@ -122,6 +123,7 @@ v22 adds the first durable project foundation around the working desk:
 - `docs/ARCHITECTURE.md`: current static architecture and the production service-layer direction.
 - `docs/DATA_PROVENANCE.md`: source status rules, required source fields, and review checklist.
 - `docs/REAL_SOURCE_STARTER_PACK.md`: priority-company source workflow and readiness levels.
+- `docs/SOURCE_COLLECTION_ASSISTANT.md`: beginner workflow for collecting and pasting official source evidence.
 - `docs/LAUNCH_ROADMAP.md`: phased path from static proof to source library, accounts, automation, and launch hardening.
 - `docs/REPO_OPERATIONS.md`: upload workflow, versioning rules, quality checks, and future branch strategy.
 - `scripts/static-check.mjs`: local repository checks for CSP presence, version marker, data JSON validity, and accidental inline handlers.
@@ -143,6 +145,16 @@ v23 adds a focused MVP trust layer:
 - Clicking any source slot opens Source Studio for that exact replacement task.
 - Reports now show an `Investment-use readiness` card. Until all required source types are REAL, the answer remains labelled prototype evidence only.
 - The readiness path is documented in `docs/REAL_SOURCE_STARTER_PACK.md`.
+
+## Source Collection Assistant
+
+v24 makes the replacement workflow clearer:
+
+- Active replacement tasks now show a five-step checklist: open source site, fill URL, paste source text, detect/review, and add to live corpus.
+- Source helper cards now have separate `Open source site` and `Fill URL` controls.
+- Opening a source site or filling a URL updates the task progress memory.
+- Running `Detect and fill builder` marks the task as pasted/review-in-progress.
+- Adding a REAL source marks the task verified through the existing source-progress flow.
 
 ## Waitlist capture
 
