@@ -10,7 +10,7 @@ const STORAGE_KEYS = {
 };
 
 const WAITLIST_ENDPOINT = "https://formsubmit.co/ajax/dhirajnyse@gmail.com";
-const DATA_VERSION = "20260508-9";
+const DATA_VERSION = "20260508-10";
 const DATA_FILES = {
   companies: "data/companies.json",
   documents: "data/documents.json",
@@ -1662,6 +1662,7 @@ function renderCompanyDossier() {
   const sourceMix = sourceMixForDocs(enabledDocs);
   const sourceQuality = sourceStatusSummary(enabledDocs);
   const checklist = makeRealDataChecklist(docs);
+  const completeness = makeRealSourceCompleteness(checklist);
   const questions = [
     `What changed in $${company.ticker} disclosures and management tone?`,
     `What are the three most material risks for $${company.ticker}?`,
@@ -1686,12 +1687,21 @@ function renderCompanyDossier() {
       <p>${escapeHtml(sourceMix || "Enable or import documents to build a richer source mix.")}</p>
       <p>${escapeHtml(sourceQuality || "No source quality labels yet.")}</p>
     </div>
+    <div class="real-source-score">
+      <div>
+        <span>Real source completeness</span>
+        <strong>${escapeHtml(completeness.percent)}%</strong>
+      </div>
+      <p>${escapeHtml(completeness.summary)}</p>
+      <button class="checklist-action" type="button" data-checklist-ticker="${escapeAttr(company.ticker)}" data-checklist-key="${escapeAttr(completeness.nextKey)}">Upgrade next source</button>
+    </div>
     <div class="real-data-checklist">
       <span>Real data checklist</span>
       ${checklist.map((item) => `
         <div class="${escapeAttr(item.className)}">
           <strong>${escapeHtml(item.label)}</strong>
           <em>${escapeHtml(item.status)}</em>
+          <button class="checklist-action" type="button" data-checklist-ticker="${escapeAttr(company.ticker)}" data-checklist-key="${escapeAttr(item.key)}">${item.statusKey === "real" ? "Review" : "Replace with REAL"}</button>
         </div>
       `).join("")}
     </div>
@@ -1721,6 +1731,11 @@ function renderCompanyDossier() {
     button.addEventListener("click", () => {
       els.queryInput.value = button.dataset.question;
       runAnalysis(button.dataset.question);
+    });
+  });
+  els.companyDossier.querySelectorAll(".checklist-action").forEach((button) => {
+    button.addEventListener("click", () => {
+      loadSourceTaskIntoBuilder(button.dataset.checklistTicker, button.dataset.checklistKey);
     });
   });
 }
@@ -2058,6 +2073,7 @@ function buildAnswerModel(question, citations, intent, tickerFocus = null, guard
     guarded: state.onlySelectedTicker && !quality.compareMode,
     compareMode: quality.compareMode,
     mismatchCount: quality.mismatches.length,
+    syntheticCount: quality.syntheticCount,
     citationCount: citations.length,
     citations: citations.map((citation) => ({
       citationId: citation.citationId,
@@ -2123,6 +2139,9 @@ function makeTickerFocusNotice(focus) {
 
 function makeEvidenceGuardNotice(meta) {
   if (!meta) return "";
+  const syntheticText = meta.syntheticCount
+    ? `${meta.syntheticCount} SYN citation${meta.syntheticCount === 1 ? "" : "s"} are demo-only and should be replaced before investment use.`
+    : "No SYN citations in the current answer.";
   const mismatchText = meta.mismatches.length
     ? `${meta.mismatches.length} off-ticker citation${meta.mismatches.length === 1 ? "" : "s"} detected: ${meta.mismatches.map((citation) => citation.citationId).join(", ")}.`
     : meta.compareMode
@@ -2134,7 +2153,7 @@ function makeEvidenceGuardNotice(meta) {
         <span>Evidence guard</span>
         <strong>${escapeHtml(meta.label)} - ${meta.score}% quality</strong>
       </div>
-      <p>${escapeHtml(meta.message)} ${escapeHtml(mismatchText)}</p>
+      <p>${escapeHtml(meta.message)} ${escapeHtml(mismatchText)} ${escapeHtml(syntheticText)}</p>
     </section>
   `;
 }
@@ -2161,13 +2180,14 @@ function renderEvidence(citations) {
     return;
   }
   els.evidenceList.innerHTML = citations.map((citation) => `
-    <article class="evidence-card" id="evidence-${escapeAttr(citation.citationId)}">
+    <article class="evidence-card ${normalizeSourceStatus(citation.sourceStatus) === "synthetic" ? "is-synthetic-evidence" : ""}" id="evidence-${escapeAttr(citation.citationId)}">
       <div class="evidence-meta">
         <span>${escapeHtml(citation.citationId)} - ${escapeHtml(citation.ticker)}</span>
         <span><i class="source-badge ${sourceStatusClass(citation)}">${escapeHtml(shortSourceStatus(citation))}</i>${citation.score.toFixed(1)}</span>
       </div>
       <strong>${escapeHtml(citation.type)} - ${escapeHtml(citation.period)} - ${escapeHtml(citation.section)}</strong>
       <p>${escapeHtml(snippet(citation.text, 280))}</p>
+      ${normalizeSourceStatus(citation.sourceStatus) === "synthetic" ? `<em class="synthetic-warning">Demo-only SYN citation. Replace with REAL source before investment use.</em>` : ""}
     </article>
   `).join("");
 }
@@ -2255,6 +2275,7 @@ function makeEvidenceGuardMeta(question, citations, tickerFocus, explicitCompare
   const mismatches = focusTicker && !compareMode
     ? citations.filter((citation) => citation.ticker !== focusTicker)
     : [];
+  const syntheticCount = citations.filter((citation) => normalizeSourceStatus(citation.sourceStatus) === "synthetic").length;
   const docs = new Set(citations.map((citation) => citation.docId)).size;
   const types = new Set(citations.map((citation) => citation.type)).size;
   const sourceQuality = citations.reduce((sum, citation) => {
@@ -2268,8 +2289,8 @@ function makeEvidenceGuardMeta(question, citations, tickerFocus, explicitCompare
   if (state.onlySelectedTicker && focusTicker && !compareMode && mismatches.length === 0) score += 8;
   if (compareMode) score += Math.min(new Set(citations.map((citation) => citation.ticker)).size * 4, 12);
   score = Math.max(18, Math.min(98, Math.round(score)));
-  const qualityClass = mismatches.length ? "is-warning" : score >= 78 ? "is-strong" : "is-mixed";
-  const label = mismatches.length ? "Check citations" : score >= 78 ? "Strong guard" : "Adequate guard";
+  const qualityClass = mismatches.length ? "is-warning" : syntheticCount ? "is-mixed" : score >= 78 ? "is-strong" : "is-mixed";
+  const label = mismatches.length ? "Check citations" : syntheticCount ? "SYN review needed" : score >= 78 ? "Strong guard" : "Adequate guard";
   const message = compareMode
     ? "The question is explicitly comparative, so multiple tickers are allowed in the evidence stack."
     : state.onlySelectedTicker && focusTicker
@@ -2279,6 +2300,7 @@ function makeEvidenceGuardMeta(question, citations, tickerFocus, explicitCompare
     compareMode,
     focusTicker,
     mismatches,
+    syntheticCount,
     score,
     label,
     qualityClass,
@@ -2493,7 +2515,13 @@ function findRiskCitationIndex(citations, terms, fallbackIndex) {
 function makeEvidenceSentence(citation, intent) {
   const metrics = extractMetrics(citation.text);
   const metricPhrase = metrics.length ? ` Key extracted figures: ${escapeHtml(metrics.slice(0, 4).join(", "))}.` : "";
-  return `${escapeHtml(citation.company)} ${escapeHtml(citation.type)} links ${escapeHtml(intent.label.toLowerCase())} to ${escapeHtml(snippet(citation.text, 170))}.${metricPhrase}`;
+  const status = normalizeSourceStatus(citation.sourceStatus);
+  const statusText = status === "synthetic"
+    ? "SYN demo evidence"
+    : status === "imported"
+      ? "Imported evidence"
+      : "REAL evidence";
+  return `${escapeHtml(statusText)} from ${escapeHtml(citation.company)} ${escapeHtml(citation.type)} links ${escapeHtml(intent.label.toLowerCase())} to ${escapeHtml(snippet(citation.text, 170))}.${metricPhrase}`;
 }
 
 function makeWatchItems(citations, rankedCompanies, intent) {
@@ -2655,8 +2683,32 @@ function sourceStatusSummary(docs) {
 function makeRealDataChecklist(docs) {
   return REAL_SOURCE_REQUIREMENTS.map((requirement) => {
     const status = getRequirementStatus(docs, requirement);
-    return { ...requirement, status: status.statusLabel, className: status.className };
+    return { ...requirement, status: status.statusLabel, statusKey: status.statusKey, className: status.className, doc: status.doc };
   });
+}
+
+function makeRealSourceCompleteness(checklist) {
+  const total = checklist.length || 1;
+  const realCount = checklist.filter((item) => item.statusKey === "real").length;
+  const reviewCount = checklist.filter((item) => item.statusKey === "imported").length;
+  const starterCount = checklist.filter((item) => item.statusKey === "synthetic").length;
+  const missingCount = checklist.filter((item) => item.statusKey === "missing").length;
+  const percent = Math.round((realCount / total) * 100);
+  const next = checklist.find((item) => item.statusKey === "missing")
+    || checklist.find((item) => item.statusKey === "synthetic")
+    || checklist.find((item) => item.statusKey === "imported")
+    || checklist[0];
+  const summary = [
+    `${realCount}/${total} REAL`,
+    reviewCount ? `${reviewCount} imported review` : "",
+    starterCount ? `${starterCount} SYN starter` : "",
+    missingCount ? `${missingCount} missing` : ""
+  ].filter(Boolean).join(" | ");
+  return {
+    percent,
+    nextKey: next ? next.key : "annual-report",
+    summary: summary || "All required source types are marked REAL."
+  };
 }
 
 function normalizeSourceStatus(value) {

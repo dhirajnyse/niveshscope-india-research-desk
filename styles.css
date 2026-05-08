@@ -1348,6 +1348,7 @@ textarea:focus {
 .dossier-block,
 .dossier-timeline,
 .dossier-risk-list,
+.real-source-score,
 .real-data-checklist,
 .dossier-actions,
 .case-list {
@@ -1358,6 +1359,39 @@ textarea:focus {
 
 .dossier-block {
   padding: 10px;
+}
+
+.real-source-score {
+  padding: 10px;
+  border: 1px solid rgba(20, 118, 111, 0.24);
+  border-radius: 8px;
+  background: var(--teal-soft);
+}
+
+.real-source-score div {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: center;
+}
+
+.real-source-score span {
+  color: var(--teal);
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.real-source-score strong {
+  color: var(--ink);
+  font-size: 24px;
+}
+
+.real-source-score p {
+  margin: 4px 0 0;
+  color: var(--ink-soft);
+  font-size: 12px;
+  line-height: 1.35;
 }
 
 .dossier-block strong {
@@ -1420,7 +1454,7 @@ textarea:focus {
 .real-data-checklist div {
   display: grid;
   gap: 3px;
-  min-height: 48px;
+  min-height: 84px;
   padding: 8px;
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -1461,6 +1495,23 @@ textarea:focus {
 .real-data-checklist .is-missing em {
   color: var(--red);
   background: var(--red-soft);
+}
+
+.checklist-action {
+  min-height: 28px;
+  width: 100%;
+  border: 1px solid rgba(20, 118, 111, 0.25);
+  border-radius: 8px;
+  padding: 0 8px;
+  color: var(--teal);
+  background: #ffffff;
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.checklist-action:hover {
+  border-color: rgba(20, 118, 111, 0.45);
+  background: var(--teal-soft);
 }
 
 .dossier-risk-list span {
@@ -2209,6 +2260,11 @@ input[type="range"] {
   background: var(--blue-soft);
 }
 
+.evidence-card.is-synthetic-evidence {
+  border-color: rgba(164, 92, 24, 0.28);
+  background: linear-gradient(180deg, var(--amber-soft), #ffffff 82%);
+}
+
 .evidence-meta,
 .note-card span {
   display: flex;
@@ -2249,6 +2305,16 @@ input[type="range"] {
   color: var(--ink-soft);
   font-size: 12px;
   line-height: 1.45;
+}
+
+.synthetic-warning {
+  display: block;
+  margin-top: 8px;
+  color: var(--amber);
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 900;
+  line-height: 1.35;
 }
 
 .note-quality-row {

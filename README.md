@@ -23,6 +23,7 @@ Evidence-backed Indian equity research for investors who want cited answers inst
 - Phase 10 Real Data Workspace with local task progress, today's batch, progress CSV export, and workspace JSON export.
 - Phase 11 Evidence Quality Guard with strict single-company citation control, evidence quality scoring, and mismatch warnings.
 - Phase 12 Brief Hygiene with guarded saved notes, proper ticker metadata, per-note delete, and compact saved brief detail view.
+- Phase 13 Real Source Upgrade Pack with completeness scoring, one-click checklist upgrades, stronger SYN warnings, and clearer demo-only evidence labels.
 - INR crore valuation lens with revenue CAGR, FCF margin, terminal multiple, and discount-rate sensitivities.
 - Saved valuation cases stored locally in the browser.
 - One-click research outputs for risk memos, concall tone, valuation assumptions, peer comparison, and investment committee briefs.
@@ -81,6 +82,7 @@ v7 and v8 add a repeatable collection workflow:
 - Use the `Real Data Workspace` to run a focused collection batch and mark each task as queued, collected, pasted, or verified. Progress is stored locally in the browser and can be exported as CSV or as a workspace JSON pack with documents and progress.
 - Use the `Only selected ticker` evidence guard before running single-company questions. Unless the question is explicitly comparative, retrieved citations stay anchored to the selected ticker and the answer shows an evidence quality score plus mismatch warning.
 - Saved briefs now use the answer's guarded ticker focus rather than the first citation. Notes show confidence, evidence quality, guard status, can be opened into a detail view, and can be deleted individually.
+- Each company dossier now shows a real-source completeness score. Use `Upgrade next source` or each checklist item's `Replace with REAL` button to open Source Pack Studio for the exact annual report, concall, results, shareholding, or announcement source that still needs replacement. SYN citations are labelled demo-only in answers and evidence cards.
 
 ## Waitlist capture
 
