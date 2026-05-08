@@ -10,7 +10,7 @@ const STORAGE_KEYS = {
 };
 
 const WAITLIST_ENDPOINT = "https://formsubmit.co/ajax/dhirajnyse@gmail.com";
-const DATA_VERSION = "20260508-16";
+const DATA_VERSION = "20260508-17";
 const DATA_FILES = {
   companies: "data/companies.json",
   documents: "data/documents.json",
@@ -301,6 +301,7 @@ async function init() {
   renderImportTickerOptions();
   renderSourceBuilderTickerOptions();
   renderSourceBuilderSections();
+  renderSourceAssistantLinks();
   renderSourcePackList();
   renderSourceMatrixOptions();
   renderSourceMatrix();
@@ -436,6 +437,7 @@ function cacheElements() {
   els.sourceAssistantText = document.querySelector("#sourceAssistantText");
   els.applySourceAssistant = document.querySelector("#applySourceAssistant");
   els.clearSourceAssistant = document.querySelector("#clearSourceAssistant");
+  els.sourceAssistantLinks = document.querySelector("#sourceAssistantLinks");
   els.sourceAssistantResult = document.querySelector("#sourceAssistantResult");
   els.sourceBuilderResult = document.querySelector("#sourceBuilderResult");
   els.exportSourcePack = document.querySelector("#exportSourcePack");
@@ -666,6 +668,7 @@ function bindEvents() {
 
   els.sourceBuilderTicker.addEventListener("change", () => {
     state.selectedTicker = els.sourceBuilderTicker.value;
+    renderSourceAssistantLinks();
     renderValuationOptions();
     renderImportTickerOptions();
     renderCompanyDossier();
@@ -674,7 +677,10 @@ function bindEvents() {
     drawSignalMap();
   });
 
-  els.sourceBuilderType.addEventListener("change", renderSourceBuilderSections);
+  els.sourceBuilderType.addEventListener("change", () => {
+    renderSourceBuilderSections();
+    renderSourceAssistantLinks();
+  });
 
   if (els.applySourceAssistant) {
     els.applySourceAssistant.addEventListener("click", applySourceAssistant);
@@ -909,6 +915,7 @@ function applySourceAssistant() {
   els.sourceBuilderTitleInput.value = draft.title;
   renderSourceBuilderSections();
   fillSourceBuilderSections(draft.sections);
+  renderSourceAssistantLinks();
   renderImportTickerOptions();
   renderValuationOptions();
   renderCompanyDossier();
@@ -1054,6 +1061,69 @@ function flashSourceAssistantResult(message, tone = "neutral") {
   if (!els.sourceAssistantResult) return;
   els.sourceAssistantResult.className = `builder-result is-${tone}`;
   els.sourceAssistantResult.textContent = message;
+}
+
+function renderSourceAssistantLinks() {
+  if (!els.sourceAssistantLinks) return;
+  const ticker = normalizeTicker(els.sourceBuilderTicker ? els.sourceBuilderTicker.value : state.selectedTicker);
+  const company = getCompany(ticker);
+  const requirement = getBuilderRequirement();
+  if (!company || !requirement) {
+    els.sourceAssistantLinks.innerHTML = `
+      <div class="source-url-helper-empty">Select a company and source type to see official collection links.</div>
+    `;
+    return;
+  }
+  const item = {
+    company,
+    requirement,
+    statusLabel: "URL helper",
+    currentEvidence: "Builder source URL"
+  };
+  const links = sourceLinksForTask(item).slice(0, 5);
+  els.sourceAssistantLinks.innerHTML = `
+    <div class="source-url-helper-head">
+      <div>
+        <span>Official Source URL Helper</span>
+        <strong>${escapeHtml(company.ticker)} ${escapeHtml(requirement.label)} links</strong>
+      </div>
+      <button type="button" data-open-hub-from-helper="${escapeAttr(company.ticker)}" data-open-hub-key="${escapeAttr(requirement.key)}">Open hub</button>
+    </div>
+    <div class="source-url-helper-list">
+      ${links.map((link) => `
+        <article>
+          <a href="${escapeAttr(link.url)}" target="_blank" rel="noopener noreferrer">
+            <span>${escapeHtml(link.label)}</span>
+            <strong>${escapeHtml(link.note)}</strong>
+          </a>
+          <button type="button" data-use-source-url="${escapeAttr(link.url)}">Use URL</button>
+        </article>
+      `).join("")}
+    </div>
+  `;
+  els.sourceAssistantLinks.querySelectorAll("button[data-use-source-url]").forEach((button) => {
+    button.addEventListener("click", () => {
+      els.sourceBuilderUrl.value = button.dataset.useSourceUrl || "";
+      flashSourceAssistantResult("Source URL filled. Open the link, verify the exact document, then paste the citation text.", "success");
+    });
+  });
+  const hubButton = els.sourceAssistantLinks.querySelector("button[data-open-hub-from-helper]");
+  if (hubButton) {
+    hubButton.addEventListener("click", () => {
+      openSourceTaskInHub(hubButton.dataset.openHubFromHelper, hubButton.dataset.openHubKey);
+    });
+  }
+}
+
+function getBuilderRequirement() {
+  const type = els.sourceBuilderType ? els.sourceBuilderType.value : "";
+  if (state.activeSourceTask && state.activeSourceTask.requirementKey) {
+    const active = REAL_SOURCE_REQUIREMENTS.find((item) => item.key === state.activeSourceTask.requirementKey);
+    if (active && active.type === type) return active;
+  }
+  return REAL_SOURCE_REQUIREMENTS.find((item) => item.type === type)
+    || REAL_SOURCE_REQUIREMENTS.find((item) => item.pattern.test(type))
+    || REAL_SOURCE_REQUIREMENTS[0];
 }
 
 function addSourcePackDocFromBuilder() {
@@ -1680,6 +1750,7 @@ function loadSourceTaskIntoBuilder(ticker, requirementKey) {
   els.sourceBuilderUrl.value = "";
   els.sourceBuilderTitleInput.value = `${company ? company.name : state.selectedTicker} ${requirement.label} source`;
   renderSourceBuilderSections();
+  renderSourceAssistantLinks();
   state.activeSourceTask = {
     ticker: state.selectedTicker,
     requirementKey: requirement.key,
