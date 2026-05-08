@@ -10,7 +10,7 @@ const STORAGE_KEYS = {
 };
 
 const WAITLIST_ENDPOINT = "https://formsubmit.co/ajax/dhirajnyse@gmail.com";
-const DATA_VERSION = "20260508-8";
+const DATA_VERSION = "20260508-9";
 const DATA_FILES = {
   companies: "data/companies.json",
   documents: "data/documents.json",
@@ -260,6 +260,7 @@ const state = {
   valuationCases: [],
   importReport: null,
   lastBrief: null,
+  lastAnswerMeta: null,
   currentCitations: [],
   onlySelectedTicker: true,
   isRunning: false
@@ -1890,6 +1891,7 @@ function runAnalysis(question) {
   const guardMeta = makeEvidenceGuardMeta(question, citations, tickerFocus, explicitCompare);
   const answerModel = buildAnswerModel(question, citations, intent, tickerFocus, guardMeta);
   state.lastBrief = answerModel.plainText;
+  state.lastAnswerMeta = answerModel.meta;
   renderAnswer(answerModel);
   renderEvidence(citations);
   renderContextBand();
@@ -1899,6 +1901,7 @@ function runAnalysis(question) {
 function renderNoDocs(question) {
   state.currentCitations = [];
   state.lastBrief = `No enabled documents for: ${question}`;
+  state.lastAnswerMeta = null;
   els.answerPanel.innerHTML = `
     <div class="empty-state">
       <div class="empty-kicker">No corpus</div>
@@ -1913,6 +1916,7 @@ function renderNoDocs(question) {
 function renderNoHits(question) {
   state.currentCitations = [];
   state.lastBrief = `No high-confidence passages for: ${question}`;
+  state.lastAnswerMeta = null;
   els.answerPanel.innerHTML = `
     <div class="empty-state">
       <div class="empty-kicker">Low recall</div>
@@ -2039,8 +2043,33 @@ function buildAnswerModel(question, citations, intent, tickerFocus = null, guard
   );
 
   const plainText = plainParts.join("\n\n");
+  const primaryCompany = tickerFocus && tickerFocus.company
+    ? tickerFocus.company
+    : rankedCompanies[0] || getCompany(state.selectedTicker);
+  const meta = {
+    question,
+    ticker: primaryCompany ? primaryCompany.ticker : "Desk",
+    company: primaryCompany ? primaryCompany.name : "Research desk",
+    intentLabel: intent.label,
+    confidence,
+    evidenceQuality: quality.score,
+    qualityLabel: quality.label,
+    qualityClass: quality.qualityClass,
+    guarded: state.onlySelectedTicker && !quality.compareMode,
+    compareMode: quality.compareMode,
+    mismatchCount: quality.mismatches.length,
+    citationCount: citations.length,
+    citations: citations.map((citation) => ({
+      citationId: citation.citationId,
+      ticker: citation.ticker,
+      company: citation.company,
+      type: citation.type,
+      section: citation.section,
+      sourceStatus: normalizeSourceStatus(citation.sourceStatus)
+    }))
+  };
 
-  return { html, plainText, citations, confidence, headline: stripHtml(headline) };
+  return { html, plainText, citations, confidence, headline: stripHtml(headline), meta };
 }
 
 function makeToneMeter(rankedCompanies, citations) {
@@ -2858,13 +2887,33 @@ function renderNotebook() {
     els.notebookList.innerHTML = `<div class="empty-list">Saved answers stay in this browser for quick review.</div>`;
     return;
   }
-  els.notebookList.innerHTML = state.notes.map((note) => `
-    <article class="note-card">
-      <span><b>${escapeHtml(note.intent)}</b><b>${escapeHtml(note.date)}</b></span>
+  els.notebookList.innerHTML = state.notes.map((note) => {
+    const meta = noteMeta(note);
+    return `
+    <article class="note-card ${meta.mismatchCount ? "is-warning" : ""}">
+      <span><b>${escapeHtml(meta.ticker)}</b><b>${escapeHtml(meta.date)}</b></span>
       <strong>${escapeHtml(note.title)}</strong>
+      <div class="note-quality-row">
+        <em>${escapeHtml(meta.intentLabel)}</em>
+        <em>${escapeHtml(meta.confidenceText)}</em>
+        <em>${escapeHtml(meta.qualityText)}</em>
+        ${meta.guarded ? `<em>Guarded</em>` : ""}
+      </div>
       <p>${escapeHtml(snippet(note.body, 220))}</p>
+      <div class="note-actions">
+        <button type="button" data-note-open="${escapeAttr(note.id)}">Open</button>
+        <button type="button" data-note-delete="${escapeAttr(note.id)}">Delete</button>
+      </div>
     </article>
-  `).join("");
+  `;
+  }).join("");
+
+  els.notebookList.querySelectorAll("button[data-note-open]").forEach((button) => {
+    button.addEventListener("click", () => openSavedBrief(button.dataset.noteOpen));
+  });
+  els.notebookList.querySelectorAll("button[data-note-delete]").forEach((button) => {
+    button.addEventListener("click", () => deleteSavedBrief(button.dataset.noteDelete));
+  });
 }
 
 function copyCurrentBrief() {
@@ -2890,22 +2939,127 @@ function fallbackCopy(text) {
 
 function saveCurrentBrief() {
   if (!state.lastBrief) return;
-  const title = state.lastBrief.split("\n").find(Boolean) || "Saved research brief";
+  if (!state.lastAnswerMeta && !state.currentCitations.length) {
+    flashButtonLabel(els.saveBrief, "No brief");
+    return;
+  }
+  const meta = state.lastAnswerMeta || inferBriefMetaFromText(state.lastBrief);
+  if (meta.guarded && meta.mismatchCount > 0) {
+    flashButtonLabel(els.saveBrief, "Guard blocked");
+    return;
+  }
+  const title = `${meta.ticker} ${meta.intentLabel || "Research brief"} | ${meta.confidence || "NA"}% confidence`;
   const note = {
     id: `note-${Date.now()}`,
     title: stripHtml(title).slice(0, 120),
     body: state.lastBrief,
-    intent: state.currentCitations[0] ? state.currentCitations[0].ticker : "Desk",
-    date: new Date().toLocaleDateString()
+    intent: meta.ticker,
+    ticker: meta.ticker,
+    company: meta.company,
+    confidence: meta.confidence || 0,
+    evidenceQuality: meta.evidenceQuality || 0,
+    qualityLabel: meta.qualityLabel || "",
+    guarded: Boolean(meta.guarded),
+    compareMode: Boolean(meta.compareMode),
+    mismatchCount: meta.mismatchCount || 0,
+    intentLabel: meta.intentLabel || "Research",
+    citationCount: meta.citationCount || state.currentCitations.length,
+    citations: meta.citations || [],
+    date: new Date().toLocaleDateString(),
+    createdAt: new Date().toISOString()
   };
   state.notes = [note, ...state.notes].slice(0, 10);
+  saveJson(STORAGE_KEYS.notes, state.notes);
+  renderNotebook();
+  flashButtonLabel(els.saveBrief, "Saved");
+}
+
+function noteMeta(note) {
+  const inferred = inferBriefMetaFromText(note.body || "");
+  const ticker = note.ticker || inferred.ticker || note.intent || "Desk";
+  const confidence = Number(note.confidence || inferred.confidence || 0);
+  const evidenceQuality = Number(note.evidenceQuality || inferred.evidenceQuality || 0);
+  return {
+    ticker,
+    company: note.company || inferred.company || ticker,
+    date: note.date || (note.createdAt ? new Date(note.createdAt).toLocaleDateString() : ""),
+    intentLabel: note.intentLabel || inferred.intentLabel || "Research",
+    confidence,
+    evidenceQuality,
+    confidenceText: confidence ? `${confidence}% conf` : "No conf",
+    qualityText: evidenceQuality ? `${evidenceQuality}% evidence` : "No quality",
+    guarded: Boolean(note.guarded || inferred.guarded),
+    mismatchCount: Number(note.mismatchCount || inferred.mismatchCount || 0)
+  };
+}
+
+function inferBriefMetaFromText(text) {
+  const clean = String(text || "");
+  const tickerLine = clean.match(/Ticker focus:\s*([A-Z][A-Z0-9.]*)/i);
+  const qualityLine = clean.match(/Evidence quality:\s*(\d+)%\s*\(([^)]+)\)/i);
+  const confidenceLine = clean.match(/\|\s*(\d+)%\s*confidence/i);
+  const firstLine = clean.split("\n").find(Boolean) || "Research";
+  const intentLabel = firstLine.split("|")[0]?.trim() || "Research";
+  const ticker = tickerLine ? normalizeTicker(tickerLine[1]) : state.selectedTicker || "Desk";
+  const company = getCompany(ticker);
+  return {
+    ticker,
+    company: company ? company.name : ticker,
+    intentLabel,
+    confidence: confidenceLine ? Number(confidenceLine[1]) : 0,
+    evidenceQuality: qualityLine ? Number(qualityLine[1]) : 0,
+    qualityLabel: qualityLine ? qualityLine[2] : "",
+    guarded: clean.includes("Single-company guard is active") || clean.includes("Evidence quality"),
+    compareMode: clean.includes("explicitly comparative"),
+    mismatchCount: clean.match(/off-ticker citation/) ? 1 : 0,
+    citationCount: state.currentCitations.length
+  };
+}
+
+function openSavedBrief(noteId) {
+  const note = state.notes.find((item) => item.id === noteId);
+  if (!note) return;
+  const meta = noteMeta(note);
+  els.answerPanel.innerHTML = `
+    <div class="answer-header saved-brief-header">
+      <div>
+        <div class="answer-kicker">Saved brief</div>
+        <h2>${escapeHtml(note.title)}</h2>
+      </div>
+      <div class="confidence-box">
+        <span>Confidence</span>
+        <strong>${meta.confidence || 0}%</strong>
+      </div>
+      <div class="confidence-box evidence-quality-box ${meta.mismatchCount ? "is-warning" : "is-strong"}">
+        <span>Evidence quality</span>
+        <strong>${meta.evidenceQuality || 0}%</strong>
+      </div>
+    </div>
+    <div class="answer-body">
+      <section class="ticker-focus-card">
+        <span>${meta.guarded ? "Guarded saved note" : "Saved note"}</span>
+        <strong>${escapeHtml(meta.ticker)} - ${escapeHtml(meta.company)}</strong>
+        <p>${escapeHtml(meta.mismatchCount ? "This saved brief was flagged for a citation mismatch." : "This saved brief is stored locally in this browser.")}</p>
+      </section>
+      <section class="answer-section saved-brief-detail">
+        <h3>Brief text</h3>
+        <pre>${escapeHtml(note.body)}</pre>
+      </section>
+    </div>
+  `;
+  els.answerPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function deleteSavedBrief(noteId) {
+  state.notes = state.notes.filter((note) => note.id !== noteId);
   saveJson(STORAGE_KEYS.notes, state.notes);
   renderNotebook();
 }
 
 function exportCurrentBrief() {
   if (!state.lastBrief) return;
-  const ticker = state.currentCitations[0] ? state.currentCitations[0].ticker : state.selectedTicker;
+  const meta = state.lastAnswerMeta || inferBriefMetaFromText(state.lastBrief);
+  const ticker = meta.ticker || state.selectedTicker;
   const date = new Date().toISOString().slice(0, 10);
   const filename = `niveshscope-${String(ticker || "desk").toLowerCase()}-brief-${date}.md`;
   const evidence = state.currentCitations.length

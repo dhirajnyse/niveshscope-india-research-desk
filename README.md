@@ -22,6 +22,7 @@ Evidence-backed Indian equity research for investors who want cited answers inst
 - Phase 9 Source Acquisition Hub with company IR links, NSE/BSE collection links, selected-task copy, and Markdown task-list export.
 - Phase 10 Real Data Workspace with local task progress, today's batch, progress CSV export, and workspace JSON export.
 - Phase 11 Evidence Quality Guard with strict single-company citation control, evidence quality scoring, and mismatch warnings.
+- Phase 12 Brief Hygiene with guarded saved notes, proper ticker metadata, per-note delete, and compact saved brief detail view.
 - INR crore valuation lens with revenue CAGR, FCF margin, terminal multiple, and discount-rate sensitivities.
 - Saved valuation cases stored locally in the browser.
 - One-click research outputs for risk memos, concall tone, valuation assumptions, peer comparison, and investment committee briefs.
@@ -79,6 +80,7 @@ v7 and v8 add a repeatable collection workflow:
 - Use the `Source Acquisition Hub` to open official company, NSE, and BSE source pages, copy a clean collection task, or export a priority task list for a research assistant.
 - Use the `Real Data Workspace` to run a focused collection batch and mark each task as queued, collected, pasted, or verified. Progress is stored locally in the browser and can be exported as CSV or as a workspace JSON pack with documents and progress.
 - Use the `Only selected ticker` evidence guard before running single-company questions. Unless the question is explicitly comparative, retrieved citations stay anchored to the selected ticker and the answer shows an evidence quality score plus mismatch warning.
+- Saved briefs now use the answer's guarded ticker focus rather than the first citation. Notes show confidence, evidence quality, guard status, can be opened into a detail view, and can be deleted individually.
 
 ## Waitlist capture
 
