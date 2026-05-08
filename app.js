@@ -3,7 +3,8 @@
 const STORAGE_KEYS = {
   uploads: "niveshscope-uploads-v1",
   notes: "niveshscope-notes-v1",
-  waitlist: "niveshscope-waitlist-v1"
+  waitlist: "niveshscope-waitlist-v1",
+  valuationCases: "niveshscope-valuation-cases-v1"
 };
 
 const WAITLIST_ENDPOINT = "https://formsubmit.co/ajax/dhirajnyse@gmail.com";
@@ -578,6 +579,8 @@ const state = {
   uploadedDocs: [],
   notes: [],
   waitlistLeads: [],
+  valuationCases: [],
+  importReport: null,
   lastBrief: null,
   currentCitations: [],
   isRunning: false
@@ -594,6 +597,7 @@ function init() {
   state.uploadedDocs = loadJson(STORAGE_KEYS.uploads, []);
   state.notes = loadJson(STORAGE_KEYS.notes, []);
   state.waitlistLeads = loadJson(STORAGE_KEYS.waitlist, []);
+  state.valuationCases = loadJson(STORAGE_KEYS.valuationCases, []);
   state.documents = [...SAMPLE_DOCS, ...state.uploadedDocs];
   state.documents.forEach((doc) => state.enabledDocIds.add(doc.id));
   for (const doc of state.uploadedDocs) {
@@ -603,8 +607,11 @@ function init() {
   renderTemplates();
   renderCoverage();
   renderLibrary();
+  renderImportSummary();
   renderContextBand();
   renderValuationOptions();
+  renderCompanyDossier();
+  renderValuationCases();
   renderNotebook();
   bindEvents();
   updateValuationFromCompany();
@@ -622,6 +629,7 @@ function cacheElements() {
   els.documentCount = document.querySelector("#documentCount");
   els.fileInput = document.querySelector("#fileInput");
   els.fileDrop = document.querySelector(".file-drop");
+  els.importSummary = document.querySelector("#importSummary");
   els.pasteForm = document.querySelector("#pasteForm");
   els.pasteTicker = document.querySelector("#pasteTicker");
   els.pasteType = document.querySelector("#pasteType");
@@ -650,6 +658,9 @@ function cacheElements() {
   els.valuePerShare = document.querySelector("#valuePerShare");
   els.equityValue = document.querySelector("#equityValue");
   els.valuationFootnote = document.querySelector("#valuationFootnote");
+  els.saveValuationCase = document.querySelector("#saveValuationCase");
+  els.valuationCaseList = document.querySelector("#valuationCaseList");
+  els.companyDossier = document.querySelector("#companyDossier");
   els.copyBrief = document.querySelector("#copyBrief");
   els.saveBrief = document.querySelector("#saveBrief");
   els.exportBrief = document.querySelector("#exportBrief");
@@ -698,6 +709,7 @@ function bindEvents() {
     state.activeTickers = new Set(getCompanies().map((company) => company.ticker));
     renderCoverage();
     renderContextBand();
+    renderCompanyDossier();
     drawSignalMap();
   });
 
@@ -730,7 +742,7 @@ function bindEvents() {
       els.pasteText.focus();
       return;
     }
-    addUploadedDocs([
+    const added = addUploadedDocs([
       makeUploadedDoc({
         ticker: els.pasteTicker.value,
         title: els.pasteTitle.value,
@@ -738,6 +750,8 @@ function bindEvents() {
         text
       })
     ]);
+    state.importReport = makeImportReport(added, []);
+    renderImportSummary();
     els.pasteText.value = "";
   });
 
@@ -747,10 +761,13 @@ function bindEvents() {
     state.enabledDocIds = new Set(state.documents.map((doc) => doc.id));
     state.activeTickers = new Set(SAMPLE_COMPANIES.map((company) => company.ticker));
     saveJson(STORAGE_KEYS.uploads, []);
+    state.importReport = null;
+    renderImportSummary();
     renderCoverage();
     renderLibrary();
     renderContextBand();
     renderValuationOptions();
+    renderCompanyDossier();
     updateValuationFromCompany();
     updateValuation();
     drawSignalMap();
@@ -760,6 +777,7 @@ function bindEvents() {
     state.selectedTicker = els.valuationTicker.value;
     updateValuationFromCompany();
     updateValuation();
+    renderCompanyDossier();
     drawSignalMap();
   });
 
@@ -767,6 +785,7 @@ function bindEvents() {
     slider.addEventListener("input", updateValuation);
   });
 
+  els.saveValuationCase.addEventListener("click", saveValuationCase);
   els.copyBrief.addEventListener("click", copyCurrentBrief);
   els.saveBrief.addEventListener("click", saveCurrentBrief);
   els.exportBrief.addEventListener("click", exportCurrentBrief);
@@ -861,6 +880,7 @@ function renderCoverage() {
         input.checked = true;
       }
       renderContextBand();
+      renderCompanyDossier();
       drawSignalMap();
     });
   });
@@ -891,6 +911,95 @@ function renderLibrary() {
         state.enabledDocIds.delete(input.dataset.docId);
       }
       renderContextBand();
+      renderCompanyDossier();
+    });
+  });
+}
+
+function renderImportSummary(report = state.importReport) {
+  if (!els.importSummary) return;
+  if (!report) {
+    els.importSummary.innerHTML = `
+      <strong>Import status</strong>
+      <span>Paste or upload source text to build a private browser corpus for this session.</span>
+    `;
+    return;
+  }
+
+  const skippedText = report.skipped.length
+    ? `<em>${report.skipped.length} skipped: ${escapeHtml(report.skipped.map((item) => item.name).join(", "))}</em>`
+    : "";
+  els.importSummary.innerHTML = `
+    <strong>${report.added.length} source${report.added.length === 1 ? "" : "s"} imported</strong>
+    <span>${escapeHtml(report.sections)} sections, ${escapeHtml(report.metrics)} metrics, ${escapeHtml(report.tickers.join(", ") || "CUSTOM")} coverage updated.</span>
+    ${skippedText}
+  `;
+}
+
+function renderCompanyDossier() {
+  if (!els.companyDossier) return;
+  const company = getCompany(state.selectedTicker);
+  if (!company) {
+    els.companyDossier.innerHTML = `<div class="empty-list">Select a company to open its dossier.</div>`;
+    return;
+  }
+
+  const docs = getCompanyDocs(company.ticker);
+  const enabledDocs = docs.filter((doc) => state.enabledDocIds.has(doc.id));
+  const latestDocs = [...docs]
+    .sort((a, b) => String(b.date).localeCompare(String(a.date)))
+    .slice(0, 4);
+  const riskFactors = (RISK_FACTOR_LIBRARY[company.ticker] || makeGenericRiskBlueprint(company)).slice(0, 3);
+  const sourceMix = sourceMixForDocs(enabledDocs);
+  const questions = [
+    `What changed in $${company.ticker} disclosures and management tone?`,
+    `What are the three most material risks for $${company.ticker}?`,
+    `Which valuation assumptions should I flex first for $${company.ticker}?`
+  ];
+
+  els.companyDossier.innerHTML = `
+    <div class="dossier-head">
+      <span>${escapeHtml(company.sector)}</span>
+      <strong>${escapeHtml(company.ticker)} - ${escapeHtml(company.name)}</strong>
+      <p>${escapeHtml(company.thesis)}</p>
+    </div>
+    <div class="dossier-kpis">
+      <div><span>Revenue</span><strong>${escapeHtml(formatMoney(company.revenue))}</strong></div>
+      <div><span>Op margin</span><strong>${escapeHtml(company.opMargin)}%</strong></div>
+      <div><span>FCF margin</span><strong>${escapeHtml(company.fcfMargin)}%</strong></div>
+      <div><span>Risk</span><strong>${escapeHtml(company.risk)}</strong></div>
+    </div>
+    <div class="dossier-block">
+      <span>Source coverage</span>
+      <strong>${enabledDocs.length}/${docs.length} docs enabled</strong>
+      <p>${escapeHtml(sourceMix || "Enable or import documents to build a richer source mix.")}</p>
+    </div>
+    <div class="dossier-timeline">
+      ${latestDocs.length ? latestDocs.map((doc) => `
+        <article>
+          <span>${escapeHtml(shortDocType(doc.type))}</span>
+          <strong>${escapeHtml(doc.period)}</strong>
+          <em>${escapeHtml(doc.date)}</em>
+        </article>
+      `).join("") : `<div class="empty-list">No company documents yet.</div>`}
+    </div>
+    <div class="dossier-risk-list">
+      ${riskFactors.map((factor) => `
+        <div>
+          <span>${escapeHtml(factor.severity)}</span>
+          <strong>${escapeHtml(factor.title)}</strong>
+        </div>
+      `).join("")}
+    </div>
+    <div class="dossier-actions">
+      ${questions.map((question) => `<button class="dossier-question" type="button" data-question="${escapeAttr(question)}">${escapeHtml(question)}</button>`).join("")}
+    </div>
+  `;
+
+  els.companyDossier.querySelectorAll(".dossier-question").forEach((button) => {
+    button.addEventListener("click", () => {
+      els.queryInput.value = button.dataset.question;
+      runAnalysis(button.dataset.question);
     });
   });
 }
@@ -967,6 +1076,7 @@ function syncTickerFocus(question) {
   renderCoverage();
   renderContextBand();
   renderValuationOptions();
+  renderCompanyDossier();
   updateValuationFromCompany();
   updateValuation();
   drawSignalMap();
@@ -1630,6 +1740,22 @@ function getEnabledDocs() {
   return state.documents.filter((doc) => state.enabledDocIds.has(doc.id) && state.activeTickers.has(doc.ticker));
 }
 
+function getCompanyDocs(ticker) {
+  return state.documents.filter((doc) => doc.ticker === ticker);
+}
+
+function sourceMixForDocs(docs) {
+  if (!docs.length) return "";
+  const counts = docs.reduce((groups, doc) => {
+    const label = shortDocType(doc.type);
+    groups[label] = (groups[label] || 0) + 1;
+    return groups;
+  }, {});
+  return Object.entries(counts)
+    .map(([label, count]) => `${label} ${count}`)
+    .join(" | ");
+}
+
 function getCompanies() {
   const byTicker = new Map(SAMPLE_COMPANIES.map((company) => [company.ticker, { ...company }]));
   for (const doc of state.uploadedDocs) {
@@ -1697,6 +1823,61 @@ function updateValuation() {
   els.valuePerShare.textContent = `Rs ${Math.max(perShare, 0).toFixed(0)}`;
   els.equityValue.textContent = `${formatMoney(Math.max(equityValue, 0))}`;
   els.valuationFootnote.textContent = `${company.ticker} base model: ${formatMoney(company.revenue)} revenue, ${company.fcfMargin}% FCF margin, ${company.netDebt < 0 ? "net cash" : "net debt"} of ${formatMoney(Math.abs(company.netDebt))}. This is a scenario lens, not a price target.`;
+  return {
+    ticker: company.ticker,
+    company: company.name,
+    revenueGrowth: Math.round(revenueGrowth * 100),
+    fcfMargin: Math.round(fcfMargin * 100),
+    terminalMultiple,
+    discountRate: Math.round(discountRate * 100),
+    equityValue: Math.max(equityValue, 0),
+    perShare: Math.max(perShare, 0)
+  };
+}
+
+function saveValuationCase() {
+  const snapshot = updateValuation();
+  if (!snapshot) return;
+  const valuationCase = {
+    id: `case-${Date.now()}`,
+    ...snapshot,
+    date: new Date().toLocaleString()
+  };
+  state.valuationCases = [valuationCase, ...state.valuationCases].slice(0, 8);
+  saveJson(STORAGE_KEYS.valuationCases, state.valuationCases);
+  renderValuationCases();
+  flashButtonLabel(els.saveValuationCase, "Saved");
+}
+
+function renderValuationCases() {
+  if (!els.valuationCaseList) return;
+  if (!state.valuationCases.length) {
+    els.valuationCaseList.innerHTML = `<div class="empty-list">Saved valuation cases will appear here.</div>`;
+    return;
+  }
+  els.valuationCaseList.innerHTML = state.valuationCases.map((valuationCase) => `
+    <button class="case-card" type="button" data-case-id="${escapeAttr(valuationCase.id)}">
+      <span>${escapeHtml(valuationCase.ticker)} case</span>
+      <strong>Rs ${escapeHtml(valuationCase.perShare.toFixed(0))}</strong>
+      <em>${escapeHtml(valuationCase.revenueGrowth)}% growth, ${escapeHtml(valuationCase.fcfMargin)}% FCF, ${escapeHtml(valuationCase.terminalMultiple)}x</em>
+    </button>
+  `).join("");
+
+  els.valuationCaseList.querySelectorAll(".case-card").forEach((button) => {
+    button.addEventListener("click", () => {
+      const valuationCase = state.valuationCases.find((item) => item.id === button.dataset.caseId);
+      if (!valuationCase) return;
+      state.selectedTicker = valuationCase.ticker;
+      renderValuationOptions();
+      els.growthSlider.value = String(valuationCase.revenueGrowth);
+      els.marginSlider.value = String(valuationCase.fcfMargin);
+      els.multipleSlider.value = String(valuationCase.terminalMultiple);
+      els.discountSlider.value = String(valuationCase.discountRate);
+      updateValuation();
+      renderCompanyDossier();
+      drawSignalMap();
+    });
+  });
 }
 
 function drawSignalMap(citations = state.currentCitations) {
@@ -1933,36 +2114,91 @@ function copyLeadSummary(summary) {
 }
 
 async function processFiles(files) {
-  const usableFiles = files.filter((file) => /\.(txt|md|csv|html|json)$/i.test(file.name));
-  if (!usableFiles.length) return;
-  const docs = await Promise.all(usableFiles.map(readUploadedFile));
-  addUploadedDocs(docs);
+  if (!files.length) return;
+  const results = await Promise.all(files.map(readUploadedFile));
+  const docs = results.filter((result) => result.doc).map((result) => result.doc);
+  const skipped = results.filter((result) => result.error).map((result) => result.error);
+  const added = addUploadedDocs(docs);
+  state.importReport = makeImportReport(added, skipped);
+  renderImportSummary();
 }
 
 function readUploadedFile(file) {
+  if (!isSupportedImport(file.name)) {
+    return Promise.resolve({
+      error: { name: file.name, reason: "Unsupported file type" }
+    });
+  }
+  return /\.pdf$/i.test(file.name) ? readPdfFile(file) : readTextFile(file);
+}
+
+function readTextFile(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => {
-      resolve(makeUploadedDoc({
-        ticker: inferTickerFromName(file.name) || "CUSTOM",
-        title: file.name.replace(/\.[^.]+$/, ""),
-        type: inferTypeFromName(file.name),
-        text: String(reader.result || "")
-      }));
+      const text = String(reader.result || "");
+      if (text.replace(/\s+/g, "").length < 80) {
+        resolve({ error: { name: file.name, reason: "No readable text found" } });
+        return;
+      }
+      resolve({
+        doc: makeUploadedDoc({
+          ticker: inferTickerFromName(file.name) || "CUSTOM",
+          title: file.name.replace(/\.[^.]+$/, ""),
+          type: inferTypeFromName(file.name),
+          text
+        })
+      });
     };
-    reader.onerror = reject;
+    reader.onerror = () => reject(reader.error);
     reader.readAsText(file);
   });
+}
+
+function readPdfFile(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const text = extractPdfText(reader.result);
+      if (text.replace(/\s+/g, "").length < 120) {
+        resolve({
+          error: {
+            name: file.name,
+            reason: "PDF text could not be extracted in-browser"
+          }
+        });
+        return;
+      }
+      resolve({
+        doc: makeUploadedDoc({
+          ticker: inferTickerFromName(file.name) || "CUSTOM",
+          title: file.name.replace(/\.[^.]+$/, ""),
+          type: inferTypeFromName(file.name),
+          text
+        })
+      });
+    };
+    reader.onerror = () => reject(reader.error);
+    reader.readAsArrayBuffer(file);
+  });
+}
+
+function isSupportedImport(name) {
+  return /\.(txt|md|csv|html|json|pdf)$/i.test(name);
 }
 
 function makeUploadedDoc({ ticker, title, type, text }) {
   const safeTicker = normalizeTicker(ticker);
   const cleanTitle = String(title || "Imported document").trim().slice(0, 90);
-  const cleanText = String(text || "").replace(/\s+/g, " ").trim();
+  const cleanText = String(text || "")
+    .replace(/\r/g, "")
+    .replace(/[ \t]+/g, " ")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
   return {
     id: `upload-${Date.now()}-${Math.random().toString(16).slice(2)}`,
     ticker: safeTicker,
-    company: `${safeTicker} imported corpus`,
+    company: inferCompanyName(safeTicker, cleanTitle, cleanText),
     type: String(type || "Research note"),
     period: cleanTitle,
     date: new Date().toISOString().slice(0, 10),
@@ -1972,24 +2208,41 @@ function makeUploadedDoc({ ticker, title, type, text }) {
 
 function addUploadedDocs(docs) {
   const filtered = docs.filter((doc) => doc.sections.some((section) => section.text.length > 30));
-  if (!filtered.length) return;
+  if (!filtered.length) return [];
   state.uploadedDocs = [...filtered, ...state.uploadedDocs].slice(0, 18);
   state.documents = [...SAMPLE_DOCS, ...state.uploadedDocs];
   filtered.forEach((doc) => {
     state.enabledDocIds.add(doc.id);
     state.activeTickers.add(doc.ticker);
   });
+  if (!state.selectedTicker || state.selectedTicker === "RILP" && filtered[0].ticker !== "RILP") {
+    state.selectedTicker = filtered[0].ticker;
+  }
   saveJson(STORAGE_KEYS.uploads, state.uploadedDocs);
   renderCoverage();
   renderLibrary();
   renderContextBand();
   renderValuationOptions();
+  renderCompanyDossier();
+  updateValuationFromCompany();
+  updateValuation();
   drawSignalMap();
+  return filtered;
 }
 
 function splitImportedText(text) {
   if (!text) return [];
-  const sentences = text.match(/[^.!?]+[.!?]+|[^.!?]+$/g) || [text];
+  const headingSections = sectionizeImportedText(text);
+  if (headingSections.length > 1) {
+    return headingSections.flatMap((section, sectionIndex) => {
+      return splitIntoChunks(section.text, 950).map((chunk, chunkIndex) => ({
+        title: chunkIndex ? `${section.title} ${chunkIndex + 1}` : section.title,
+        text: chunk
+      }));
+    });
+  }
+  const normalized = text.replace(/\n+/g, " ");
+  const sentences = normalized.match(/[^.!?]+[.!?]+|[^.!?]+$/g) || [normalized];
   const sections = [];
   let buffer = [];
   let index = 1;
@@ -2003,6 +2256,79 @@ function splitImportedText(text) {
   }
   if (buffer.length) sections.push({ title: `Imported section ${index}`, text: buffer.join(" ") });
   return sections;
+}
+
+function sectionizeImportedText(text) {
+  const lines = String(text || "")
+    .split(/\n/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+  if (lines.length < 8) return [];
+
+  const sections = [];
+  let current = { title: "Imported overview", text: "" };
+  const headingPattern = /^(business overview|management discussion|management discussion and analysis|financial results|results review|risk factors?|liquidity|capital resources|shareholding|promoter|pledge|outlook|prepared remarks|analyst q&a|questions? and answers?|segment|valuation|cash flow|debt|notes to accounts)\b/i;
+
+  for (const line of lines) {
+    const isShortHeading = line.length <= 72 && (
+      headingPattern.test(line) ||
+      (/^[A-Z0-9 &/,-]{8,72}$/.test(line) && !/\d{4,}/.test(line))
+    );
+    if (isShortHeading && current.text.length > 180) {
+      sections.push({ title: current.title, text: current.text.trim() });
+      current = { title: titleCase(line), text: "" };
+    } else if (isShortHeading && current.title === "Imported overview" && current.text.length < 40) {
+      current.title = titleCase(line);
+    } else {
+      current.text = `${current.text} ${line}`.trim();
+    }
+  }
+  if (current.text.length > 80) sections.push({ title: current.title, text: current.text.trim() });
+  return sections;
+}
+
+function makeImportReport(addedDocs = [], skipped = []) {
+  const sections = addedDocs.reduce((sum, doc) => sum + doc.sections.length, 0);
+  const metrics = addedDocs.reduce((sum, doc) => {
+    return sum + extractMetrics(doc.sections.map((section) => section.text).join(" ")).length;
+  }, 0);
+  const tickers = Array.from(new Set(addedDocs.map((doc) => doc.ticker)));
+  return {
+    added: addedDocs,
+    skipped,
+    sections: String(sections),
+    metrics: String(metrics),
+    tickers
+  };
+}
+
+function extractPdfText(buffer) {
+  const bytes = new Uint8Array(buffer || []);
+  if (!bytes.length) return "";
+  const decoder = new TextDecoder("latin1");
+  const raw = decoder.decode(bytes);
+  const literalMatches = raw.match(/\((?:\\.|[^\\)]){3,}\)/g) || [];
+  const literalText = literalMatches
+    .map((item) => decodePdfLiteral(item.slice(1, -1)))
+    .join(" ");
+  const fallbackText = raw
+    .replace(/[^\x09\x0A\x0D\x20-\x7E]/g, " ")
+    .replace(/\b(obj|endobj|stream|endstream|xref|trailer|startxref|Length|Filter|FlateDecode)\b/g, " ");
+  const best = literalText.replace(/\s+/g, " ").trim().length > 200 ? literalText : fallbackText;
+  return best
+    .replace(/\\n/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function decodePdfLiteral(value) {
+  return String(value || "")
+    .replace(/\\n/g, " ")
+    .replace(/\\r/g, " ")
+    .replace(/\\t/g, " ")
+    .replace(/\\\(/g, "(")
+    .replace(/\\\)/g, ")")
+    .replace(/\\\\/g, "\\");
 }
 
 function splitIntoChunks(text, targetLength) {
@@ -2023,8 +2349,39 @@ function splitIntoChunks(text, targetLength) {
 }
 
 function inferTickerFromName(name) {
-  const match = String(name).toUpperCase().match(/\b[A-Z]{2,10}\b/);
-  return match ? match[0] : "";
+  const ignored = new Set([
+    "ANNUAL",
+    "REPORT",
+    "RESULTS",
+    "QUARTERLY",
+    "CONCALL",
+    "TRANSCRIPT",
+    "INVESTOR",
+    "PRESENTATION",
+    "SHAREHOLDING",
+    "PATTERN",
+    "EXCHANGE",
+    "ANNOUNCEMENT",
+    "LIMITED",
+    "INDIA"
+  ]);
+  const tokens = String(name).toUpperCase().match(/\b[A-Z][A-Z0-9.]{1,11}\b/g) || [];
+  return tokens.find((token) => !ignored.has(token) && !/^FY\d/i.test(token) && !/^Q[1-4]$/i.test(token)) || "";
+}
+
+function inferCompanyName(ticker, title, text) {
+  const known = SAMPLE_COMPANIES.find((company) => company.ticker === ticker);
+  if (known) return known.name;
+  const firstLine = String(text || "").split(/\n/).map((line) => line.trim()).find((line) => line.length > 8 && line.length < 90);
+  const fromTitle = String(title || "")
+    .replace(/\.[^.]+$/, "")
+    .replace(new RegExp(`\\b${ticker.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "i"), "")
+    .replace(/\b(annual|report|concall|transcript|quarterly|results|shareholding|pattern|exchange|announcement|fy\d{2,4}|q[1-4])\b/gi, "")
+    .replace(/[_-]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  const label = fromTitle || firstLine || "imported corpus";
+  return `${ticker} ${label}`.trim().slice(0, 72);
 }
 
 function inferTypeFromName(name) {
@@ -2036,6 +2393,14 @@ function inferTypeFromName(name) {
   if (lower.includes("exchange") || lower.includes("announcement")) return "Exchange announcement";
   if (lower.includes("model")) return "Valuation model";
   return "Research note";
+}
+
+function titleCase(value) {
+  return String(value || "")
+    .toLowerCase()
+    .replace(/\b[a-z]/g, (letter) => letter.toUpperCase())
+    .replace(/\bQ&a\b/g, "Q&A")
+    .replace(/\bMd&a\b/g, "MD&A");
 }
 
 function normalizeTicker(value) {

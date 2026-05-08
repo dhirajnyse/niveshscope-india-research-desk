@@ -9,7 +9,11 @@ Evidence-backed Indian equity research for investors who want cited answers inst
 - Risk questions return exactly three cited risk factors with severity labels.
 - India-style ticker aliases such as `$RELIANCE`, `$TCS`, `$HDFCBANK`, and `$TATAMOTORS`.
 - Company filters, document toggles, text/file import, saved briefs, copy-to-clipboard, and Markdown export.
+- Phase 2 company dossier with KPI summary, document timeline, source mix, risk checklist, and one-click research questions.
+- Import report for pasted/uploaded documents, including section count, metric count, ticker coverage, and skipped-file feedback.
+- Browser-side import for `.txt`, `.md`, `.csv`, `.html`, `.json`, and best-effort text-based `.pdf` files.
 - INR crore valuation lens with revenue CAGR, FCF margin, terminal multiple, and discount-rate sensitivities.
+- Saved valuation cases stored locally in the browser.
 - Signal map for growth, margin, and risk across the selected coverage universe.
 - Launch hero, data roadmap, pricing plans, static waitlist capture, and roadmap sections.
 - A 3D-style SVG brand mark in `assets/niveshscope-logo.svg`.
@@ -39,7 +43,7 @@ The waitlist form posts to FormSubmit at `dhirajnyse@gmail.com` and also stores 
 
 ## Notes
 
-The bundled companies and documents are synthetic so the prototype is safe to evaluate offline. Import real annual reports, exchange announcements, concall transcripts, shareholding patterns, or model notes before using the workflow for live research. NiveshScope is research software, not investment advice. The valuation panel is a scenario lens, not a price target.
+The bundled companies and documents are synthetic so the prototype is safe to evaluate offline. Import real annual reports, exchange announcements, concall transcripts, shareholding patterns, rating notes, or model notes before using the workflow for live research. PDF import is best-effort in a static browser app and works best for text-based PDFs; scanned PDFs should be converted to text first. NiveshScope is research software, not investment advice. The valuation panel is a scenario lens, not a price target.
 
 ## Live data roadmap
 

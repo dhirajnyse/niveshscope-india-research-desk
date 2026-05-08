@@ -599,6 +599,35 @@ button {
   font-weight: 800;
 }
 
+.import-summary {
+  display: grid;
+  gap: 4px;
+  margin-top: 10px;
+  padding: 10px;
+  border: 1px solid rgba(47, 101, 176, 0.22);
+  border-radius: 8px;
+  background: var(--blue-soft);
+}
+
+.import-summary strong {
+  color: var(--blue);
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.import-summary span,
+.import-summary em {
+  color: var(--ink-soft);
+  font-size: 12px;
+  font-style: normal;
+  line-height: 1.35;
+}
+
+.import-summary em {
+  color: var(--muted);
+}
+
 .paste-form {
   margin-top: 10px;
   display: grid;
@@ -1124,6 +1153,160 @@ textarea:focus {
   background: var(--red-soft);
 }
 
+.dossier-panel {
+  background:
+    linear-gradient(180deg, rgba(20, 118, 111, 0.08), rgba(255, 255, 255, 0.96) 34%),
+    #ffffff;
+}
+
+.dossier-head {
+  display: grid;
+  gap: 6px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.dossier-head span,
+.dossier-block span,
+.dossier-risk-list span,
+.case-card span {
+  color: var(--teal);
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.dossier-head strong {
+  color: var(--ink);
+  font-size: 18px;
+  line-height: 1.15;
+}
+
+.dossier-head p,
+.dossier-block p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.dossier-kpis {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.dossier-kpis div,
+.dossier-block,
+.dossier-timeline article,
+.dossier-risk-list div,
+.case-card {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel-strong);
+}
+
+.dossier-kpis div {
+  min-height: 58px;
+  padding: 9px;
+}
+
+.dossier-kpis span {
+  display: block;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.dossier-kpis strong {
+  display: block;
+  margin-top: 6px;
+  color: var(--ink);
+  font-size: 17px;
+}
+
+.dossier-block,
+.dossier-timeline,
+.dossier-risk-list,
+.dossier-actions,
+.case-list {
+  display: grid;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.dossier-block {
+  padding: 10px;
+}
+
+.dossier-block strong {
+  color: var(--ink);
+  font-size: 13px;
+}
+
+.dossier-timeline {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.dossier-timeline article {
+  min-height: 62px;
+  padding: 8px;
+}
+
+.dossier-timeline span {
+  color: var(--blue);
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.dossier-timeline strong,
+.dossier-risk-list strong {
+  display: block;
+  margin-top: 4px;
+  color: var(--ink);
+  font-size: 12px;
+  line-height: 1.25;
+}
+
+.dossier-timeline em {
+  display: block;
+  margin-top: 4px;
+  color: var(--subtle);
+  font-size: 11px;
+  font-style: normal;
+}
+
+.dossier-risk-list div {
+  padding: 8px;
+}
+
+.dossier-risk-list span {
+  color: var(--amber);
+}
+
+.dossier-question {
+  width: 100%;
+  min-height: 36px;
+  padding: 8px 10px;
+  border: 1px solid rgba(20, 118, 111, 0.25);
+  border-radius: 8px;
+  color: var(--teal);
+  background: var(--teal-soft);
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.25;
+  text-align: left;
+}
+
+.dossier-question:hover {
+  border-color: rgba(20, 118, 111, 0.46);
+  background: #eef8f6;
+}
+
 .market-panel canvas {
   display: block;
   width: 100%;
@@ -1214,6 +1397,40 @@ input[type="range"] {
   color: var(--muted);
   font-size: 12px;
   line-height: 1.45;
+}
+
+.save-case-button {
+  width: 100%;
+  margin-top: 10px;
+}
+
+.case-list {
+  margin-top: 10px;
+}
+
+.case-card {
+  width: 100%;
+  display: grid;
+  gap: 3px;
+  padding: 9px;
+  text-align: left;
+}
+
+.case-card strong {
+  color: var(--ink);
+  font-size: 16px;
+}
+
+.case-card em {
+  color: var(--muted);
+  font-size: 11px;
+  font-style: normal;
+  line-height: 1.35;
+}
+
+.case-card:hover {
+  border-color: var(--line-strong);
+  background: #ffffff;
 }
 
 .evidence-card,
