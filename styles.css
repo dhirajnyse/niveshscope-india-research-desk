@@ -1278,6 +1278,7 @@ textarea:focus {
 .dossier-block,
 .dossier-timeline,
 .dossier-risk-list,
+.real-data-checklist,
 .dossier-actions,
 .case-list {
   display: grid;
@@ -1328,6 +1329,68 @@ textarea:focus {
 
 .dossier-risk-list div {
   padding: 8px;
+}
+
+.real-data-checklist {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.real-data-checklist > span {
+  grid-column: 1 / -1;
+  color: var(--teal);
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.real-data-checklist div {
+  display: grid;
+  gap: 3px;
+  min-height: 48px;
+  padding: 8px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel-strong);
+}
+
+.real-data-checklist strong {
+  color: var(--ink);
+  font-size: 12px;
+  line-height: 1.2;
+}
+
+.real-data-checklist em {
+  width: fit-content;
+  border-radius: 999px;
+  padding: 2px 7px;
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.real-data-checklist .is-real em {
+  color: var(--green);
+  background: var(--green-soft);
+}
+
+.real-data-checklist .is-imported em {
+  color: var(--blue);
+  background: var(--blue-soft);
+}
+
+.real-data-checklist .is-synthetic em {
+  color: var(--amber);
+  background: var(--amber-soft);
+}
+
+.real-data-checklist .is-missing em {
+  color: var(--red);
+  background: var(--red-soft);
 }
 
 .dossier-risk-list span {
@@ -1490,6 +1553,47 @@ input[type="range"] {
   align-items: start;
 }
 
+.real-data-workflow {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.real-data-workflow article {
+  min-height: 128px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel-strong);
+}
+
+.real-data-workflow span {
+  width: 26px;
+  height: 26px;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 999px;
+  color: #ffffff;
+  background: var(--ink);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.real-data-workflow strong {
+  display: block;
+  margin-top: 9px;
+  color: var(--ink);
+  font-size: 14px;
+}
+
+.real-data-workflow p {
+  margin: 5px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
 .source-builder-form,
 .source-pack-preview {
   border: 1px solid var(--line);
@@ -1537,6 +1641,25 @@ input[type="range"] {
   gap: 8px;
   align-items: center;
   flex-wrap: wrap;
+}
+
+.json-import-button {
+  min-height: 42px;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(47, 101, 176, 0.28);
+  border-radius: 8px;
+  padding: 0 14px;
+  color: var(--blue) !important;
+  background: var(--blue-soft);
+  font-size: 13px !important;
+  font-weight: 900 !important;
+  cursor: pointer;
+}
+
+.json-import-button input {
+  display: none;
 }
 
 .builder-result {
@@ -1733,6 +1856,7 @@ input[type="range"] {
   }
 
   .source-builder-layout,
+  .real-data-workflow,
   .builder-grid,
   .builder-section-editor {
     grid-template-columns: 1fr;

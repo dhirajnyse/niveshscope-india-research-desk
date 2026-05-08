@@ -17,6 +17,7 @@ Evidence-backed Indian equity research for investors who want cited answers inst
 - Guided import that lets users choose the company and source type before adding a document.
 - Visible source-quality labels for `synthetic`, `imported`, and `real` evidence.
 - Phase 6 Source Pack Studio for creating verified source records in the browser and exporting source-pack JSON.
+- Phase 7 real-source collection workflow with source-pack JSON import, full `documents.json` export, and per-company real-data checklists.
 - INR crore valuation lens with revenue CAGR, FCF margin, terminal multiple, and discount-rate sensitivities.
 - Saved valuation cases stored locally in the browser.
 - One-click research outputs for risk memos, concall tone, valuation assumptions, peer comparison, and investment committee briefs.
@@ -63,6 +64,13 @@ The `Source Pack Studio` section lets you create real evidence records without e
 - Export the builder pack as JSON.
 
 The exported JSON can be reviewed and merged into `data/documents.json` when the source is ready to ship with the public app.
+
+v7 adds a repeatable collection workflow:
+
+- Import a previously exported source-pack JSON file back into the browser.
+- Export only builder records for review.
+- Export the full merged `documents.json` with starter, builder, and uploaded records.
+- Use each company dossier checklist to see whether annual report, concall, results, shareholding, and announcement records are still synthetic, imported, real, or missing.
 
 ## Waitlist capture
 

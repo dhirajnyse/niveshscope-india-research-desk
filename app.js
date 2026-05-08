@@ -9,7 +9,7 @@ const STORAGE_KEYS = {
 };
 
 const WAITLIST_ENDPOINT = "https://formsubmit.co/ajax/dhirajnyse@gmail.com";
-const DATA_VERSION = "20260508-3";
+const DATA_VERSION = "20260508-4";
 const DATA_FILES = {
   companies: "data/companies.json",
   documents: "data/documents.json",
@@ -338,6 +338,8 @@ function cacheElements() {
   els.sourceBuilderSections = document.querySelector("#sourceBuilderSections");
   els.sourceBuilderResult = document.querySelector("#sourceBuilderResult");
   els.exportSourcePack = document.querySelector("#exportSourcePack");
+  els.exportMergedDocuments = document.querySelector("#exportMergedDocuments");
+  els.sourcePackJsonInput = document.querySelector("#sourcePackJsonInput");
   els.clearSourcePack = document.querySelector("#clearSourcePack");
   els.sourcePackList = document.querySelector("#sourcePackList");
   els.sourcePackCount = document.querySelector("#sourcePackCount");
@@ -532,6 +534,15 @@ function bindEvents() {
   });
 
   els.exportSourcePack.addEventListener("click", exportSourcePackJson);
+  els.exportMergedDocuments.addEventListener("click", exportMergedDocumentsJson);
+
+  els.sourcePackJsonInput.addEventListener("change", async () => {
+    const file = els.sourcePackJsonInput.files && els.sourcePackJsonInput.files[0];
+    if (file) {
+      await importSourcePackJson(file);
+      els.sourcePackJsonInput.value = "";
+    }
+  });
 
   els.clearSourcePack.addEventListener("click", () => {
     state.sourcePackDocs = [];
@@ -734,6 +745,62 @@ function exportSourcePackJson() {
   flashBuilderResult(`Exported ${state.sourcePackDocs.length} source record${state.sourcePackDocs.length === 1 ? "" : "s"} as JSON.`, "success");
 }
 
+function exportMergedDocumentsJson() {
+  const mergedDocs = dedupeDocuments([...SAMPLE_DOCS, ...state.sourcePackDocs, ...state.uploadedDocs]);
+  const filename = "documents.json";
+  downloadTextFile(filename, JSON.stringify(mergedDocs, null, 2), "application/json;charset=utf-8");
+  flashBuilderResult(`Exported full documents.json with ${mergedDocs.length} records. Review it before replacing data/documents.json.`, "success");
+}
+
+async function importSourcePackJson(file) {
+  try {
+    const text = await file.text();
+    const parsed = JSON.parse(text);
+    const docs = normalizeImportedSourcePack(parsed);
+    if (!docs.length) {
+      flashBuilderResult("No valid source records found in that JSON file.", "error");
+      return;
+    }
+    const existingIds = new Set(state.sourcePackDocs.map((doc) => doc.id));
+    const freshDocs = docs.map((doc) => existingIds.has(doc.id) ? { ...doc, id: `${doc.id}-${Date.now().toString(36)}` } : doc);
+    state.sourcePackDocs = dedupeDocuments([...freshDocs, ...state.sourcePackDocs]).slice(0, 80);
+    freshDocs.forEach((doc) => state.activeTickers.add(doc.ticker));
+    saveJson(STORAGE_KEYS.sourcePack, state.sourcePackDocs);
+    rebuildDocumentCorpus();
+    renderSourcePackList();
+    state.importReport = makeImportReport(freshDocs, []);
+    renderImportSummary();
+    flashBuilderResult(`Imported ${freshDocs.length} source record${freshDocs.length === 1 ? "" : "s"} from JSON.`, "success");
+  } catch (error) {
+    flashBuilderResult(`Could not import JSON: ${error.message}`, "error");
+  }
+}
+
+function normalizeImportedSourcePack(parsed) {
+  const records = Array.isArray(parsed)
+    ? parsed
+    : Array.isArray(parsed.documents)
+      ? parsed.documents
+      : Array.isArray(parsed.sourcePackDocs)
+        ? parsed.sourcePackDocs
+        : [];
+  return records
+    .map((doc) => normalizeDocumentRecord(doc, doc.sourceStatus || "real"))
+    .filter((doc) => doc.ticker && doc.type && doc.sections.some((section) => String(section.text || "").trim().length > 30));
+}
+
+function dedupeDocuments(docs) {
+  const seen = new Set();
+  const deduped = [];
+  for (const doc of docs) {
+    const key = doc.id || `${doc.ticker}-${doc.type}-${doc.period}-${doc.date}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    deduped.push(doc);
+  }
+  return deduped;
+}
+
 function flashBuilderResult(message, tone = "neutral") {
   if (!els.sourceBuilderResult) return;
   els.sourceBuilderResult.className = `builder-result is-${tone}`;
@@ -856,6 +923,7 @@ function renderCompanyDossier() {
   const riskFactors = (RISK_FACTOR_LIBRARY[company.ticker] || makeGenericRiskBlueprint(company)).slice(0, 3);
   const sourceMix = sourceMixForDocs(enabledDocs);
   const sourceQuality = sourceStatusSummary(enabledDocs);
+  const checklist = makeRealDataChecklist(docs);
   const questions = [
     `What changed in $${company.ticker} disclosures and management tone?`,
     `What are the three most material risks for $${company.ticker}?`,
@@ -879,6 +947,15 @@ function renderCompanyDossier() {
       <strong>${enabledDocs.length}/${docs.length} docs enabled</strong>
       <p>${escapeHtml(sourceMix || "Enable or import documents to build a richer source mix.")}</p>
       <p>${escapeHtml(sourceQuality || "No source quality labels yet.")}</p>
+    </div>
+    <div class="real-data-checklist">
+      <span>Real data checklist</span>
+      ${checklist.map((item) => `
+        <div class="${escapeAttr(item.className)}">
+          <strong>${escapeHtml(item.label)}</strong>
+          <em>${escapeHtml(item.status)}</em>
+        </div>
+      `).join("")}
     </div>
     <div class="dossier-timeline">
       ${latestDocs.length ? latestDocs.map((doc) => `
@@ -1711,6 +1788,26 @@ function sourceStatusSummary(docs) {
   return Object.entries(counts)
     .map(([label, count]) => `${label} ${count}`)
     .join(" | ");
+}
+
+function makeRealDataChecklist(docs) {
+  const requirements = [
+    { label: "Annual report", pattern: /annual|ar\b/i },
+    { label: "Concall", pattern: /concall|transcript|call/i },
+    { label: "Results", pattern: /quarter|results/i },
+    { label: "Shareholding", pattern: /shareholding|pledge|promoter/i },
+    { label: "Announcement", pattern: /exchange|announcement|nse|bse/i }
+  ];
+  return requirements.map((requirement) => {
+    const matches = docs.filter((doc) => requirement.pattern.test(`${doc.type} ${doc.period}`));
+    const real = matches.find((doc) => normalizeSourceStatus(doc.sourceStatus) === "real");
+    const imported = matches.find((doc) => normalizeSourceStatus(doc.sourceStatus) === "imported");
+    const synthetic = matches.find((doc) => normalizeSourceStatus(doc.sourceStatus) === "synthetic");
+    if (real) return { ...requirement, status: "REAL ready", className: "is-real" };
+    if (imported) return { ...requirement, status: "IMP review", className: "is-imported" };
+    if (synthetic) return { ...requirement, status: "SYN starter", className: "is-synthetic" };
+    return { ...requirement, status: "Needed", className: "is-missing" };
+  });
 }
 
 function normalizeSourceStatus(value) {

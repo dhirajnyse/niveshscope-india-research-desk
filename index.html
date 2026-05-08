@@ -14,7 +14,7 @@
     <link rel="canonical" href="https://dhirajnyse.github.io/niveshscope-india-research-desk/" />
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="assets/niveshscope-logo.svg" />
-    <link rel="manifest" href="site.webmanifest?v=20260508-3" />
+    <link rel="manifest" href="site.webmanifest?v=20260508-4" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="NiveshScope" />
     <meta property="og:title" content="NiveshScope | Ask Indian disclosures. See the evidence." />
@@ -31,8 +31,8 @@
       content="Evidence-backed Indian equity research across filings, concalls, exchange announcements, shareholding, and valuation."
     />
     <meta name="twitter:image" content="https://dhirajnyse.github.io/niveshscope-india-research-desk/assets/niveshscope-social-card.svg" />
-    <link rel="stylesheet" href="styles.css?v=20260508-3" />
-    <link rel="stylesheet" href="launch.css?v=20260508-3" />
+    <link rel="stylesheet" href="styles.css?v=20260508-4" />
+    <link rel="stylesheet" href="launch.css?v=20260508-4" />
   </head>
   <body>
     <div class="app-shell">
@@ -49,7 +49,7 @@
           <span class="status-pill">NSE/BSE</span>
           <span class="status-pill">Concall tone</span>
           <span class="status-pill">INR valuation</span>
-          <span class="status-pill">Intake studio v6</span>
+          <span class="status-pill">Data workflow v7</span>
         </div>
         <div class="top-actions">
           <button class="icon-button" id="copyBrief" type="button" title="Copy current brief" aria-label="Copy current brief">
@@ -77,6 +77,7 @@
           </p>
           <div class="launch-actions">
             <a class="primary-link" href="#desk">Open the desk</a>
+            <a class="secondary-link" href="#source-builder">Source studio</a>
             <a class="secondary-link" href="#waitlist">Join pilot</a>
           </div>
           <div class="workflow-strip" aria-label="NiveshScope workflow">
@@ -336,6 +337,28 @@
             Create annual report, concall, results, shareholding, and NSE/BSE announcement records, add them to the live corpus, then export clean source-pack JSON for the repository.
           </p>
         </div>
+        <div class="real-data-workflow" aria-label="How to add real data">
+          <article>
+            <span>1</span>
+            <strong>Collect</strong>
+            <p>Open the company annual report, concall, results note, shareholding pattern, or exchange announcement.</p>
+          </article>
+          <article>
+            <span>2</span>
+            <strong>Paste</strong>
+            <p>Use the source-type template below and paste only the sections you want the desk to cite.</p>
+          </article>
+          <article>
+            <span>3</span>
+            <strong>Verify</strong>
+            <p>Mark reviewed records as REAL, add the source URL, and run a desk question against the evidence.</p>
+          </article>
+          <article>
+            <span>4</span>
+            <strong>Ship</strong>
+            <p>Export the builder pack or full documents file and upload it to the repository data folder.</p>
+          </article>
+        </div>
         <div class="source-builder-layout">
           <form class="source-builder-form" id="sourcePackForm">
             <div class="builder-grid">
@@ -385,6 +408,11 @@
             <div class="builder-actions">
               <button class="primary-button" id="addSourcePackDoc" type="submit">Add to live corpus</button>
               <button class="secondary-button" id="exportSourcePack" type="button">Export documents JSON</button>
+              <button class="secondary-button" id="exportMergedDocuments" type="button">Export full documents.json</button>
+              <label class="json-import-button">
+                <span>Import source-pack JSON</span>
+                <input id="sourcePackJsonInput" type="file" accept=".json,application/json" />
+              </label>
               <button class="text-button danger" id="clearSourcePack" type="button">Clear builder pack</button>
             </div>
             <div class="builder-result" id="sourceBuilderResult" aria-live="polite"></div>
@@ -588,6 +616,6 @@
       </footer>
     </div>
 
-    <script src="app.js?v=20260508-3"></script>
+    <script src="app.js?v=20260508-4"></script>
   </body>
 </html>

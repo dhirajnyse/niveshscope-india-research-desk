@@ -23,3 +23,5 @@ NiveshScope displays these labels in the library, dossier, and evidence cards so
 ## Builder Workflow
 
 In v6, the browser app includes `Source Pack Studio`. Use it to create source records, test them immediately in the live corpus, and export a JSON file. After review, copy those exported records into `documents.json`.
+
+In v7, the studio can also import source-pack JSON and export a full merged `documents.json`. Use the merged export when you want to replace the public starter file after reviewing real records.
