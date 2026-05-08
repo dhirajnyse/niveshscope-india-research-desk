@@ -5,11 +5,12 @@ const STORAGE_KEYS = {
   notes: "niveshscope-notes-v1",
   waitlist: "niveshscope-waitlist-v1",
   valuationCases: "niveshscope-valuation-cases-v1",
-  sourcePack: "niveshscope-source-pack-v1"
+  sourcePack: "niveshscope-source-pack-v1",
+  sourceProgress: "niveshscope-source-progress-v1"
 };
 
 const WAITLIST_ENDPOINT = "https://formsubmit.co/ajax/dhirajnyse@gmail.com";
-const DATA_VERSION = "20260508-6";
+const DATA_VERSION = "20260508-7";
 const DATA_FILES = {
   companies: "data/companies.json",
   documents: "data/documents.json",
@@ -90,6 +91,13 @@ const COMPANY_IR_LINKS = {
   BAJFINANCE: "https://www.bajajfinserv.in/corporate-bajaj-finance/investor-relations",
   ADANIENT: "https://www.adanienterprises.com/investors"
 };
+
+const SOURCE_PROGRESS_STAGES = [
+  { id: "queued", label: "Queued" },
+  { id: "collected", label: "Collected" },
+  { id: "pasted", label: "Pasted" },
+  { id: "verified", label: "Verified" }
+];
 
 let SAMPLE_COMPANIES = [];
 let PUBLIC_TICKER_ALIASES = {};
@@ -246,6 +254,7 @@ const state = {
   lastFocusKey: null,
   uploadedDocs: [],
   sourcePackDocs: [],
+  sourceProgress: {},
   notes: [],
   waitlistLeads: [],
   valuationCases: [],
@@ -271,6 +280,7 @@ async function init() {
   window.NiveshScopeScanDisclosure = scanFilingFromCurrentQuestion;
   state.uploadedDocs = loadJson(STORAGE_KEYS.uploads, []);
   state.sourcePackDocs = loadJson(STORAGE_KEYS.sourcePack, []).map((doc) => normalizeDocumentRecord(doc, "real"));
+  state.sourceProgress = normalizeSourceProgress(loadJson(STORAGE_KEYS.sourceProgress, {}));
   state.notes = loadJson(STORAGE_KEYS.notes, []);
   state.waitlistLeads = loadJson(STORAGE_KEYS.waitlist, []);
   state.valuationCases = loadJson(STORAGE_KEYS.valuationCases, []);
@@ -293,6 +303,7 @@ async function init() {
   renderSourceQueue();
   renderSourceHubOptions();
   renderSourceHub();
+  renderSourceWorkspace();
   renderTemplates();
   renderCoverage();
   renderLibrary();
@@ -437,6 +448,14 @@ function cacheElements() {
   els.copyHubTask = document.querySelector("#copyHubTask");
   els.exportAssistantTasks = document.querySelector("#exportAssistantTasks");
   els.sourceHubResult = document.querySelector("#sourceHubResult");
+  els.workspaceFilter = document.querySelector("#workspaceFilter");
+  els.workspaceBatchSize = document.querySelector("#workspaceBatchSize");
+  els.buildWorkspaceBatch = document.querySelector("#buildWorkspaceBatch");
+  els.exportWorkspaceProgress = document.querySelector("#exportWorkspaceProgress");
+  els.exportWorkspacePack = document.querySelector("#exportWorkspacePack");
+  els.sourceWorkspaceSummary = document.querySelector("#sourceWorkspaceSummary");
+  els.sourceWorkspaceList = document.querySelector("#sourceWorkspaceList");
+  els.sourceWorkspaceResult = document.querySelector("#sourceWorkspaceResult");
 }
 
 function normalizeCompanyRecord(company) {
@@ -696,6 +715,30 @@ function bindEvents() {
   if (els.exportAssistantTasks) {
     els.exportAssistantTasks.addEventListener("click", exportAssistantTaskList);
   }
+
+  if (els.workspaceFilter) {
+    els.workspaceFilter.addEventListener("change", renderSourceWorkspace);
+  }
+
+  if (els.workspaceBatchSize) {
+    els.workspaceBatchSize.addEventListener("change", renderSourceWorkspace);
+  }
+
+  if (els.buildWorkspaceBatch) {
+    els.buildWorkspaceBatch.addEventListener("click", () => {
+      renderSourceWorkspace();
+      flashSourceWorkspaceResult("Today's source-collection batch is ready.", "neutral");
+      document.querySelector("#source-workspace")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  }
+
+  if (els.exportWorkspaceProgress) {
+    els.exportWorkspaceProgress.addEventListener("click", exportWorkspaceProgressReport);
+  }
+
+  if (els.exportWorkspacePack) {
+    els.exportWorkspacePack.addEventListener("click", exportWorkspaceJsonPack);
+  }
 }
 
 function submitCurrentQuestion() {
@@ -782,6 +825,7 @@ function addSourcePackDocFromBuilder() {
   state.activeTickers.add(doc.ticker);
   saveJson(STORAGE_KEYS.sourcePack, state.sourcePackDocs);
   rebuildDocumentCorpus();
+  updateProgressFromSourceDoc(doc);
   renderSourcePackList();
   state.importReport = makeImportReport([doc], []);
   renderImportSummary();
@@ -910,6 +954,7 @@ async function importSourcePackJson(file) {
     freshDocs.forEach((doc) => state.activeTickers.add(doc.ticker));
     saveJson(STORAGE_KEYS.sourcePack, state.sourcePackDocs);
     rebuildDocumentCorpus();
+    freshDocs.forEach(updateProgressFromSourceDoc);
     renderSourcePackList();
     state.importReport = makeImportReport(freshDocs, []);
     renderImportSummary();
@@ -1138,6 +1183,211 @@ function renderSourceHubOptions() {
   }).join("");
   els.hubTickerSelect.value = getCompany(currentTicker) ? currentTicker : getCompanies()[0]?.ticker || "";
   els.hubRequirementSelect.value = REAL_SOURCE_REQUIREMENTS.some((item) => item.key === currentRequirement) ? currentRequirement : "annual-report";
+}
+
+function renderSourceWorkspace() {
+  if (!els.sourceWorkspaceList || !els.sourceWorkspaceSummary) return;
+  const items = buildSourceQueueItems().map((item) => ({ ...item, progress: getSourceTaskProgress(item) }));
+  const counts = countWorkspaceStages(items);
+  const filtered = filterWorkspaceItems(items);
+  const limit = Number(els.workspaceBatchSize ? els.workspaceBatchSize.value : 6) || 6;
+  const batch = filtered.slice(0, limit);
+
+  els.sourceWorkspaceSummary.innerHTML = [
+    makeWorkspaceStat("Queued", counts.queued),
+    makeWorkspaceStat("Collected", counts.collected),
+    makeWorkspaceStat("Pasted", counts.pasted),
+    makeWorkspaceStat("Verified", counts.verified)
+  ].join("");
+
+  if (!batch.length) {
+    els.sourceWorkspaceList.innerHTML = `<div class="empty-list">No workspace tasks match this view.</div>`;
+    return;
+  }
+
+  els.sourceWorkspaceList.innerHTML = batch.map((item) => `
+    <article class="workspace-task-card stage-${escapeAttr(item.progress.stage)} ${escapeAttr(item.className)}">
+      <div class="workspace-task-top">
+        <div>
+          <span>${escapeHtml(item.company.ticker)} - ${escapeHtml(item.company.name)}</span>
+          <strong>${escapeHtml(item.requirement.label)}</strong>
+        </div>
+        <em>${escapeHtml(progressStageLabel(item.progress.stage))}</em>
+      </div>
+      <p>${escapeHtml(item.requirement.instruction)}</p>
+      <div class="source-task-meta">
+        <span>Evidence status</span>
+        <strong>${escapeHtml(item.statusLabel)} - ${escapeHtml(item.currentEvidence)}</strong>
+      </div>
+      <div class="workspace-stage-grid">
+        ${SOURCE_PROGRESS_STAGES.map((stage) => `
+          <button type="button" class="${item.progress.stage === stage.id ? "is-active" : ""}" data-progress-task="${escapeAttr(sourceTaskId(item.company.ticker, item.requirement.key))}" data-progress-stage="${escapeAttr(stage.id)}">${escapeHtml(stage.label)}</button>
+        `).join("")}
+      </div>
+      <div class="source-task-actions">
+        <button class="secondary-button" type="button" data-workspace-hub-ticker="${escapeAttr(item.company.ticker)}" data-workspace-hub-key="${escapeAttr(item.requirement.key)}">Collect links</button>
+        <button class="secondary-button" type="button" data-workspace-studio-ticker="${escapeAttr(item.company.ticker)}" data-workspace-studio-key="${escapeAttr(item.requirement.key)}">Open in studio</button>
+      </div>
+    </article>
+  `).join("");
+
+  els.sourceWorkspaceList.querySelectorAll("button[data-progress-task]").forEach((button) => {
+    button.addEventListener("click", () => {
+      setSourceTaskProgress(button.dataset.progressTask, button.dataset.progressStage);
+    });
+  });
+  els.sourceWorkspaceList.querySelectorAll("button[data-workspace-hub-ticker]").forEach((button) => {
+    button.addEventListener("click", () => openSourceTaskInHub(button.dataset.workspaceHubTicker, button.dataset.workspaceHubKey));
+  });
+  els.sourceWorkspaceList.querySelectorAll("button[data-workspace-studio-ticker]").forEach((button) => {
+    button.addEventListener("click", () => loadSourceTaskIntoBuilder(button.dataset.workspaceStudioTicker, button.dataset.workspaceStudioKey));
+  });
+}
+
+function filterWorkspaceItems(items) {
+  const view = els.workspaceFilter ? els.workspaceFilter.value : "pending";
+  const priority = items
+    .filter((item) => view === "all"
+      || view === "verified" && item.progress.stage === "verified"
+      || view === "active" && ["queued", "collected", "pasted"].includes(item.progress.stage)
+      || view === "pending" && item.progress.stage !== "verified")
+    .sort((a, b) => workspacePriority(a) - workspacePriority(b));
+  return priority;
+}
+
+function workspacePriority(item) {
+  const statusRank = { missing: 0, synthetic: 1, imported: 2, real: 3 };
+  const stageRank = { queued: 0, collected: 1, pasted: 2, verified: 3 };
+  return (stageRank[item.progress.stage] || 0) * 10 + (statusRank[item.statusKey] ?? 4);
+}
+
+function makeWorkspaceStat(label, value) {
+  return `
+    <div>
+      <span>${escapeHtml(label)}</span>
+      <strong>${escapeHtml(value)}</strong>
+    </div>
+  `;
+}
+
+function countWorkspaceStages(items) {
+  return items.reduce((counts, item) => {
+    counts[item.progress.stage] = (counts[item.progress.stage] || 0) + 1;
+    return counts;
+  }, { queued: 0, collected: 0, pasted: 0, verified: 0 });
+}
+
+function getSourceTaskProgress(item) {
+  const id = sourceTaskId(item.company.ticker, item.requirement.key);
+  const saved = state.sourceProgress[id];
+  if (saved) return saved;
+  return {
+    stage: item.statusKey === "real" ? "verified" : "queued",
+    updatedAt: "",
+    taskId: id
+  };
+}
+
+function setSourceTaskProgress(taskId, stage) {
+  const normalizedStage = SOURCE_PROGRESS_STAGES.some((item) => item.id === stage) ? stage : "queued";
+  state.sourceProgress[taskId] = {
+    ...(state.sourceProgress[taskId] || {}),
+    taskId,
+    stage: normalizedStage,
+    updatedAt: new Date().toISOString()
+  };
+  saveJson(STORAGE_KEYS.sourceProgress, state.sourceProgress);
+  renderSourceWorkspace();
+  flashSourceWorkspaceResult(`Task marked ${progressStageLabel(normalizedStage)}.`, "success");
+}
+
+function updateProgressFromSourceDoc(doc) {
+  const requirement = REAL_SOURCE_REQUIREMENTS.find((item) => item.pattern.test(`${doc.type || ""} ${doc.period || ""} ${doc.title || ""}`));
+  if (!requirement) return;
+  const stage = normalizeSourceStatus(doc.sourceStatus) === "real" ? "verified" : "pasted";
+  const taskId = sourceTaskId(doc.ticker, requirement.key);
+  state.sourceProgress[taskId] = {
+    ...(state.sourceProgress[taskId] || {}),
+    taskId,
+    stage,
+    updatedAt: new Date().toISOString()
+  };
+  saveJson(STORAGE_KEYS.sourceProgress, state.sourceProgress);
+  renderSourceWorkspace();
+}
+
+function sourceTaskId(ticker, requirementKey) {
+  return `${normalizeTicker(ticker)}:${requirementKey}`;
+}
+
+function progressStageLabel(stage) {
+  return SOURCE_PROGRESS_STAGES.find((item) => item.id === stage)?.label || "Queued";
+}
+
+function normalizeSourceProgress(raw) {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return {};
+  return Object.fromEntries(Object.entries(raw).map(([taskId, value]) => {
+    const stage = SOURCE_PROGRESS_STAGES.some((item) => item.id === value?.stage) ? value.stage : "queued";
+    return [taskId, {
+      taskId,
+      stage,
+      updatedAt: value?.updatedAt || ""
+    }];
+  }));
+}
+
+function makeWorkspaceProgressRows() {
+  return buildSourceQueueItems().map((item) => {
+    const progress = getSourceTaskProgress(item);
+    return {
+      ticker: item.company.ticker,
+      company: item.company.name,
+      sourceType: item.requirement.label,
+      sourceStatus: item.statusLabel,
+      progress: progressStageLabel(progress.stage),
+      updatedAt: progress.updatedAt || "",
+      currentEvidence: item.currentEvidence,
+      collectionNote: item.requirement.instruction
+    };
+  });
+}
+
+function exportWorkspaceProgressReport() {
+  const rows = makeWorkspaceProgressRows();
+  const headers = ["Ticker", "Company", "Source type", "Evidence status", "Workspace progress", "Updated at", "Current evidence", "Collection note"];
+  const csvRows = rows.map((row) => [
+    row.ticker,
+    row.company,
+    row.sourceType,
+    row.sourceStatus,
+    row.progress,
+    row.updatedAt,
+    row.currentEvidence,
+    row.collectionNote
+  ]);
+  const filename = `niveshscope-source-workspace-progress-${new Date().toISOString().slice(0, 10)}.csv`;
+  downloadTextFile(filename, [headers, ...csvRows].map((row) => row.map(csvCell).join(",")).join("\n"), "text/csv;charset=utf-8");
+  flashSourceWorkspaceResult("Exported workspace progress CSV.", "success");
+}
+
+function exportWorkspaceJsonPack() {
+  const mergedDocs = dedupeDocuments([...SAMPLE_DOCS, ...state.sourcePackDocs, ...state.uploadedDocs]);
+  const payload = {
+    exportedAt: new Date().toISOString(),
+    dataVersion: DATA_VERSION,
+    documents: mergedDocs,
+    sourceProgress: state.sourceProgress,
+    progressReport: makeWorkspaceProgressRows()
+  };
+  const filename = `niveshscope-workspace-pack-${new Date().toISOString().slice(0, 10)}.json`;
+  downloadTextFile(filename, JSON.stringify(payload, null, 2), "application/json;charset=utf-8");
+  flashSourceWorkspaceResult("Exported workspace JSON with documents and progress.", "success");
+}
+
+function flashSourceWorkspaceResult(message, tone = "neutral") {
+  if (!els.sourceWorkspaceResult) return;
+  els.sourceWorkspaceResult.className = `builder-result is-${tone}`;
+  els.sourceWorkspaceResult.textContent = message;
 }
 
 function renderSourceHub() {
@@ -2234,6 +2484,7 @@ function rebuildDocumentCorpus() {
   renderSourceQueue();
   renderSourceHubOptions();
   renderSourceHub();
+  renderSourceWorkspace();
   renderContextBand();
   renderValuationOptions();
   renderCompanyDossier();
@@ -2781,6 +3032,7 @@ function addUploadedDocs(docs) {
   filtered.forEach((doc) => {
     state.enabledDocIds.add(doc.id);
     state.activeTickers.add(doc.ticker);
+    updateProgressFromSourceDoc(doc);
   });
   if (!state.selectedTicker || state.selectedTicker === "RELIANCE" && filtered[0].ticker !== "RELIANCE") {
     state.selectedTicker = filtered[0].ticker;
