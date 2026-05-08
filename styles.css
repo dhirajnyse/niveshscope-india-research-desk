@@ -996,6 +996,7 @@ textarea:focus {
 }
 
 .evidence-guard-card,
+.investment-readiness-card,
 .ticker-focus-card,
 .tone-meter-card {
   padding: 13px;
@@ -1007,6 +1008,23 @@ textarea:focus {
 .evidence-guard-card {
   display: grid;
   gap: 8px;
+}
+
+.investment-readiness-card {
+  display: grid;
+  gap: 8px;
+  border-color: rgba(179, 38, 30, 0.24);
+  background: var(--red-soft);
+}
+
+.investment-readiness-card.is-review {
+  border-color: rgba(164, 92, 24, 0.24);
+  background: var(--amber-soft);
+}
+
+.investment-readiness-card.is-ready {
+  border-color: rgba(47, 133, 77, 0.24);
+  background: var(--green-soft);
 }
 
 .evidence-guard-card.is-strong {
@@ -1025,6 +1043,7 @@ textarea:focus {
 }
 
 .evidence-guard-card span,
+.investment-readiness-card span,
 .ticker-focus-card span,
 .tone-meter-top span {
   color: var(--teal);
@@ -1034,6 +1053,7 @@ textarea:focus {
 }
 
 .evidence-guard-card strong,
+.investment-readiness-card strong,
 .ticker-focus-card strong {
   display: block;
   margin-top: 6px;
@@ -1042,6 +1062,7 @@ textarea:focus {
 }
 
 .evidence-guard-card p,
+.investment-readiness-card p,
 .ticker-focus-card p,
 .tone-meter-card p {
   margin: 7px 0 0;

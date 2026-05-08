@@ -33,6 +33,7 @@ Evidence-backed Indian equity research for investors who want cited answers inst
 - Phase 20 Official Source URL Helper with company IR, NSE, BSE, Screener, and scoped search links beside the paste assistant, plus one-click Source URL fill.
 - Phase 21 Security Hardening Baseline with a browser content security policy, validated external source URLs, HTTPS-only REAL source records, upload size limits, and launch security documentation.
 - Phase 22 Production Foundation with a visible launch-plan section, architecture docs, data provenance rules, repository operations guidance, and automated static checks.
+- Phase 23 Real Source Starter Pack with priority readiness cards for RELIANCE, TCS, and HDFCBANK, source-type replacement actions, and investment-use readiness warnings inside reports.
 - INR crore valuation lens with revenue CAGR, FCF margin, terminal multiple, and discount-rate sensitivities.
 - Saved valuation cases stored locally in the browser.
 - One-click research outputs for risk memos, concall tone, valuation assumptions, peer comparison, and investment committee briefs.
@@ -120,6 +121,7 @@ v22 adds the first durable project foundation around the working desk:
 
 - `docs/ARCHITECTURE.md`: current static architecture and the production service-layer direction.
 - `docs/DATA_PROVENANCE.md`: source status rules, required source fields, and review checklist.
+- `docs/REAL_SOURCE_STARTER_PACK.md`: priority-company source workflow and readiness levels.
 - `docs/LAUNCH_ROADMAP.md`: phased path from static proof to source library, accounts, automation, and launch hardening.
 - `docs/REPO_OPERATIONS.md`: upload workflow, versioning rules, quality checks, and future branch strategy.
 - `scripts/static-check.mjs`: local repository checks for CSP presence, version marker, data JSON validity, and accidental inline handlers.
@@ -131,6 +133,16 @@ Before uploading a release ZIP, run:
 node --check app.js
 node scripts/static-check.mjs
 ```
+
+## Real Source Starter Pack
+
+v23 adds a focused MVP trust layer:
+
+- The new `Starter pack` section tracks RELIANCE, TCS, and HDFCBANK first.
+- Each company is scored across five required source types: annual report, concall, results, shareholding, and announcement.
+- Clicking any source slot opens Source Studio for that exact replacement task.
+- Reports now show an `Investment-use readiness` card. Until all required source types are REAL, the answer remains labelled prototype evidence only.
+- The readiness path is documented in `docs/REAL_SOURCE_STARTER_PACK.md`.
 
 ## Waitlist capture
 

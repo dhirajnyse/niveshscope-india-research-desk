@@ -25,11 +25,13 @@ const index = read("index.html");
 const app = read("app.js");
 
 assert(index.includes("Content-Security-Policy"), "index.html is missing the CSP meta tag.");
-assert(index.includes("Foundation v22"), "index.html does not show the v22 status marker.");
+assert(index.includes("Starter pack v23"), "index.html does not show the v23 status marker.");
 assert(!/\son[a-z]+\s*=/i.test(index), "index.html contains an inline event handler.");
-assert(app.includes('const DATA_VERSION = "20260508-19";'), "app.js DATA_VERSION is not aligned with v22.");
+assert(app.includes('const DATA_VERSION = "20260508-20";'), "app.js DATA_VERSION is not aligned with v23.");
 assert(app.includes("normalizeExternalUrl"), "app.js is missing source URL normalization.");
 assert(app.includes("MAX_IMPORT_FILE_BYTES"), "app.js is missing import size limits.");
+assert(app.includes("STARTER_PACK_TICKERS"), "app.js is missing the real-source starter pack list.");
+assert(app.includes("makeInvestmentReadinessNotice"), "app.js is missing investment-use readiness warnings.");
 
 for (const file of listFiles("data").filter((name) => name.endsWith(".json"))) {
   try {
@@ -44,6 +46,7 @@ for (const required of [
   "SECURITY.md",
   "docs/ARCHITECTURE.md",
   "docs/DATA_PROVENANCE.md",
+  "docs/REAL_SOURCE_STARTER_PACK.md",
   "docs/LAUNCH_ROADMAP.md",
   "docs/REPO_OPERATIONS.md"
 ]) {

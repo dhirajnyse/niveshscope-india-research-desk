@@ -10,11 +10,12 @@ const STORAGE_KEYS = {
 };
 
 const WAITLIST_ENDPOINT = "https://formsubmit.co/ajax/dhirajnyse@gmail.com";
-const DATA_VERSION = "20260508-19";
+const DATA_VERSION = "20260508-20";
 const MAX_IMPORT_FILE_BYTES = 2 * 1024 * 1024;
 const MAX_IMPORT_TOTAL_BYTES = 8 * 1024 * 1024;
 const MAX_SOURCE_TEXT_CHARS = 120000;
 const MAX_SOURCE_URL_LENGTH = 2048;
+const STARTER_PACK_TICKERS = ["RELIANCE", "TCS", "HDFCBANK"];
 const TRUSTED_SOURCE_DOMAINS = [
   "rilofficial.com",
   "tcs.com",
@@ -326,6 +327,7 @@ async function init() {
   renderSourcePackList();
   renderSourceMatrixOptions();
   renderSourceMatrix();
+  renderRealSourceStarterPack();
   renderSourceQueueOptions();
   renderSourceQueue();
   renderSourceHubOptions();
@@ -478,6 +480,9 @@ function cacheElements() {
   els.sourceMatrix = document.querySelector("#sourceMatrix");
   els.sourceMatrixResult = document.querySelector("#sourceMatrixResult");
   els.sourceMatrixExport = document.querySelector("#sourceMatrixExport");
+  els.realStarterSummary = document.querySelector("#realStarterSummary");
+  els.realStarterGrid = document.querySelector("#realStarterGrid");
+  els.realStarterResult = document.querySelector("#realStarterResult");
   els.queueTickerFilter = document.querySelector("#queueTickerFilter");
   els.queueStatusFilter = document.querySelector("#queueStatusFilter");
   els.generateSourceTasks = document.querySelector("#generateSourceTasks");
@@ -741,6 +746,7 @@ function bindEvents() {
     renderSourcePackList();
     renderSourceMatrixOptions();
     renderSourceMatrix();
+    renderRealSourceStarterPack();
     renderSourceQueueOptions();
     renderSourceQueue();
     state.importReport = null;
@@ -1204,6 +1210,7 @@ function addSourcePackDocFromBuilder() {
   renderSourcePackList();
   renderSourceMatrixOptions();
   renderSourceMatrix();
+  renderRealSourceStarterPack();
   state.importReport = makeImportReport([doc], []);
   renderImportSummary();
   flashBuilderResult(`${doc.ticker} ${doc.type} added as ${shortSourceStatus(doc)} evidence and enabled in the live corpus. Use Return to dossier to confirm completeness.`, "success");
@@ -1447,6 +1454,7 @@ async function importSourcePackJson(file) {
     renderSourcePackList();
     renderSourceMatrixOptions();
     renderSourceMatrix();
+    renderRealSourceStarterPack();
     state.importReport = makeImportReport(freshDocs, []);
     renderImportSummary();
     flashBuilderResult(`Imported ${freshDocs.length} source record${freshDocs.length === 1 ? "" : "s"} from JSON.`, "success");
@@ -1702,6 +1710,125 @@ function flashSourceMatrixResult(message, tone = "neutral") {
   if (!els.sourceMatrixResult) return;
   els.sourceMatrixResult.className = `builder-result is-${tone}`;
   els.sourceMatrixResult.textContent = message;
+}
+
+function renderRealSourceStarterPack() {
+  if (!els.realStarterGrid || !els.realStarterSummary) return;
+  const starterRows = STARTER_PACK_TICKERS
+    .map(makeStarterPackCompany)
+    .filter(Boolean);
+  const totalSlots = starterRows.length * REAL_SOURCE_REQUIREMENTS.length || 1;
+  const realSlots = starterRows.reduce((sum, row) => sum + row.realCount, 0);
+  const importedSlots = starterRows.reduce((sum, row) => sum + row.importedCount, 0);
+  const readyCount = starterRows.filter((row) => row.investmentReady).length;
+
+  els.realStarterSummary.innerHTML = [
+    makeSourceQueueStat("Priority companies", starterRows.length),
+    makeSourceQueueStat("REAL sources", `${realSlots}/${totalSlots}`),
+    makeSourceQueueStat("Imported review", importedSlots),
+    makeSourceQueueStat("Investment-ready", readyCount)
+  ].join("");
+
+  els.realStarterGrid.innerHTML = starterRows.map(renderStarterPackCard).join("");
+
+  els.realStarterGrid.querySelectorAll("button[data-starter-ticker]").forEach((button) => {
+    button.addEventListener("click", () => {
+      loadSourceTaskIntoBuilder(button.dataset.starterTicker, button.dataset.starterKey);
+      flashRealStarterResult(`${button.dataset.starterTicker} ${button.dataset.starterLabel} opened in Source Studio.`, "success");
+    });
+  });
+
+  els.realStarterGrid.querySelectorAll("button[data-starter-question]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const question = button.dataset.starterQuestion || "";
+      els.queryInput.value = question;
+      runAnalysis(question);
+      document.querySelector("#desk")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  });
+}
+
+function makeStarterPackCompany(ticker) {
+  const company = getCompany(ticker);
+  if (!company) return null;
+  const docs = getCompanyDocs(company.ticker);
+  const checklist = makeRealDataChecklist(docs);
+  const realCount = checklist.filter((item) => item.statusKey === "real").length;
+  const importedCount = checklist.filter((item) => item.statusKey === "imported").length;
+  const syntheticCount = checklist.filter((item) => item.statusKey === "synthetic").length;
+  const missingCount = checklist.filter((item) => item.statusKey === "missing").length;
+  const completeness = makeRealSourceCompleteness(checklist);
+  const hasAnnual = checklist.some((item) => item.key === "annual-report" && item.statusKey === "real");
+  const hasManagement = checklist.some((item) => ["concall", "results"].includes(item.key) && item.statusKey === "real");
+  const next = checklist.find((item) => item.statusKey === "missing")
+    || checklist.find((item) => item.statusKey === "synthetic")
+    || checklist.find((item) => item.statusKey === "imported")
+    || checklist[0];
+  const investmentReady = realCount === checklist.length;
+  const pilotReady = !investmentReady && realCount >= 3 && hasAnnual && hasManagement;
+  const label = investmentReady
+    ? "Investment-use ready"
+    : pilotReady
+      ? "Pilot review ready"
+      : "Prototype evidence only";
+  const className = investmentReady ? "is-ready" : pilotReady ? "is-review" : "is-blocked";
+  return {
+    company,
+    checklist,
+    completeness,
+    realCount,
+    importedCount,
+    syntheticCount,
+    missingCount,
+    next,
+    investmentReady,
+    pilotReady,
+    label,
+    className
+  };
+}
+
+function renderStarterPackCard(row) {
+  const nextLabel = row.next ? row.next.label : "Annual report";
+  const question = `What are the most important source-backed risks for $${row.company.ticker}?`;
+  return `
+    <article class="starter-pack-card ${escapeAttr(row.className)}">
+      <div class="starter-pack-head">
+        <div>
+          <span>${escapeHtml(row.label)}</span>
+          <strong>${escapeHtml(row.company.ticker)} - ${escapeHtml(row.company.name)}</strong>
+        </div>
+        <em>${escapeHtml(row.completeness.percent)}%</em>
+      </div>
+      <p>${escapeHtml(row.realCount)}/${escapeHtml(row.checklist.length)} REAL source types. ${escapeHtml(row.syntheticCount)} SYN starter, ${escapeHtml(row.missingCount)} missing, ${escapeHtml(row.importedCount)} imported review.</p>
+      <div class="starter-pack-slots">
+        ${row.checklist.map((item) => `
+          <button
+            type="button"
+            class="${escapeAttr(item.className)}"
+            data-starter-ticker="${escapeAttr(row.company.ticker)}"
+            data-starter-key="${escapeAttr(item.key)}"
+            data-starter-label="${escapeAttr(item.label)}"
+          >
+            <strong>${escapeHtml(item.label)}</strong>
+            <span>${escapeHtml(item.status)}</span>
+          </button>
+        `).join("")}
+      </div>
+      <div class="starter-pack-actions">
+        <button class="secondary-button" type="button" data-starter-ticker="${escapeAttr(row.company.ticker)}" data-starter-key="${escapeAttr(row.next ? row.next.key : "annual-report")}" data-starter-label="${escapeAttr(nextLabel)}">
+          Replace ${escapeHtml(nextLabel)}
+        </button>
+        <button class="secondary-button" type="button" data-starter-question="${escapeAttr(question)}">Test answer</button>
+      </div>
+    </article>
+  `;
+}
+
+function flashRealStarterResult(message, tone = "neutral") {
+  if (!els.realStarterResult) return;
+  els.realStarterResult.className = `builder-result is-${tone}`;
+  els.realStarterResult.textContent = message;
 }
 
 function renderSourceQueueOptions() {
@@ -2685,6 +2812,10 @@ function buildAnswerModel(question, citations, intent, tickerFocus = null, guard
   const compareMode = guardMeta ? guardMeta.compareMode : isExplicitCompareQuestion(question);
   const grouped = groupCitationsByTicker(citations);
   const rankedCompanies = rankCompaniesForQuestion(question, grouped, intent);
+  const primaryCompany = tickerFocus && tickerFocus.company
+    ? tickerFocus.company
+    : rankedCompanies[0] || getCompany(state.selectedTicker);
+  const readiness = makeStarterPackCompany(primaryCompany ? primaryCompany.ticker : state.selectedTicker);
   const confidence = computeConfidence(citations, rankedCompanies);
   const quality = guardMeta || makeEvidenceGuardMeta(question, citations, tickerFocus, compareMode);
   const headline = makeHeadline(question, compareMode, rankedCompanies, intent);
@@ -2692,6 +2823,7 @@ function buildAnswerModel(question, citations, intent, tickerFocus = null, guard
   const toneMeter = makeToneMeter(rankedCompanies, citations);
   const focusNotice = makeTickerFocusNotice(tickerFocus);
   const guardNotice = makeEvidenceGuardNotice(quality);
+  const readinessNotice = makeInvestmentReadinessNotice(readiness);
   const evidenceBullets = citations.slice(0, state.answerDepth === "brief" ? 3 : 5).map((citation, index) => {
     return `<li>${makeEvidenceSentence(citation, intent)} ${citationLink(index)}</li>`;
   }).join("");
@@ -2768,6 +2900,7 @@ function buildAnswerModel(question, citations, intent, tickerFocus = null, guard
       </div>
     </div>
     <div class="answer-body">
+      ${readinessNotice}
       ${guardNotice}
       ${focusNotice}
       ${toneMeter.html}
@@ -2777,6 +2910,7 @@ function buildAnswerModel(question, citations, intent, tickerFocus = null, guard
 
   const plainParts = [
     `${intent.label} | ${confidence}% confidence`,
+    readiness ? `Investment readiness: ${readiness.label} (${readiness.realCount}/${readiness.checklist.length} REAL source types)` : "",
     `Evidence quality: ${quality.score}% (${quality.label})`,
     `Management tone: ${toneMeter.label} (${toneMeter.percent}/100)`,
     tickerFocus ? `Ticker focus: ${tickerFocus.rawTicker}${tickerFocus.isAlias ? ` maps to ${tickerFocus.ticker} (${tickerFocus.note})` : ""}` : "",
@@ -2796,9 +2930,6 @@ function buildAnswerModel(question, citations, intent, tickerFocus = null, guard
   );
 
   const plainText = plainParts.join("\n\n");
-  const primaryCompany = tickerFocus && tickerFocus.company
-    ? tickerFocus.company
-    : rankedCompanies[0] || getCompany(state.selectedTicker);
   const meta = {
     question,
     ticker: primaryCompany ? primaryCompany.ticker : "Desk",
@@ -2812,6 +2943,11 @@ function buildAnswerModel(question, citations, intent, tickerFocus = null, guard
     compareMode: quality.compareMode,
     mismatchCount: quality.mismatches.length,
     syntheticCount: quality.syntheticCount,
+    investmentReady: readiness ? readiness.investmentReady : false,
+    investmentReadinessLabel: readiness ? readiness.label : "Unknown readiness",
+    realSourceCount: readiness ? readiness.realCount : 0,
+    requiredSourceCount: readiness ? readiness.checklist.length : REAL_SOURCE_REQUIREMENTS.length,
+    nextRealSource: readiness && readiness.next ? readiness.next.label : "Annual report",
     citationCount: citations.length,
     citations: citations.map((citation) => ({
       citationId: citation.citationId,
@@ -2871,6 +3007,26 @@ function makeTickerFocusNotice(focus) {
       <span>Ticker focus</span>
       <strong>${escapeHtml(focus.company.ticker)} - ${escapeHtml(focus.company.name)}</strong>
       <p>${escapeHtml(focus.company.thesis || "Research context updated from the question input.")}${escapeHtml(aliasText)}</p>
+    </section>
+  `;
+}
+
+function makeInvestmentReadinessNotice(readiness) {
+  if (!readiness) return "";
+  const isReady = readiness.investmentReady;
+  const nextText = readiness.next && !isReady
+    ? ` Next replacement: ${readiness.next.label}.`
+    : "";
+  const message = isReady
+    ? "All required source types are REAL. The report can be reviewed as investment-use ready, subject to human judgement."
+    : `Prototype evidence only. ${readiness.realCount}/${readiness.checklist.length} required source types are REAL, so this report should not be used as investment-grade research yet.${nextText}`;
+  return `
+    <section class="investment-readiness-card ${escapeAttr(readiness.className)}">
+      <div>
+        <span>Investment-use readiness</span>
+        <strong>${escapeHtml(readiness.label)} - ${escapeHtml(readiness.completeness.percent)}% real-source coverage</strong>
+      </div>
+      <p>${escapeHtml(message)}</p>
     </section>
   `;
 }
@@ -3379,6 +3535,7 @@ function rebuildDocumentCorpus() {
   renderSourceBuilderTickerOptions();
   renderSourceMatrixOptions();
   renderSourceMatrix();
+  renderRealSourceStarterPack();
   renderSourceQueueOptions();
   renderSourceQueue();
   renderSourceHubOptions();
@@ -3771,6 +3928,11 @@ function saveCurrentBrief() {
     guarded: Boolean(meta.guarded),
     compareMode: Boolean(meta.compareMode),
     mismatchCount: meta.mismatchCount || 0,
+    investmentReady: Boolean(meta.investmentReady),
+    investmentReadinessLabel: meta.investmentReadinessLabel || "Unknown readiness",
+    realSourceCount: meta.realSourceCount || 0,
+    requiredSourceCount: meta.requiredSourceCount || REAL_SOURCE_REQUIREMENTS.length,
+    nextRealSource: meta.nextRealSource || "Annual report",
     intentLabel: meta.intentLabel || "Research",
     citationCount: meta.citationCount || state.currentCitations.length,
     citations: meta.citations || [],
@@ -3798,7 +3960,12 @@ function noteMeta(note) {
     confidenceText: confidence ? `${confidence}% conf` : "No conf",
     qualityText: evidenceQuality ? `${evidenceQuality}% evidence` : "No quality",
     guarded: Boolean(note.guarded || inferred.guarded),
-    mismatchCount: Number(note.mismatchCount || inferred.mismatchCount || 0)
+    mismatchCount: Number(note.mismatchCount || inferred.mismatchCount || 0),
+    investmentReady: Boolean(note.investmentReady),
+    investmentReadinessLabel: note.investmentReadinessLabel || "Unknown readiness",
+    realSourceCount: Number(note.realSourceCount || 0),
+    requiredSourceCount: Number(note.requiredSourceCount || REAL_SOURCE_REQUIREMENTS.length),
+    nextRealSource: note.nextRealSource || "Annual report"
   };
 }
 
@@ -4013,7 +4180,7 @@ function buildNiveshPdfBlocks({ body, meta, citations, title, saved }) {
         { label: "Focus", value: `${safeMeta.ticker || "Desk"} - ${safeMeta.company || "Research desk"}` },
         { label: "Confidence", value: `${safeMeta.confidence || 0}%` },
         { label: "Evidence", value: `${safeMeta.evidenceQuality || 0}% ${safeMeta.qualityLabel || "quality"}` },
-        { label: "Sources", value: `${safeMeta.citationCount || sourceRows.length || 0} citations` }
+        { label: "Sources", value: `${safeMeta.citationCount || sourceRows.length || 0} citations | ${safeMeta.investmentReadinessLabel || "Prototype evidence only"}` }
       ]
     },
     { type: "audit", text: makeNiveshPdfAuditLine(safeMeta) },
@@ -4054,6 +4221,7 @@ function makeNiveshPdfAuditLine(meta) {
     `${meta.evidenceQuality || 0}/100 evidence quality`,
     `${meta.confidence || 0}% confidence`,
     meta.guarded ? "single-company guard active" : "multi-company or saved mode",
+    meta.investmentReady ? "investment-use ready" : `${meta.realSourceCount || 0}/${meta.requiredSourceCount || REAL_SOURCE_REQUIREMENTS.length} REAL source types`,
     meta.syntheticCount ? `${meta.syntheticCount} SYN citations` : "",
     meta.mismatchCount ? `${meta.mismatchCount} off-ticker citation warning` : ""
   ].filter(Boolean);
@@ -4579,6 +4747,7 @@ function addUploadedDocs(docs) {
   renderCoverage();
   renderLibrary();
   renderImportTickerOptions();
+  renderRealSourceStarterPack();
   renderContextBand();
   renderValuationOptions();
   renderCompanyDossier();
