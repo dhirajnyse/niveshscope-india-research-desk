@@ -9,13 +9,51 @@ const STORAGE_KEYS = {
 };
 
 const WAITLIST_ENDPOINT = "https://formsubmit.co/ajax/dhirajnyse@gmail.com";
-const DATA_VERSION = "20260508-4";
+const DATA_VERSION = "20260508-5";
 const DATA_FILES = {
   companies: "data/companies.json",
   documents: "data/documents.json",
   questions: "data/questions.json",
   watchlists: "data/watchlists.json"
 };
+
+const REAL_SOURCE_REQUIREMENTS = [
+  {
+    key: "annual-report",
+    label: "Annual report",
+    type: "Annual report",
+    pattern: /annual|ar\b/i,
+    instruction: "Collect business overview, MD&A, risk factors, liquidity, capex, debt, and management outlook from the latest annual report."
+  },
+  {
+    key: "concall",
+    label: "Concall",
+    type: "Concall transcript",
+    pattern: /concall|transcript|call/i,
+    instruction: "Collect prepared remarks plus analyst Q&A where management discusses demand, margins, capital allocation, and near-term risks."
+  },
+  {
+    key: "results",
+    label: "Results",
+    type: "Quarterly results",
+    pattern: /quarter|results/i,
+    instruction: "Collect revenue, margin, segment performance, balance-sheet movement, and management commentary from the latest results pack."
+  },
+  {
+    key: "shareholding",
+    label: "Shareholding",
+    type: "Shareholding pattern",
+    pattern: /shareholding|pledge|promoter/i,
+    instruction: "Collect promoter holding, pledge movement, institutional ownership, and material shareholding changes."
+  },
+  {
+    key: "announcement",
+    label: "Announcement",
+    type: "Exchange announcement",
+    pattern: /exchange|announcement|nse|bse/i,
+    instruction: "Collect the exact exchange announcement text for material orders, capex, transactions, ratings, regulatory actions, or governance events."
+  }
+];
 
 let SAMPLE_COMPANIES = [];
 let PUBLIC_TICKER_ALIASES = {};
@@ -215,6 +253,8 @@ async function init() {
   renderSourceBuilderTickerOptions();
   renderSourceBuilderSections();
   renderSourcePackList();
+  renderSourceQueueOptions();
+  renderSourceQueue();
   renderTemplates();
   renderCoverage();
   renderLibrary();
@@ -343,6 +383,14 @@ function cacheElements() {
   els.clearSourcePack = document.querySelector("#clearSourcePack");
   els.sourcePackList = document.querySelector("#sourcePackList");
   els.sourcePackCount = document.querySelector("#sourcePackCount");
+  els.queueTickerFilter = document.querySelector("#queueTickerFilter");
+  els.queueStatusFilter = document.querySelector("#queueStatusFilter");
+  els.generateSourceTasks = document.querySelector("#generateSourceTasks");
+  els.exportChecklistCsv = document.querySelector("#exportChecklistCsv");
+  els.copyChecklistCsv = document.querySelector("#copyChecklistCsv");
+  els.sourceQueueSummary = document.querySelector("#sourceQueueSummary");
+  els.sourceQueueList = document.querySelector("#sourceQueueList");
+  els.sourceQueueResult = document.querySelector("#sourceQueueResult");
 }
 
 function normalizeCompanyRecord(company) {
@@ -549,10 +597,36 @@ function bindEvents() {
     rebuildDocumentCorpus();
     saveJson(STORAGE_KEYS.sourcePack, []);
     renderSourcePackList();
+    renderSourceQueueOptions();
+    renderSourceQueue();
     state.importReport = null;
     renderImportSummary();
     flashBuilderResult("Builder pack cleared. Starter and uploaded sources are unchanged.", "neutral");
   });
+
+  if (els.queueTickerFilter) {
+    els.queueTickerFilter.addEventListener("change", renderSourceQueue);
+  }
+
+  if (els.queueStatusFilter) {
+    els.queueStatusFilter.addEventListener("change", renderSourceQueue);
+  }
+
+  if (els.generateSourceTasks) {
+    els.generateSourceTasks.addEventListener("click", () => {
+      if (els.queueStatusFilter) els.queueStatusFilter.value = "priority";
+      renderSourceQueue();
+      flashSourceQueueResult("Priority queue refreshed for missing and synthetic evidence.", "neutral");
+    });
+  }
+
+  if (els.exportChecklistCsv) {
+    els.exportChecklistCsv.addEventListener("click", exportSourceChecklistCsv);
+  }
+
+  if (els.copyChecklistCsv) {
+    els.copyChecklistCsv.addEventListener("click", copySourceChecklistCsv);
+  }
 }
 
 function submitCurrentQuestion() {
@@ -805,6 +879,173 @@ function flashBuilderResult(message, tone = "neutral") {
   if (!els.sourceBuilderResult) return;
   els.sourceBuilderResult.className = `builder-result is-${tone}`;
   els.sourceBuilderResult.textContent = message;
+}
+
+function renderSourceQueueOptions() {
+  if (!els.queueTickerFilter) return;
+  const current = els.queueTickerFilter.value || "all";
+  const companies = getCompanies();
+  els.queueTickerFilter.innerHTML = [
+    `<option value="all">All companies</option>`,
+    ...companies.map((company) => `<option value="${escapeAttr(company.ticker)}">${escapeHtml(company.ticker)} - ${escapeHtml(company.name)}</option>`)
+  ].join("");
+  els.queueTickerFilter.value = companies.some((company) => company.ticker === current) ? current : "all";
+}
+
+function renderSourceQueue() {
+  if (!els.sourceQueueList || !els.sourceQueueSummary) return;
+  const items = buildSourceQueueItems();
+  const tickerFilter = els.queueTickerFilter ? els.queueTickerFilter.value : "all";
+  const statusFilter = els.queueStatusFilter ? els.queueStatusFilter.value : "priority";
+  const filtered = items.filter((item) => {
+    const tickerMatch = tickerFilter === "all" || item.company.ticker === tickerFilter;
+    const statusMatch = statusFilter === "all"
+      || item.statusKey === statusFilter
+      || statusFilter === "priority" && (item.statusKey === "missing" || item.statusKey === "synthetic");
+    return tickerMatch && statusMatch;
+  });
+  const counts = countSourceQueueStatuses(items);
+
+  els.sourceQueueSummary.innerHTML = [
+    makeSourceQueueStat("Missing", counts.missing),
+    makeSourceQueueStat("SYN starter", counts.synthetic),
+    makeSourceQueueStat("IMP review", counts.imported),
+    makeSourceQueueStat("REAL ready", counts.real)
+  ].join("");
+
+  if (!filtered.length) {
+    els.sourceQueueList.innerHTML = `<div class="empty-list">No source tasks match this filter.</div>`;
+    return;
+  }
+
+  els.sourceQueueList.innerHTML = filtered.map((item) => `
+    <article class="source-task-card ${escapeAttr(item.className)}">
+      <div class="source-task-head">
+        <div>
+          <span>${escapeHtml(item.company.ticker)} - ${escapeHtml(item.company.name)}</span>
+          <strong>${escapeHtml(item.requirement.label)}</strong>
+        </div>
+        <em>${escapeHtml(item.statusLabel)}</em>
+      </div>
+      <p>${escapeHtml(item.requirement.instruction)}</p>
+      <div class="source-task-meta">
+        <span>Current evidence</span>
+        <strong>${escapeHtml(item.currentEvidence)}</strong>
+      </div>
+      <div class="source-task-actions">
+        <button class="secondary-button" type="button" data-queue-ticker="${escapeAttr(item.company.ticker)}" data-queue-key="${escapeAttr(item.requirement.key)}">Open in studio</button>
+      </div>
+    </article>
+  `).join("");
+
+  els.sourceQueueList.querySelectorAll("button[data-queue-ticker]").forEach((button) => {
+    button.addEventListener("click", () => {
+      loadSourceTaskIntoBuilder(button.dataset.queueTicker, button.dataset.queueKey);
+    });
+  });
+}
+
+function makeSourceQueueStat(label, value) {
+  return `
+    <div>
+      <span>${escapeHtml(label)}</span>
+      <strong>${escapeHtml(value)}</strong>
+    </div>
+  `;
+}
+
+function countSourceQueueStatuses(items) {
+  return items.reduce((counts, item) => {
+    counts[item.statusKey] = (counts[item.statusKey] || 0) + 1;
+    return counts;
+  }, { missing: 0, synthetic: 0, imported: 0, real: 0 });
+}
+
+function buildSourceQueueItems() {
+  return getCompanies().flatMap((company) => {
+    const docs = getCompanyDocs(company.ticker);
+    return REAL_SOURCE_REQUIREMENTS.map((requirement) => {
+      const status = getRequirementStatus(docs, requirement);
+      return {
+        company,
+        requirement,
+        ...status,
+        currentEvidence: status.doc
+          ? `${shortSourceStatus(status.doc)} ${status.doc.type} (${status.doc.period || status.doc.date || "current"})`
+          : "No matching source record"
+      };
+    });
+  });
+}
+
+function getRequirementStatus(docs, requirement) {
+  const matches = docs.filter((doc) => requirement.pattern.test(`${doc.type || ""} ${doc.period || ""} ${doc.title || ""}`));
+  const real = matches.find((doc) => normalizeSourceStatus(doc.sourceStatus) === "real");
+  const imported = matches.find((doc) => normalizeSourceStatus(doc.sourceStatus) === "imported");
+  const synthetic = matches.find((doc) => normalizeSourceStatus(doc.sourceStatus) === "synthetic");
+  if (real) return { statusKey: "real", statusLabel: "REAL ready", className: "is-real", doc: real };
+  if (imported) return { statusKey: "imported", statusLabel: "IMP review", className: "is-imported", doc: imported };
+  if (synthetic) return { statusKey: "synthetic", statusLabel: "SYN starter", className: "is-synthetic", doc: synthetic };
+  return { statusKey: "missing", statusLabel: "Needed", className: "is-missing", doc: null };
+}
+
+function loadSourceTaskIntoBuilder(ticker, requirementKey) {
+  if (!els.sourceBuilderTicker || !els.sourceBuilderType) return;
+  const requirement = REAL_SOURCE_REQUIREMENTS.find((item) => item.key === requirementKey) || REAL_SOURCE_REQUIREMENTS[0];
+  const company = getCompany(ticker);
+  state.selectedTicker = normalizeTicker(ticker);
+  renderSourceBuilderTickerOptions();
+  els.sourceBuilderTicker.value = state.selectedTicker;
+  els.sourceBuilderType.value = requirement.type;
+  els.sourceBuilderStatus.value = "real";
+  els.sourceBuilderPeriod.value = /quarter|results|concall/i.test(requirement.type) ? "Q4 FY2025" : "FY2025";
+  els.sourceBuilderDate.value = new Date().toISOString().slice(0, 10);
+  els.sourceBuilderUrl.value = "";
+  els.sourceBuilderTitleInput.value = `${company ? company.name : state.selectedTicker} ${requirement.label} source`;
+  renderSourceBuilderSections();
+  renderImportTickerOptions();
+  renderValuationOptions();
+  renderCompanyDossier();
+  updateValuationFromCompany();
+  updateValuation();
+  drawSignalMap();
+  flashBuilderResult(`${state.selectedTicker} ${requirement.label} task loaded. Paste the source text and add it as REAL evidence.`, "neutral");
+  document.querySelector("#source-builder")?.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function makeSourceChecklistCsv() {
+  const headers = ["Ticker", "Company", "Source type", "Status", "Current evidence", "Collection note"];
+  const rows = buildSourceQueueItems().map((item) => [
+    item.company.ticker,
+    item.company.name,
+    item.requirement.label,
+    item.statusLabel,
+    item.currentEvidence,
+    item.requirement.instruction
+  ]);
+  return [headers, ...rows].map((row) => row.map(csvCell).join(",")).join("\n");
+}
+
+function exportSourceChecklistCsv() {
+  const filename = `niveshscope-real-data-checklist-${new Date().toISOString().slice(0, 10)}.csv`;
+  downloadTextFile(filename, makeSourceChecklistCsv(), "text/csv;charset=utf-8");
+  flashSourceQueueResult("Exported the full real-data checklist as CSV.", "success");
+}
+
+function copySourceChecklistCsv() {
+  const csv = makeSourceChecklistCsv();
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(csv).catch(() => fallbackCopy(csv));
+  } else {
+    fallbackCopy(csv);
+  }
+  flashSourceQueueResult("Copied the real-data checklist CSV.", "success");
+}
+
+function flashSourceQueueResult(message, tone = "neutral") {
+  if (!els.sourceQueueResult) return;
+  els.sourceQueueResult.className = `builder-result is-${tone}`;
+  els.sourceQueueResult.textContent = message;
 }
 
 function renderTemplates() {
@@ -1754,6 +1995,8 @@ function rebuildDocumentCorpus() {
   renderLibrary();
   renderImportTickerOptions();
   renderSourceBuilderTickerOptions();
+  renderSourceQueueOptions();
+  renderSourceQueue();
   renderContextBand();
   renderValuationOptions();
   renderCompanyDossier();
@@ -1791,22 +2034,9 @@ function sourceStatusSummary(docs) {
 }
 
 function makeRealDataChecklist(docs) {
-  const requirements = [
-    { label: "Annual report", pattern: /annual|ar\b/i },
-    { label: "Concall", pattern: /concall|transcript|call/i },
-    { label: "Results", pattern: /quarter|results/i },
-    { label: "Shareholding", pattern: /shareholding|pledge|promoter/i },
-    { label: "Announcement", pattern: /exchange|announcement|nse|bse/i }
-  ];
-  return requirements.map((requirement) => {
-    const matches = docs.filter((doc) => requirement.pattern.test(`${doc.type} ${doc.period}`));
-    const real = matches.find((doc) => normalizeSourceStatus(doc.sourceStatus) === "real");
-    const imported = matches.find((doc) => normalizeSourceStatus(doc.sourceStatus) === "imported");
-    const synthetic = matches.find((doc) => normalizeSourceStatus(doc.sourceStatus) === "synthetic");
-    if (real) return { ...requirement, status: "REAL ready", className: "is-real" };
-    if (imported) return { ...requirement, status: "IMP review", className: "is-imported" };
-    if (synthetic) return { ...requirement, status: "SYN starter", className: "is-synthetic" };
-    return { ...requirement, status: "Needed", className: "is-missing" };
+  return REAL_SOURCE_REQUIREMENTS.map((requirement) => {
+    const status = getRequirementStatus(docs, requirement);
+    return { ...requirement, status: status.statusLabel, className: status.className };
   });
 }
 
@@ -2609,6 +2839,10 @@ function escapeHtml(value) {
 
 function escapeAttr(value) {
   return escapeHtml(value).replace(/`/g, "&#096;");
+}
+
+function csvCell(value) {
+  return `"${String(value ?? "").replace(/"/g, '""')}"`;
 }
 
 function loadJson(key, fallback) {
