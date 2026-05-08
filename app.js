@@ -10,7 +10,28 @@ const STORAGE_KEYS = {
 };
 
 const WAITLIST_ENDPOINT = "https://formsubmit.co/ajax/dhirajnyse@gmail.com";
-const DATA_VERSION = "20260508-17";
+const DATA_VERSION = "20260508-19";
+const MAX_IMPORT_FILE_BYTES = 2 * 1024 * 1024;
+const MAX_IMPORT_TOTAL_BYTES = 8 * 1024 * 1024;
+const MAX_SOURCE_TEXT_CHARS = 120000;
+const MAX_SOURCE_URL_LENGTH = 2048;
+const TRUSTED_SOURCE_DOMAINS = [
+  "rilofficial.com",
+  "tcs.com",
+  "hdfc.bank.in",
+  "infosys.com",
+  "icicibank.com",
+  "sbi.co.in",
+  "tatamotors.com",
+  "larsentoubro.com",
+  "bajajfinserv.in",
+  "adanienterprises.com",
+  "nseindia.com",
+  "bseindia.com",
+  "sebi.gov.in",
+  "screener.in",
+  "google.com"
+];
 const DATA_FILES = {
   companies: "data/companies.json",
   documents: "data/documents.json",
@@ -597,7 +618,7 @@ function bindEvents() {
 
   els.pasteForm.addEventListener("submit", (event) => {
     event.preventDefault();
-    const text = els.pasteText.value.trim();
+    const text = els.pasteText.value.trim().slice(0, MAX_SOURCE_TEXT_CHARS);
     if (!text) {
       els.pasteText.focus();
       return;
@@ -897,7 +918,7 @@ function getSourceSectionTemplates(type) {
 
 function applySourceAssistant() {
   if (!els.sourceAssistantText) return;
-  const rawText = els.sourceAssistantText.value.trim();
+  const rawText = els.sourceAssistantText.value.trim().slice(0, MAX_SOURCE_TEXT_CHARS);
   if (rawText.replace(/\s+/g, "").length < 120) {
     els.sourceAssistantText.focus();
     flashSourceAssistantResult("Paste at least a few paragraphs from the source before detecting sections.", "error");
@@ -1063,6 +1084,43 @@ function flashSourceAssistantResult(message, tone = "neutral") {
   els.sourceAssistantResult.textContent = message;
 }
 
+function normalizeExternalUrl(value) {
+  const raw = String(value || "").trim();
+  if (!raw || raw.length > MAX_SOURCE_URL_LENGTH) return "";
+  try {
+    const url = new URL(raw);
+    if (url.protocol !== "https:" && url.protocol !== "http:") return "";
+    url.hash = url.hash.slice(0, 180);
+    return url.href;
+  } catch (error) {
+    return "";
+  }
+}
+
+function isHttpsUrl(value) {
+  try {
+    return new URL(value).protocol === "https:";
+  } catch (error) {
+    return false;
+  }
+}
+
+function isTrustedSourceUrl(value) {
+  try {
+    const host = new URL(value).hostname.toLowerCase();
+    return TRUSTED_SOURCE_DOMAINS.some((domain) => host === domain || host.endsWith(`.${domain}`));
+  } catch (error) {
+    return false;
+  }
+}
+
+function sourceUrlTrustNote(value) {
+  if (!value) return "";
+  return isTrustedSourceUrl(value)
+    ? "Official source URL captured."
+    : "URL captured. Verify this host before shipping as REAL evidence.";
+}
+
 function renderSourceAssistantLinks() {
   if (!els.sourceAssistantLinks) return;
   const ticker = normalizeTicker(els.sourceBuilderTicker ? els.sourceBuilderTicker.value : state.selectedTicker);
@@ -1080,7 +1138,10 @@ function renderSourceAssistantLinks() {
     statusLabel: "URL helper",
     currentEvidence: "Builder source URL"
   };
-  const links = sourceLinksForTask(item).slice(0, 5);
+  const links = sourceLinksForTask(item)
+    .map((link) => ({ ...link, url: normalizeExternalUrl(link.url) }))
+    .filter((link) => link.url)
+    .slice(0, 5);
   els.sourceAssistantLinks.innerHTML = `
     <div class="source-url-helper-head">
       <div>
@@ -1103,8 +1164,13 @@ function renderSourceAssistantLinks() {
   `;
   els.sourceAssistantLinks.querySelectorAll("button[data-use-source-url]").forEach((button) => {
     button.addEventListener("click", () => {
-      els.sourceBuilderUrl.value = button.dataset.useSourceUrl || "";
-      flashSourceAssistantResult("Source URL filled. Open the link, verify the exact document, then paste the citation text.", "success");
+      const url = normalizeExternalUrl(button.dataset.useSourceUrl || "");
+      if (!url) {
+        flashSourceAssistantResult("That helper link is not a valid http/https URL.", "error");
+        return;
+      }
+      els.sourceBuilderUrl.value = url;
+      flashSourceAssistantResult(`Source URL filled. Open the link, verify the exact document, then paste the citation text. ${sourceUrlTrustNote(url)}`, "success");
     });
   });
   const hubButton = els.sourceAssistantLinks.querySelector("button[data-open-hub-from-helper]");
@@ -1157,13 +1223,32 @@ function makeSourcePackDocFromBuilder() {
   const date = els.sourceBuilderDate.value || new Date().toISOString().slice(0, 10);
   const status = normalizeSourceStatus(els.sourceBuilderStatus.value || "real");
   const title = (els.sourceBuilderTitleInput.value || `${ticker} ${type}`).trim();
-  const sourceUrl = (els.sourceBuilderUrl.value || "").trim();
+  const rawSourceUrl = (els.sourceBuilderUrl.value || "").trim();
+  const sourceUrl = normalizeExternalUrl(rawSourceUrl);
   const sections = Array.from(els.sourceBuilderSections.querySelectorAll("textarea"))
     .map((textarea) => ({
       title: textarea.dataset.sectionTitle || "Source section",
       text: textarea.value.replace(/\s+/g, " ").trim()
     }))
     .filter((section) => section.text.length > 30);
+
+  if (rawSourceUrl && !sourceUrl) {
+    if (els.sourceBuilderUrl) els.sourceBuilderUrl.focus();
+    flashBuilderResult("Use a valid http/https Source URL under 2048 characters, or leave the field blank for non-REAL draft records.", "error");
+    return null;
+  }
+
+  if (status === "real" && !sourceUrl) {
+    if (els.sourceBuilderUrl) els.sourceBuilderUrl.focus();
+    flashBuilderResult("REAL records need an official https Source URL before they can enter the live corpus.", "error");
+    return null;
+  }
+
+  if (status === "real" && !isHttpsUrl(sourceUrl)) {
+    if (els.sourceBuilderUrl) els.sourceBuilderUrl.focus();
+    flashBuilderResult("REAL records must use an https Source URL. Use imported or synthetic quality for offline drafts.", "error");
+    return null;
+  }
 
   if (!sections.length) {
     const firstTextarea = els.sourceBuilderSections.querySelector("textarea");
@@ -2138,7 +2223,9 @@ function sourceLinksForTask(item) {
       note: "Fallback search scoped to the likely official site."
     }
   ];
-  return links.filter((link) => link.url);
+  return links
+    .map((link) => ({ ...link, url: normalizeExternalUrl(link.url) }))
+    .filter((link) => link.url);
 }
 
 function makeSourceHubTaskText(item = getCurrentSourceHubItem()) {
@@ -2287,7 +2374,7 @@ function renderImportSummary(report = state.importReport) {
   }
 
   const skippedText = report.skipped.length
-    ? `<em>${report.skipped.length} skipped: ${escapeHtml(report.skipped.map((item) => item.name).join(", "))}</em>`
+    ? `<em>${report.skipped.length} skipped: ${escapeHtml(report.skipped.map((item) => `${item.name}${item.reason ? ` (${item.reason})` : ""}`).join(", "))}</em>`
     : "";
   els.importSummary.innerHTML = `
     <strong>${report.added.length} source${report.added.length === 1 ? "" : "s"} imported</strong>
@@ -4348,15 +4435,40 @@ async function processFiles(files) {
   if (!files.length) return;
   const fallbackTicker = normalizeTicker(els.pasteTicker.value || els.importTickerSelect.value || state.selectedTicker);
   const fallbackType = els.pasteType.value || "Research note";
-  const results = await Promise.all(files.map((file) => readUploadedFile(file, fallbackTicker, fallbackType)));
+  const fileList = Array.from(files);
+  const totalBytes = fileList.reduce((sum, file) => sum + Number(file.size || 0), 0);
+  if (totalBytes > MAX_IMPORT_TOTAL_BYTES) {
+    state.importReport = makeImportReport([], [{
+      name: "Upload batch",
+      reason: `Total upload size exceeds ${formatBytes(MAX_IMPORT_TOTAL_BYTES)}`
+    }]);
+    renderImportSummary();
+    return;
+  }
+  const oversized = fileList
+    .filter((file) => Number(file.size || 0) > MAX_IMPORT_FILE_BYTES)
+    .map((file) => ({
+      name: file.name,
+      reason: `File exceeds ${formatBytes(MAX_IMPORT_FILE_BYTES)} limit`
+    }));
+  const eligibleFiles = fileList.filter((file) => Number(file.size || 0) <= MAX_IMPORT_FILE_BYTES);
+  const results = await Promise.all(eligibleFiles.map((file) => readUploadedFile(file, fallbackTicker, fallbackType)));
   const docs = results.filter((result) => result.doc).map((result) => result.doc);
-  const skipped = results.filter((result) => result.error).map((result) => result.error);
+  const skipped = [
+    ...oversized,
+    ...results.filter((result) => result.error).map((result) => result.error)
+  ];
   const added = addUploadedDocs(docs);
   state.importReport = makeImportReport(added, skipped);
   renderImportSummary();
 }
 
 function readUploadedFile(file, fallbackTicker = "CUSTOM", fallbackType = "Research note") {
+  if (Number(file.size || 0) > MAX_IMPORT_FILE_BYTES) {
+    return Promise.resolve({
+      error: { name: file.name, reason: `File exceeds ${formatBytes(MAX_IMPORT_FILE_BYTES)} limit` }
+    });
+  }
   if (!isSupportedImport(file.name)) {
     return Promise.resolve({
       error: { name: file.name, reason: "Unsupported file type" }
@@ -4369,7 +4481,7 @@ function readTextFile(file, fallbackTicker, fallbackType) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => {
-      const text = String(reader.result || "");
+      const text = String(reader.result || "").slice(0, MAX_SOURCE_TEXT_CHARS);
       if (text.replace(/\s+/g, "").length < 80) {
         resolve({ error: { name: file.name, reason: "No readable text found" } });
         return;
@@ -4392,7 +4504,7 @@ function readPdfFile(file, fallbackTicker, fallbackType) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => {
-      const text = extractPdfText(reader.result);
+      const text = extractPdfText(reader.result).slice(0, MAX_SOURCE_TEXT_CHARS);
       if (text.replace(/\s+/g, "").length < 120) {
         resolve({
           error: {
@@ -4420,10 +4532,18 @@ function isSupportedImport(name) {
   return /\.(txt|md|csv|html|json|pdf)$/i.test(name);
 }
 
+function formatBytes(bytes) {
+  const value = Number(bytes || 0);
+  if (value >= 1024 * 1024) return `${(value / (1024 * 1024)).toFixed(1).replace(/\.0$/, "")} MB`;
+  if (value >= 1024) return `${(value / 1024).toFixed(1).replace(/\.0$/, "")} KB`;
+  return `${value} bytes`;
+}
+
 function makeUploadedDoc({ ticker, title, type, text }) {
   const safeTicker = normalizeTicker(ticker);
   const cleanTitle = String(title || "Imported document").trim().slice(0, 90);
   const cleanText = String(text || "")
+    .slice(0, MAX_SOURCE_TEXT_CHARS)
     .replace(/\r/g, "")
     .replace(/[ \t]+/g, " ")
     .replace(/\n{3,}/g, "\n\n")

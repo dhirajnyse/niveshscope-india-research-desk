@@ -315,13 +315,15 @@
 .pricing-section,
 .waitlist-section,
 .roadmap-section,
-.data-section {
+.data-section,
+.foundation-section {
   min-height: 246px;
 }
 
 .pricing-section,
 .roadmap-section,
-.data-section {
+.data-section,
+.foundation-section {
   display: grid;
   grid-template-columns: minmax(260px, 0.42fr) minmax(620px, 1fr);
   gap: 14px;
@@ -342,7 +344,8 @@
 
 .pricing-section .section-heading,
 .roadmap-section .section-heading,
-.data-section .section-heading {
+.data-section .section-heading,
+.foundation-section .section-heading {
   margin-bottom: 0;
   align-self: start;
 }
@@ -517,6 +520,13 @@
     rgba(255, 255, 255, 0.95);
 }
 
+.foundation-section {
+  background:
+    linear-gradient(135deg, rgba(16, 32, 27, 0.05), transparent 46%),
+    linear-gradient(315deg, rgba(20, 118, 111, 0.1), transparent 40%),
+    rgba(255, 255, 255, 0.96);
+}
+
 .data-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -651,18 +661,70 @@
   line-height: 1.35;
 }
 
+.foundation-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  align-self: stretch;
+}
+
+.foundation-grid article {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 13px;
+  border: 1px solid rgba(20, 118, 111, 0.22);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.82);
+}
+
+.foundation-grid article:nth-child(3) {
+  background: var(--teal-soft);
+}
+
+.foundation-grid span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  width: fit-content;
+  padding: 0 9px;
+  border-radius: 999px;
+  color: var(--teal);
+  background: #ffffff;
+  border: 1px solid rgba(20, 118, 111, 0.22);
+  font-size: 10px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.foundation-grid h3 {
+  margin: 10px 0 0;
+  color: var(--ink);
+  font-size: 15px;
+  line-height: 1.18;
+}
+
+.foundation-grid p {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.35;
+}
+
 @media (max-width: 1180px) {
   .launch-hero,
   .pricing-section,
   .roadmap-section,
   .waitlist-section,
-  .data-section {
+  .data-section,
+  .foundation-section {
     grid-template-columns: 1fr;
   }
 
   .pricing-section .section-heading,
   .roadmap-section .section-heading,
-  .data-section .section-heading {
+  .data-section .section-heading,
+  .foundation-section .section-heading {
     margin-bottom: 12px;
   }
 
@@ -686,6 +748,10 @@
   .data-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
+  .foundation-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 900px) {
@@ -702,7 +768,8 @@
   .pricing-section,
   .waitlist-section,
   .roadmap-section,
-  .data-section {
+  .data-section,
+  .foundation-section {
     min-height: 0;
   }
 
@@ -759,6 +826,10 @@
   }
 
   .data-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .foundation-grid {
     grid-template-columns: 1fr;
   }
 
