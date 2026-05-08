@@ -2255,6 +2255,144 @@ input[type="range"] {
   color: var(--muted);
 }
 
+.export-readiness {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.export-status {
+  padding: 11px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel-strong);
+}
+
+.export-status.is-ready {
+  border-color: rgba(20, 118, 111, 0.28);
+  background: var(--teal-soft);
+}
+
+.export-status.is-review {
+  border-color: rgba(164, 92, 24, 0.28);
+  background: var(--amber-soft);
+}
+
+.export-status.is-empty {
+  border-style: dashed;
+}
+
+.export-status span,
+.export-path span,
+.export-stats span {
+  display: block;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.export-status strong {
+  display: block;
+  margin-top: 5px;
+  color: var(--ink);
+  font-size: 14px;
+  line-height: 1.25;
+}
+
+.export-status p {
+  margin: 6px 0 0;
+  color: var(--ink-soft);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.export-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.export-stats div,
+.export-path {
+  padding: 8px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.export-stats strong {
+  display: block;
+  margin-top: 4px;
+  color: var(--ink);
+  font-size: 15px;
+}
+
+.export-steps {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: export-step;
+}
+
+.export-steps li {
+  position: relative;
+  padding: 8px 8px 8px 32px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.export-steps li::before {
+  position: absolute;
+  top: 9px;
+  left: 9px;
+  display: inline-grid;
+  width: 16px;
+  height: 16px;
+  place-items: center;
+  border-radius: 50%;
+  color: #ffffff;
+  background: var(--ink);
+  font-size: 10px;
+  font-weight: 900;
+  content: counter(export-step);
+  counter-increment: export-step;
+}
+
+.export-steps strong {
+  display: block;
+  color: var(--ink);
+  font-size: 12px;
+  line-height: 1.25;
+}
+
+.export-steps span {
+  display: block;
+  margin-top: 3px;
+  color: var(--ink-soft);
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.export-path {
+  display: grid;
+  gap: 5px;
+}
+
+.export-path code,
+.export-steps code {
+  border-radius: 5px;
+  padding: 2px 4px;
+  color: var(--teal);
+  background: rgba(20, 118, 111, 0.1);
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 900;
+}
+
 .source-pack-list {
   display: grid;
   gap: 8px;

@@ -10,7 +10,7 @@ const STORAGE_KEYS = {
 };
 
 const WAITLIST_ENDPOINT = "https://formsubmit.co/ajax/dhirajnyse@gmail.com";
-const DATA_VERSION = "20260508-11";
+const DATA_VERSION = "20260508-12";
 const DATA_FILES = {
   companies: "data/companies.json",
   documents: "data/documents.json",
@@ -438,6 +438,7 @@ function cacheElements() {
   els.clearSourcePack = document.querySelector("#clearSourcePack");
   els.sourcePackList = document.querySelector("#sourcePackList");
   els.sourcePackCount = document.querySelector("#sourcePackCount");
+  els.exportReadiness = document.querySelector("#exportReadiness");
   els.queueTickerFilter = document.querySelector("#queueTickerFilter");
   els.queueStatusFilter = document.querySelector("#queueStatusFilter");
   els.generateSourceTasks = document.querySelector("#generateSourceTasks");
@@ -906,7 +907,10 @@ function makeSourceRecordId(ticker, type, period, date) {
 
 function renderSourcePackList() {
   if (!els.sourcePackList) return;
-  els.sourcePackCount.textContent = `${state.sourcePackDocs.length} record${state.sourcePackDocs.length === 1 ? "" : "s"}`;
+  if (els.sourcePackCount) {
+    els.sourcePackCount.textContent = `${state.sourcePackDocs.length} record${state.sourcePackDocs.length === 1 ? "" : "s"}`;
+  }
+  renderExportReadiness();
   if (!state.sourcePackDocs.length) {
     els.sourcePackList.innerHTML = `<div class="empty-list">Verified source records you build here will appear in this pack.</div>`;
     return;
@@ -947,21 +951,105 @@ function renderSourcePackList() {
   });
 }
 
+function renderExportReadiness() {
+  if (!els.exportReadiness) return;
+  const docs = state.sourcePackDocs;
+  const uploadTarget = "data/documents.json";
+  if (!docs.length) {
+    els.exportReadiness.innerHTML = `
+      <div class="export-status is-empty">
+        <span>Export readiness</span>
+        <strong>No builder records yet</strong>
+        <p>Use Replace with REAL, Upgrade next source, or paste a verified source below. The export checklist will update as records are added.</p>
+      </div>
+      <div class="export-path">
+        <span>GitHub target</span>
+        <code>${escapeHtml(uploadTarget)}</code>
+      </div>
+    `;
+    return;
+  }
+
+  const summary = makeExportReadinessSummary(docs);
+  const statusClass = summary.ready ? "is-ready" : "is-review";
+  const statusTitle = summary.ready ? "Ready to export full documents.json" : "Review before shipping";
+  const statusText = summary.ready
+    ? `Builder pack has ${summary.realCount} REAL record${summary.realCount === 1 ? "" : "s"} with source URLs and no SYN starter records.`
+    : summary.reviewNote;
+  els.exportReadiness.innerHTML = `
+    <div class="export-status ${statusClass}">
+      <span>Export readiness</span>
+      <strong>${escapeHtml(statusTitle)}</strong>
+      <p>${escapeHtml(statusText)}</p>
+    </div>
+    <div class="export-stats" aria-label="Source pack readiness statistics">
+      ${makeExportStat("Records", summary.total)}
+      ${makeExportStat("REAL", summary.realCount)}
+      ${makeExportStat("IMP", summary.importedCount)}
+      ${makeExportStat("SYN", summary.syntheticCount)}
+      ${makeExportStat("URLs missing", summary.missingUrls)}
+      ${makeExportStat("Sections", summary.sectionCount)}
+    </div>
+    <ol class="export-steps">
+      <li><strong>Export source pack</strong><span>Review or share only the builder records.</span></li>
+      <li><strong>Export full documents.json</strong><span>Use this when you want the live site corpus updated.</span></li>
+      <li><strong>Upload in GitHub</strong><span>Replace <code>${escapeHtml(uploadTarget)}</code>, commit, then refresh the site with <code>?v=15</code>.</span></li>
+    </ol>
+    <div class="export-path">
+      <span>Public app reads from</span>
+      <code>${escapeHtml(uploadTarget)}</code>
+    </div>
+  `;
+}
+
+function makeExportReadinessSummary(docs) {
+  const total = docs.length;
+  const realCount = docs.filter((doc) => normalizeSourceStatus(doc.sourceStatus) === "real").length;
+  const importedCount = docs.filter((doc) => normalizeSourceStatus(doc.sourceStatus) === "imported").length;
+  const syntheticCount = docs.filter((doc) => normalizeSourceStatus(doc.sourceStatus) === "synthetic").length;
+  const missingUrls = docs.filter((doc) => normalizeSourceStatus(doc.sourceStatus) === "real" && !(doc.sourceUrl || "").trim()).length;
+  const sectionCount = docs.reduce((sum, doc) => sum + (Array.isArray(doc.sections) ? doc.sections.length : 0), 0);
+  const notes = [];
+  if (!realCount) notes.push("add at least one REAL verified source");
+  if (missingUrls) notes.push(`${missingUrls} REAL record${missingUrls === 1 ? " needs" : "s need"} source URL`);
+  if (syntheticCount) notes.push(`${syntheticCount} SYN starter record${syntheticCount === 1 ? "" : "s"} still in the builder pack`);
+  if (importedCount) notes.push(`${importedCount} imported record${importedCount === 1 ? "" : "s"} should be reviewed before marking REAL`);
+  return {
+    total,
+    realCount,
+    importedCount,
+    syntheticCount,
+    missingUrls,
+    sectionCount,
+    ready: total > 0 && realCount > 0 && syntheticCount === 0 && missingUrls === 0,
+    reviewNote: notes.length ? `Before replacing public data, ${notes.join(", ")}.` : "Review record titles, periods, dates, URLs, and pasted sections before export."
+  };
+}
+
+function makeExportStat(label, value) {
+  return `
+    <div>
+      <span>${escapeHtml(label)}</span>
+      <strong>${escapeHtml(value)}</strong>
+    </div>
+  `;
+}
+
 function exportSourcePackJson() {
   if (!state.sourcePackDocs.length) {
-    flashBuilderResult("Add at least one source record before exporting documents JSON.", "error");
+    flashBuilderResult("Add at least one source record before exporting the builder source pack.", "error");
     return;
   }
   const filename = `niveshscope-documents-source-pack-${new Date().toISOString().slice(0, 10)}.json`;
   downloadTextFile(filename, JSON.stringify(state.sourcePackDocs, null, 2), "application/json;charset=utf-8");
-  flashBuilderResult(`Exported ${state.sourcePackDocs.length} source record${state.sourcePackDocs.length === 1 ? "" : "s"} as JSON.`, "success");
+  flashBuilderResult(`Exported ${state.sourcePackDocs.length} builder source record${state.sourcePackDocs.length === 1 ? "" : "s"}. For the public site, merge it into data/documents.json or use Export full documents.json.`, "success");
 }
 
 function exportMergedDocumentsJson() {
   const mergedDocs = dedupeDocuments([...SAMPLE_DOCS, ...state.sourcePackDocs, ...state.uploadedDocs]);
   const filename = "documents.json";
   downloadTextFile(filename, JSON.stringify(mergedDocs, null, 2), "application/json;charset=utf-8");
-  flashBuilderResult(`Exported full documents.json with ${mergedDocs.length} records. Review it before replacing data/documents.json.`, "success");
+  flashBuilderResult(`Exported full documents.json with ${mergedDocs.length} records. Upload it to GitHub at data/documents.json, then refresh the public site with ?v=15.`, "success");
 }
 
 async function importSourcePackJson(file) {
