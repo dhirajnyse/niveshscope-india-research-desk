@@ -1715,6 +1715,202 @@ input[type="range"] {
   line-height: 1.4;
 }
 
+.source-matrix-section {
+  padding: 22px;
+}
+
+.source-matrix-toolbar {
+  display: flex;
+  gap: 10px;
+  align-items: end;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.source-matrix-toolbar label {
+  min-width: 210px;
+  display: grid;
+  gap: 5px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 850;
+}
+
+.source-matrix-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.source-matrix-summary div {
+  min-height: 74px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel-strong);
+}
+
+.source-matrix-summary span,
+.source-matrix th span {
+  display: block;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.source-matrix-summary strong {
+  display: block;
+  margin-top: 6px;
+  color: var(--ink);
+  font-size: 26px;
+  line-height: 1;
+}
+
+.source-matrix-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.96);
+}
+
+.source-matrix {
+  width: 100%;
+  min-width: 1040px;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.source-matrix th,
+.source-matrix td {
+  border-bottom: 1px solid var(--line);
+  padding: 9px;
+  text-align: left;
+  vertical-align: top;
+}
+
+.source-matrix thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  color: var(--muted);
+  background: var(--panel-strong);
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.source-matrix tbody tr:last-child th,
+.source-matrix tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.source-matrix tbody th {
+  width: 190px;
+  background: rgba(250, 252, 248, 0.86);
+}
+
+.source-matrix tbody th strong {
+  display: block;
+  margin-top: 5px;
+  color: var(--ink);
+  font-size: 13px;
+  line-height: 1.25;
+}
+
+.matrix-ready {
+  min-width: 82px;
+}
+
+.matrix-ready strong {
+  display: block;
+  color: var(--ink);
+  font-size: 19px;
+  line-height: 1;
+}
+
+.matrix-ready span {
+  display: block;
+  margin-top: 5px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 850;
+}
+
+.matrix-status {
+  width: 100%;
+  min-height: 72px;
+  display: grid;
+  gap: 5px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 9px;
+  text-align: left;
+  background: #ffffff;
+}
+
+.matrix-status strong {
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.matrix-status span {
+  color: var(--ink-soft);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.matrix-status.is-real {
+  border-color: rgba(47, 133, 77, 0.28);
+  background: var(--green-soft);
+}
+
+.matrix-status.is-real strong {
+  color: var(--green);
+}
+
+.matrix-status.is-imported {
+  border-color: rgba(47, 101, 176, 0.28);
+  background: var(--blue-soft);
+}
+
+.matrix-status.is-imported strong {
+  color: var(--blue);
+}
+
+.matrix-status.is-synthetic {
+  border-color: rgba(164, 92, 24, 0.28);
+  background: var(--amber-soft);
+}
+
+.matrix-status.is-synthetic strong {
+  color: var(--amber);
+}
+
+.matrix-status.is-missing {
+  border-color: rgba(179, 38, 30, 0.24);
+  background: var(--red-soft);
+}
+
+.matrix-status.is-missing strong {
+  color: var(--red);
+}
+
+.matrix-next-button {
+  min-width: 118px;
+  min-height: 38px;
+  border: 1px solid rgba(20, 118, 111, 0.24);
+  border-radius: 8px;
+  padding: 0 10px;
+  color: var(--teal);
+  background: var(--teal-soft);
+  font-size: 12px;
+  font-weight: 900;
+}
+
 .source-queue-section {
   padding: 22px;
 }
@@ -2644,6 +2840,7 @@ input[type="range"] {
   .source-builder-layout,
   .source-hub-layout,
   .real-data-workflow,
+  .source-matrix-summary,
   .source-queue-summary,
   .source-workspace-summary,
   .builder-grid,
@@ -2759,6 +2956,8 @@ input[type="range"] {
 
   .source-queue-toolbar label,
   .source-queue-toolbar button,
+  .source-matrix-toolbar label,
+  .source-matrix-toolbar button,
   .source-workspace-toolbar label,
   .source-workspace-toolbar button,
   .source-task-actions button,

@@ -10,7 +10,7 @@ const STORAGE_KEYS = {
 };
 
 const WAITLIST_ENDPOINT = "https://formsubmit.co/ajax/dhirajnyse@gmail.com";
-const DATA_VERSION = "20260508-12";
+const DATA_VERSION = "20260508-13";
 const DATA_FILES = {
   companies: "data/companies.json",
   documents: "data/documents.json",
@@ -302,6 +302,8 @@ async function init() {
   renderSourceBuilderTickerOptions();
   renderSourceBuilderSections();
   renderSourcePackList();
+  renderSourceMatrixOptions();
+  renderSourceMatrix();
   renderSourceQueueOptions();
   renderSourceQueue();
   renderSourceHubOptions();
@@ -439,6 +441,13 @@ function cacheElements() {
   els.sourcePackList = document.querySelector("#sourcePackList");
   els.sourcePackCount = document.querySelector("#sourcePackCount");
   els.exportReadiness = document.querySelector("#exportReadiness");
+  els.matrixTickerFilter = document.querySelector("#matrixTickerFilter");
+  els.matrixStatusFilter = document.querySelector("#matrixStatusFilter");
+  els.matrixNextGap = document.querySelector("#matrixNextGap");
+  els.copyCoverageMatrix = document.querySelector("#copyCoverageMatrix");
+  els.sourceMatrixSummary = document.querySelector("#sourceMatrixSummary");
+  els.sourceMatrix = document.querySelector("#sourceMatrix");
+  els.sourceMatrixResult = document.querySelector("#sourceMatrixResult");
   els.queueTickerFilter = document.querySelector("#queueTickerFilter");
   els.queueStatusFilter = document.querySelector("#queueStatusFilter");
   els.generateSourceTasks = document.querySelector("#generateSourceTasks");
@@ -682,6 +691,8 @@ function bindEvents() {
     rebuildDocumentCorpus();
     saveJson(STORAGE_KEYS.sourcePack, []);
     renderSourcePackList();
+    renderSourceMatrixOptions();
+    renderSourceMatrix();
     renderSourceQueueOptions();
     renderSourceQueue();
     state.importReport = null;
@@ -695,6 +706,22 @@ function bindEvents() {
 
   if (els.queueStatusFilter) {
     els.queueStatusFilter.addEventListener("change", renderSourceQueue);
+  }
+
+  if (els.matrixTickerFilter) {
+    els.matrixTickerFilter.addEventListener("change", renderSourceMatrix);
+  }
+
+  if (els.matrixStatusFilter) {
+    els.matrixStatusFilter.addEventListener("change", renderSourceMatrix);
+  }
+
+  if (els.matrixNextGap) {
+    els.matrixNextGap.addEventListener("click", openNextCoverageGap);
+  }
+
+  if (els.copyCoverageMatrix) {
+    els.copyCoverageMatrix.addEventListener("click", copyCoverageMatrixCsv);
   }
 
   if (els.generateSourceTasks) {
@@ -847,6 +874,8 @@ function addSourcePackDocFromBuilder() {
   rebuildDocumentCorpus();
   updateProgressFromSourceDoc(doc);
   renderSourcePackList();
+  renderSourceMatrixOptions();
+  renderSourceMatrix();
   state.importReport = makeImportReport([doc], []);
   renderImportSummary();
   flashBuilderResult(`${doc.ticker} ${doc.type} added as ${shortSourceStatus(doc)} evidence and enabled in the live corpus. Use Return to dossier to confirm completeness.`, "success");
@@ -1069,6 +1098,8 @@ async function importSourcePackJson(file) {
     rebuildDocumentCorpus();
     freshDocs.forEach(updateProgressFromSourceDoc);
     renderSourcePackList();
+    renderSourceMatrixOptions();
+    renderSourceMatrix();
     state.importReport = makeImportReport(freshDocs, []);
     renderImportSummary();
     flashBuilderResult(`Imported ${freshDocs.length} source record${freshDocs.length === 1 ? "" : "s"} from JSON.`, "success");
@@ -1106,6 +1137,191 @@ function flashBuilderResult(message, tone = "neutral") {
   if (!els.sourceBuilderResult) return;
   els.sourceBuilderResult.className = `builder-result is-${tone}`;
   els.sourceBuilderResult.textContent = message;
+}
+
+function renderSourceMatrixOptions() {
+  if (!els.matrixTickerFilter) return;
+  const current = els.matrixTickerFilter.value || "all";
+  const companies = getCompanies();
+  els.matrixTickerFilter.innerHTML = [
+    `<option value="all">All companies</option>`,
+    ...companies.map((company) => `<option value="${escapeAttr(company.ticker)}">${escapeHtml(company.ticker)} - ${escapeHtml(company.name)}</option>`)
+  ].join("");
+  els.matrixTickerFilter.value = companies.some((company) => company.ticker === current) ? current : "all";
+}
+
+function renderSourceMatrix() {
+  if (!els.sourceMatrix || !els.sourceMatrixSummary) return;
+  const rows = buildCoverageMatrixRows();
+  const visibleRows = filterCoverageMatrixRows(rows);
+  const allItems = rows.flatMap((row) => row.items);
+  const counts = countSourceQueueStatuses(allItems);
+  const totalSlots = allItems.length || 1;
+  const realPercent = Math.round((counts.real / totalSlots) * 100);
+  const gapCount = counts.missing + counts.synthetic;
+
+  els.sourceMatrixSummary.innerHTML = [
+    makeSourceQueueStat("Companies", rows.length),
+    makeSourceQueueStat("Source slots", allItems.length),
+    makeSourceQueueStat("REAL coverage", `${realPercent}%`),
+    makeSourceQueueStat("Open gaps", gapCount)
+  ].join("");
+
+  if (!visibleRows.length) {
+    els.sourceMatrix.innerHTML = `
+      <tbody>
+        <tr>
+          <td><div class="empty-list">No coverage rows match this view.</div></td>
+        </tr>
+      </tbody>
+    `;
+    return;
+  }
+
+  els.sourceMatrix.innerHTML = `
+    <thead>
+      <tr>
+        <th>Company</th>
+        <th>Ready</th>
+        ${REAL_SOURCE_REQUIREMENTS.map((requirement) => `<th>${escapeHtml(requirement.label)}</th>`).join("")}
+        <th>Next action</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${visibleRows.map((row) => renderCoverageMatrixRow(row)).join("")}
+    </tbody>
+  `;
+
+  els.sourceMatrix.querySelectorAll("button[data-matrix-ticker]").forEach((button) => {
+    button.addEventListener("click", () => loadSourceTaskIntoBuilder(button.dataset.matrixTicker, button.dataset.matrixKey));
+  });
+  els.sourceMatrix.querySelectorAll("button[data-matrix-next-ticker]").forEach((button) => {
+    button.addEventListener("click", () => loadSourceTaskIntoBuilder(button.dataset.matrixNextTicker, button.dataset.matrixNextKey));
+  });
+}
+
+function buildCoverageMatrixRows() {
+  return getCompanies().map((company) => {
+    const docs = getCompanyDocs(company.ticker);
+    const items = REAL_SOURCE_REQUIREMENTS.map((requirement) => {
+      const status = getRequirementStatus(docs, requirement);
+      return {
+        company,
+        requirement,
+        ...status,
+        currentEvidence: status.doc
+          ? `${shortSourceStatus(status.doc)} ${status.doc.type} (${status.doc.period || status.doc.date || "current"})`
+          : "No matching source record"
+      };
+    });
+    const realCount = items.filter((item) => item.statusKey === "real").length;
+    const nextGap = items.find((item) => item.statusKey === "missing")
+      || items.find((item) => item.statusKey === "synthetic")
+      || items.find((item) => item.statusKey === "imported")
+      || items[0];
+    return {
+      company,
+      items,
+      realCount,
+      completeness: Math.round((realCount / REAL_SOURCE_REQUIREMENTS.length) * 100),
+      nextGap
+    };
+  });
+}
+
+function filterCoverageMatrixRows(rows) {
+  const tickerFilter = els.matrixTickerFilter ? els.matrixTickerFilter.value : "all";
+  const statusFilter = els.matrixStatusFilter ? els.matrixStatusFilter.value : "priority";
+  return rows.filter((row) => {
+    const tickerMatch = tickerFilter === "all" || row.company.ticker === tickerFilter;
+    const statusMatch = statusFilter === "all"
+      || row.items.some((item) => item.statusKey === statusFilter)
+      || statusFilter === "priority" && row.items.some((item) => item.statusKey === "missing" || item.statusKey === "synthetic");
+    return tickerMatch && statusMatch;
+  });
+}
+
+function renderCoverageMatrixRow(row) {
+  return `
+    <tr>
+      <th scope="row">
+        <span>${escapeHtml(row.company.ticker)}</span>
+        <strong>${escapeHtml(row.company.name)}</strong>
+      </th>
+      <td>
+        <div class="matrix-ready">
+          <strong>${escapeHtml(row.completeness)}%</strong>
+          <span>${escapeHtml(row.realCount)}/${escapeHtml(REAL_SOURCE_REQUIREMENTS.length)} REAL</span>
+        </div>
+      </td>
+      ${row.items.map((item) => renderCoverageMatrixCell(item)).join("")}
+      <td>
+        <button class="matrix-next-button" type="button" data-matrix-next-ticker="${escapeAttr(row.company.ticker)}" data-matrix-next-key="${escapeAttr(row.nextGap.requirement.key)}">
+          ${escapeHtml(row.nextGap.statusKey === "real" ? "Review REAL" : `Open ${row.nextGap.requirement.label}`)}
+        </button>
+      </td>
+    </tr>
+  `;
+}
+
+function renderCoverageMatrixCell(item) {
+  return `
+    <td>
+      <button
+        class="matrix-status ${escapeAttr(item.className)}"
+        type="button"
+        data-matrix-ticker="${escapeAttr(item.company.ticker)}"
+        data-matrix-key="${escapeAttr(item.requirement.key)}"
+        title="${escapeAttr(item.currentEvidence)}"
+      >
+        <strong>${escapeHtml(item.statusLabel)}</strong>
+        <span>${escapeHtml(item.currentEvidence)}</span>
+      </button>
+    </td>
+  `;
+}
+
+function openNextCoverageGap() {
+  const rows = filterCoverageMatrixRows(buildCoverageMatrixRows());
+  const next = rows.flatMap((row) => row.items)
+    .find((item) => item.statusKey === "missing" || item.statusKey === "synthetic")
+    || rows.flatMap((row) => row.items).find((item) => item.statusKey === "imported")
+    || rows[0]?.items[0];
+  if (!next) {
+    flashSourceMatrixResult("No coverage gap matches this view.", "error");
+    return;
+  }
+  loadSourceTaskIntoBuilder(next.company.ticker, next.requirement.key);
+  flashSourceMatrixResult(`${next.company.ticker} ${next.requirement.label} opened in Source Pack Studio.`, "success");
+}
+
+function makeCoverageMatrixCsv() {
+  const rows = filterCoverageMatrixRows(buildCoverageMatrixRows());
+  const headers = ["Ticker", "Company", "Completeness", ...REAL_SOURCE_REQUIREMENTS.map((item) => item.label), "Next action"];
+  const dataRows = rows.map((row) => [
+    row.company.ticker,
+    row.company.name,
+    `${row.completeness}%`,
+    ...row.items.map((item) => `${item.statusLabel} - ${item.currentEvidence}`),
+    `${row.nextGap.requirement.label} - ${row.nextGap.statusLabel}`
+  ]);
+  return [headers, ...dataRows].map((row) => row.map(csvCell).join(",")).join("\n");
+}
+
+function copyCoverageMatrixCsv() {
+  const csv = makeCoverageMatrixCsv();
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(csv).catch(() => fallbackCopy(csv));
+  } else {
+    fallbackCopy(csv);
+  }
+  flashSourceMatrixResult("Copied the visible coverage matrix as CSV.", "success");
+}
+
+function flashSourceMatrixResult(message, tone = "neutral") {
+  if (!els.sourceMatrixResult) return;
+  els.sourceMatrixResult.className = `builder-result is-${tone}`;
+  els.sourceMatrixResult.textContent = message;
 }
 
 function renderSourceQueueOptions() {
@@ -2778,6 +2994,8 @@ function rebuildDocumentCorpus() {
   renderLibrary();
   renderImportTickerOptions();
   renderSourceBuilderTickerOptions();
+  renderSourceMatrixOptions();
+  renderSourceMatrix();
   renderSourceQueueOptions();
   renderSourceQueue();
   renderSourceHubOptions();

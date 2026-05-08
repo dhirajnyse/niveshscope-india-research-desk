@@ -26,6 +26,7 @@ Evidence-backed Indian equity research for investors who want cited answers inst
 - Phase 13 Real Source Upgrade Pack with completeness scoring, one-click checklist upgrades, stronger SYN warnings, and clearer demo-only evidence labels.
 - Phase 14 Live Source Capture Polish with an active replacement-task banner, sticky Source Studio actions, and a return-to-dossier flow after saving.
 - Phase 15 Source Export Readiness with builder-pack quality counts, upload guidance, and a clear `data/documents.json` shipping path.
+- Phase 16 Coverage Command Center with a company-by-source matrix, filtered gap views, next-gap action, and copyable matrix CSV.
 - INR crore valuation lens with revenue CAGR, FCF margin, terminal multiple, and discount-rate sensitivities.
 - Saved valuation cases stored locally in the browser.
 - One-click research outputs for risk memos, concall tone, valuation assumptions, peer comparison, and investment committee briefs.
@@ -87,6 +88,7 @@ v7 and v8 add a repeatable collection workflow:
 - Each company dossier now shows a real-source completeness score. Use `Upgrade next source` or each checklist item's `Replace with REAL` button to open Source Pack Studio for the exact annual report, concall, results, shareholding, or announcement source that still needs replacement. SYN citations are labelled demo-only in answers and evidence cards.
 - Source Pack Studio now keeps the selected replacement task visible at the top of the form, keeps builder actions reachable while scrolling, and provides `Return to dossier` after adding a source so completeness can be checked immediately.
 - Builder Pack now shows export readiness before shipping: REAL/IMP/SYN counts, missing source URLs, section counts, and the exact GitHub upload target. Use `Export source pack` for review, or `Export full documents.json` when you are ready to replace `data/documents.json` in the repository.
+- The `Coverage Command Center` gives a matrix view of every company against annual report, concall, results, shareholding, and announcement coverage. Filter to gaps, open the next missing source in Source Pack Studio, or copy the visible matrix as CSV.
 
 ## Waitlist capture
 

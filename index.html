@@ -14,7 +14,7 @@
     <link rel="canonical" href="https://dhirajnyse.github.io/niveshscope-india-research-desk/" />
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="assets/niveshscope-logo.svg" />
-    <link rel="manifest" href="site.webmanifest?v=20260508-12" />
+    <link rel="manifest" href="site.webmanifest?v=20260508-13" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="NiveshScope" />
     <meta property="og:title" content="NiveshScope | Ask Indian disclosures. See the evidence." />
@@ -31,8 +31,8 @@
       content="Evidence-backed Indian equity research across filings, concalls, exchange announcements, shareholding, and valuation."
     />
     <meta name="twitter:image" content="https://dhirajnyse.github.io/niveshscope-india-research-desk/assets/niveshscope-social-card.svg" />
-    <link rel="stylesheet" href="styles.css?v=20260508-12" />
-    <link rel="stylesheet" href="launch.css?v=20260508-12" />
+    <link rel="stylesheet" href="styles.css?v=20260508-13" />
+    <link rel="stylesheet" href="launch.css?v=20260508-13" />
   </head>
   <body>
     <div class="app-shell">
@@ -49,7 +49,7 @@
           <span class="status-pill">NSE/BSE</span>
           <span class="status-pill">Concall tone</span>
           <span class="status-pill">INR valuation</span>
-          <span class="status-pill">Export readiness v15</span>
+          <span class="status-pill">Coverage matrix v16</span>
         </div>
         <div class="top-actions">
           <button class="icon-button" id="copyBrief" type="button" title="Copy current brief" aria-label="Copy current brief">
@@ -78,6 +78,7 @@
           <div class="launch-actions">
             <a class="primary-link" href="#desk">Open the desk</a>
             <a class="secondary-link" href="#source-builder">Source studio</a>
+            <a class="secondary-link" href="#coverage-command">Coverage map</a>
             <a class="secondary-link" href="#source-queue">Source queue</a>
             <a class="secondary-link" href="#source-hub">Acquisition hub</a>
             <a class="secondary-link" href="#source-workspace">Workspace</a>
@@ -438,6 +439,40 @@
         </div>
       </section>
 
+      <section class="launch-section source-matrix-section" aria-labelledby="sourceMatrixTitle" id="coverage-command">
+        <div class="section-heading">
+          <span>Coverage Command Center</span>
+          <h2 id="sourceMatrixTitle">See every evidence gap before research starts.</h2>
+          <p>
+            Scan each company against the five source types the desk needs, then open the next missing source directly in Source Pack Studio.
+          </p>
+        </div>
+        <div class="source-matrix-toolbar" aria-label="Coverage command filters">
+          <label>
+            <span>Company</span>
+            <select id="matrixTickerFilter"></select>
+          </label>
+          <label>
+            <span>View</span>
+            <select id="matrixStatusFilter">
+              <option value="priority">Only gaps</option>
+              <option value="missing">Missing only</option>
+              <option value="synthetic">SYN starter</option>
+              <option value="imported">IMP review</option>
+              <option value="real">REAL ready</option>
+              <option value="all">All coverage</option>
+            </select>
+          </label>
+          <button class="primary-button" id="matrixNextGap" type="button">Open next gap</button>
+          <button class="secondary-button" id="copyCoverageMatrix" type="button">Copy matrix CSV</button>
+        </div>
+        <div class="source-matrix-summary" id="sourceMatrixSummary" aria-live="polite"></div>
+        <div class="source-matrix-wrap">
+          <table class="source-matrix" id="sourceMatrix"></table>
+        </div>
+        <div class="builder-result" id="sourceMatrixResult" aria-live="polite"></div>
+      </section>
+
       <section class="launch-section source-queue-section" aria-labelledby="sourceQueueTitle" id="source-queue">
         <div class="section-heading">
           <span>Real Source Queue</span>
@@ -728,6 +763,6 @@
       </footer>
     </div>
 
-    <script src="app.js?v=20260508-12"></script>
+    <script src="app.js?v=20260508-13"></script>
   </body>
 </html>
