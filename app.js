@@ -4,11 +4,12 @@ const STORAGE_KEYS = {
   uploads: "niveshscope-uploads-v1",
   notes: "niveshscope-notes-v1",
   waitlist: "niveshscope-waitlist-v1",
-  valuationCases: "niveshscope-valuation-cases-v1"
+  valuationCases: "niveshscope-valuation-cases-v1",
+  sourcePack: "niveshscope-source-pack-v1"
 };
 
 const WAITLIST_ENDPOINT = "https://formsubmit.co/ajax/dhirajnyse@gmail.com";
-const DATA_VERSION = "20260508-2";
+const DATA_VERSION = "20260508-3";
 const DATA_FILES = {
   companies: "data/companies.json",
   documents: "data/documents.json",
@@ -170,6 +171,7 @@ const state = {
   tickerFocus: null,
   lastFocusKey: null,
   uploadedDocs: [],
+  sourcePackDocs: [],
   notes: [],
   waitlistLeads: [],
   valuationCases: [],
@@ -194,18 +196,25 @@ async function init() {
   window.NiveshScopeRunAnalysis = submitCurrentQuestion;
   window.NiveshScopeScanDisclosure = scanFilingFromCurrentQuestion;
   state.uploadedDocs = loadJson(STORAGE_KEYS.uploads, []);
+  state.sourcePackDocs = loadJson(STORAGE_KEYS.sourcePack, []).map((doc) => normalizeDocumentRecord(doc, "real"));
   state.notes = loadJson(STORAGE_KEYS.notes, []);
   state.waitlistLeads = loadJson(STORAGE_KEYS.waitlist, []);
   state.valuationCases = loadJson(STORAGE_KEYS.valuationCases, []);
   state.activeTickers = new Set(getDefaultWatchlistTickers());
   state.selectedTicker = state.activeTickers.values().next().value || SAMPLE_COMPANIES[0]?.ticker || "";
-  state.documents = [...SAMPLE_DOCS, ...state.uploadedDocs];
+  state.documents = [...SAMPLE_DOCS, ...state.sourcePackDocs, ...state.uploadedDocs];
   state.documents.forEach((doc) => state.enabledDocIds.add(doc.id));
+  for (const doc of state.sourcePackDocs) {
+    state.activeTickers.add(doc.ticker);
+  }
   for (const doc of state.uploadedDocs) {
     state.activeTickers.add(doc.ticker);
   }
 
   renderImportTickerOptions();
+  renderSourceBuilderTickerOptions();
+  renderSourceBuilderSections();
+  renderSourcePackList();
   renderTemplates();
   renderCoverage();
   renderLibrary();
@@ -318,6 +327,20 @@ function cacheElements() {
   els.waitlistTickers = document.querySelector("#waitlistTickers");
   els.waitlistQuestion = document.querySelector("#waitlistQuestion");
   els.waitlistResult = document.querySelector("#waitlistResult");
+  els.sourcePackForm = document.querySelector("#sourcePackForm");
+  els.sourceBuilderTicker = document.querySelector("#sourceBuilderTicker");
+  els.sourceBuilderType = document.querySelector("#sourceBuilderType");
+  els.sourceBuilderStatus = document.querySelector("#sourceBuilderStatus");
+  els.sourceBuilderPeriod = document.querySelector("#sourceBuilderPeriod");
+  els.sourceBuilderDate = document.querySelector("#sourceBuilderDate");
+  els.sourceBuilderUrl = document.querySelector("#sourceBuilderUrl");
+  els.sourceBuilderTitleInput = document.querySelector("#sourceBuilderTitleInput");
+  els.sourceBuilderSections = document.querySelector("#sourceBuilderSections");
+  els.sourceBuilderResult = document.querySelector("#sourceBuilderResult");
+  els.exportSourcePack = document.querySelector("#exportSourcePack");
+  els.clearSourcePack = document.querySelector("#clearSourcePack");
+  els.sourcePackList = document.querySelector("#sourcePackList");
+  els.sourcePackCount = document.querySelector("#sourcePackCount");
 }
 
 function normalizeCompanyRecord(company) {
@@ -445,9 +468,11 @@ function bindEvents() {
 
   els.clearUploads.addEventListener("click", () => {
     state.uploadedDocs = [];
-    state.documents = [...SAMPLE_DOCS];
-    state.enabledDocIds = new Set(state.documents.map((doc) => doc.id));
+    rebuildDocumentCorpus();
     state.activeTickers = new Set(SAMPLE_COMPANIES.map((company) => company.ticker));
+    for (const doc of state.sourcePackDocs) {
+      state.activeTickers.add(doc.ticker);
+    }
     saveJson(STORAGE_KEYS.uploads, []);
     state.importReport = null;
     renderImportSummary();
@@ -487,6 +512,35 @@ function bindEvents() {
   els.waitlistForm.addEventListener("submit", async (event) => {
     event.preventDefault();
     await submitWaitlistLead();
+  });
+
+  els.sourceBuilderTicker.addEventListener("change", () => {
+    state.selectedTicker = els.sourceBuilderTicker.value;
+    renderValuationOptions();
+    renderImportTickerOptions();
+    renderCompanyDossier();
+    updateValuationFromCompany();
+    updateValuation();
+    drawSignalMap();
+  });
+
+  els.sourceBuilderType.addEventListener("change", renderSourceBuilderSections);
+
+  els.sourcePackForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    addSourcePackDocFromBuilder();
+  });
+
+  els.exportSourcePack.addEventListener("click", exportSourcePackJson);
+
+  els.clearSourcePack.addEventListener("click", () => {
+    state.sourcePackDocs = [];
+    rebuildDocumentCorpus();
+    saveJson(STORAGE_KEYS.sourcePack, []);
+    renderSourcePackList();
+    state.importReport = null;
+    renderImportSummary();
+    flashBuilderResult("Builder pack cleared. Starter and uploaded sources are unchanged.", "neutral");
   });
 }
 
@@ -533,6 +587,157 @@ function renderImportTickerOptions() {
     return `<option value="${escapeAttr(company.ticker)}" ${selected}>${escapeHtml(company.ticker)} - ${escapeHtml(company.name)}</option>`;
   }).join("");
   els.pasteTicker.value = state.selectedTicker || companies[0]?.ticker || "CUSTOM";
+}
+
+function renderSourceBuilderTickerOptions() {
+  if (!els.sourceBuilderTicker) return;
+  const companies = getCompanies();
+  els.sourceBuilderTicker.innerHTML = companies.map((company) => {
+    const selected = company.ticker === state.selectedTicker ? "selected" : "";
+    return `<option value="${escapeAttr(company.ticker)}" ${selected}>${escapeHtml(company.ticker)} - ${escapeHtml(company.name)}</option>`;
+  }).join("");
+}
+
+function renderSourceBuilderSections() {
+  if (!els.sourceBuilderSections) return;
+  const templates = getSourceSectionTemplates(els.sourceBuilderType ? els.sourceBuilderType.value : "Annual report");
+  els.sourceBuilderSections.innerHTML = templates.map((title, index) => `
+    <label>
+      <span>${escapeHtml(title)}</span>
+      <textarea data-section-title="${escapeAttr(title)}" rows="${index === 0 ? 5 : 4}" placeholder="Paste ${escapeAttr(title.toLowerCase())} text here"></textarea>
+    </label>
+  `).join("");
+}
+
+function getSourceSectionTemplates(type) {
+  if (/annual/i.test(type)) return ["Business overview", "Management discussion and analysis", "Risk factors", "Liquidity and capital resources"];
+  if (/concall|transcript/i.test(type)) return ["Prepared remarks", "Analyst Q&A", "Management tone"];
+  if (/quarter|results/i.test(type)) return ["Results summary", "Segment performance", "Management commentary"];
+  if (/shareholding|pledge/i.test(type)) return ["Shareholding pattern", "Promoter holding and pledge", "Institutional ownership"];
+  if (/exchange|announcement/i.test(type)) return ["Announcement extract", "Management rationale", "Investment impact"];
+  if (/rating|credit/i.test(type)) return ["Rating action", "Credit strengths", "Credit risks"];
+  if (/valuation|model/i.test(type)) return ["Scenario assumptions", "Valuation bridge", "Sensitivity notes"];
+  return ["Source summary", "Key evidence", "Risks and watch items"];
+}
+
+function addSourcePackDocFromBuilder() {
+  const doc = makeSourcePackDocFromBuilder();
+  if (!doc) return;
+  state.sourcePackDocs = [doc, ...state.sourcePackDocs].slice(0, 40);
+  state.selectedTicker = doc.ticker;
+  state.activeTickers.add(doc.ticker);
+  saveJson(STORAGE_KEYS.sourcePack, state.sourcePackDocs);
+  rebuildDocumentCorpus();
+  renderSourcePackList();
+  state.importReport = makeImportReport([doc], []);
+  renderImportSummary();
+  flashBuilderResult(`${doc.ticker} ${doc.type} added as ${shortSourceStatus(doc)} evidence and enabled in the live corpus.`, "success");
+}
+
+function makeSourcePackDocFromBuilder() {
+  const ticker = normalizeTicker(els.sourceBuilderTicker.value || state.selectedTicker || "CUSTOM");
+  const company = getCompany(ticker);
+  const type = els.sourceBuilderType.value || "Research note";
+  const period = (els.sourceBuilderPeriod.value || "Current period").trim();
+  const date = els.sourceBuilderDate.value || new Date().toISOString().slice(0, 10);
+  const status = normalizeSourceStatus(els.sourceBuilderStatus.value || "real");
+  const title = (els.sourceBuilderTitleInput.value || `${ticker} ${type}`).trim();
+  const sourceUrl = (els.sourceBuilderUrl.value || "").trim();
+  const sections = Array.from(els.sourceBuilderSections.querySelectorAll("textarea"))
+    .map((textarea) => ({
+      title: textarea.dataset.sectionTitle || "Source section",
+      text: textarea.value.replace(/\s+/g, " ").trim()
+    }))
+    .filter((section) => section.text.length > 30);
+
+  if (!sections.length) {
+    const firstTextarea = els.sourceBuilderSections.querySelector("textarea");
+    if (firstTextarea) firstTextarea.focus();
+    flashBuilderResult("Paste at least one source section with enough text before adding it.", "error");
+    return null;
+  }
+
+  return normalizeDocumentRecord({
+    id: makeSourceRecordId(ticker, type, period, date),
+    ticker,
+    company: company ? company.name : `${ticker} source pack`,
+    type,
+    period,
+    date,
+    sourceStatus: status,
+    sourceLabel: sourceStatusLabel({ sourceStatus: status }),
+    sourceUrl,
+    title,
+    sections
+  }, status);
+}
+
+function makeSourceRecordId(ticker, type, period, date) {
+  const slug = `${ticker}-${type}-${period}-${date}`
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "")
+    .slice(0, 84);
+  return `source-${slug}-${Date.now().toString(36)}`;
+}
+
+function renderSourcePackList() {
+  if (!els.sourcePackList) return;
+  els.sourcePackCount.textContent = `${state.sourcePackDocs.length} record${state.sourcePackDocs.length === 1 ? "" : "s"}`;
+  if (!state.sourcePackDocs.length) {
+    els.sourcePackList.innerHTML = `<div class="empty-list">Verified source records you build here will appear in this pack.</div>`;
+    return;
+  }
+  els.sourcePackList.innerHTML = state.sourcePackDocs.map((doc) => `
+    <article class="source-pack-item">
+      <div>
+        <span class="source-badge ${sourceStatusClass(doc)}">${escapeHtml(shortSourceStatus(doc))}</span>
+        <strong>${escapeHtml(doc.ticker)} - ${escapeHtml(doc.type)}</strong>
+        <p>${escapeHtml(doc.period)} - ${escapeHtml(doc.date)} - ${doc.sections.length} section${doc.sections.length === 1 ? "" : "s"}</p>
+      </div>
+      <button type="button" data-source-doc-id="${escapeAttr(doc.id)}" aria-label="Load source record">Load</button>
+    </article>
+  `).join("");
+  els.sourcePackList.querySelectorAll("button").forEach((button) => {
+    button.addEventListener("click", () => {
+      const doc = state.sourcePackDocs.find((item) => item.id === button.dataset.sourceDocId);
+      if (!doc) return;
+      state.selectedTicker = doc.ticker;
+      renderSourceBuilderTickerOptions();
+      els.sourceBuilderType.value = doc.type;
+      els.sourceBuilderStatus.value = normalizeSourceStatus(doc.sourceStatus);
+      els.sourceBuilderPeriod.value = doc.period;
+      els.sourceBuilderDate.value = doc.date;
+      els.sourceBuilderUrl.value = doc.sourceUrl || "";
+      els.sourceBuilderTitleInput.value = doc.title || `${doc.ticker} ${doc.type}`;
+      renderSourceBuilderSections();
+      const textareas = Array.from(els.sourceBuilderSections.querySelectorAll("textarea"));
+      doc.sections.forEach((section, index) => {
+        if (textareas[index]) {
+          textareas[index].dataset.sectionTitle = section.title;
+          textareas[index].previousElementSibling.textContent = section.title;
+          textareas[index].value = section.text;
+        }
+      });
+      flashBuilderResult(`${doc.ticker} source record loaded into the builder.`, "neutral");
+    });
+  });
+}
+
+function exportSourcePackJson() {
+  if (!state.sourcePackDocs.length) {
+    flashBuilderResult("Add at least one source record before exporting documents JSON.", "error");
+    return;
+  }
+  const filename = `niveshscope-documents-source-pack-${new Date().toISOString().slice(0, 10)}.json`;
+  downloadTextFile(filename, JSON.stringify(state.sourcePackDocs, null, 2), "application/json;charset=utf-8");
+  flashBuilderResult(`Exported ${state.sourcePackDocs.length} source record${state.sourcePackDocs.length === 1 ? "" : "s"} as JSON.`, "success");
+}
+
+function flashBuilderResult(message, tone = "neutral") {
+  if (!els.sourceBuilderResult) return;
+  els.sourceBuilderResult.className = `builder-result is-${tone}`;
+  els.sourceBuilderResult.textContent = message;
 }
 
 function renderTemplates() {
@@ -1462,6 +1667,24 @@ function getEnabledDocs() {
   return state.documents.filter((doc) => state.enabledDocIds.has(doc.id) && state.activeTickers.has(doc.ticker));
 }
 
+function rebuildDocumentCorpus() {
+  state.documents = [...SAMPLE_DOCS, ...state.sourcePackDocs, ...state.uploadedDocs];
+  state.enabledDocIds = new Set(state.documents.map((doc) => doc.id));
+  if (!getCompanies().some((company) => company.ticker === state.selectedTicker)) {
+    state.selectedTicker = getCompanies()[0]?.ticker || "";
+  }
+  renderCoverage();
+  renderLibrary();
+  renderImportTickerOptions();
+  renderSourceBuilderTickerOptions();
+  renderContextBand();
+  renderValuationOptions();
+  renderCompanyDossier();
+  updateValuationFromCompany();
+  updateValuation();
+  drawSignalMap();
+}
+
 function getCompanyDocs(ticker) {
   return state.documents.filter((doc) => doc.ticker === ticker);
 }
@@ -1524,7 +1747,7 @@ function defaultSourceLabel(status) {
 
 function getCompanies() {
   const byTicker = new Map(SAMPLE_COMPANIES.map((company) => [company.ticker, { ...company }]));
-  for (const doc of state.uploadedDocs) {
+  for (const doc of [...state.sourcePackDocs, ...state.uploadedDocs]) {
     if (!byTicker.has(doc.ticker)) {
       byTicker.set(doc.ticker, {
         ticker: doc.ticker,
@@ -1785,7 +2008,12 @@ function exportCurrentBrief() {
     "_Synthetic demo corpus for product prototyping. Import source documents before using the workflow for live investment research._"
   ].join("\n");
 
-  const blob = new Blob([content], { type: "text/markdown;charset=utf-8" });
+  downloadTextFile(filename, content, "text/markdown;charset=utf-8");
+  flashButtonLabel(els.exportBrief, "Exported");
+}
+
+function downloadTextFile(filename, content, type = "text/plain;charset=utf-8") {
+  const blob = new Blob([content], { type });
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
@@ -1794,7 +2022,6 @@ function exportCurrentBrief() {
   link.click();
   link.remove();
   window.setTimeout(() => URL.revokeObjectURL(url), 0);
-  flashButtonLabel(els.exportBrief, "Exported");
 }
 
 function flashButtonLabel(button, label) {
@@ -1986,7 +2213,7 @@ function addUploadedDocs(docs) {
   const filtered = docs.filter((doc) => doc.sections.some((section) => section.text.length > 30));
   if (!filtered.length) return [];
   state.uploadedDocs = [...filtered, ...state.uploadedDocs].slice(0, 18);
-  state.documents = [...SAMPLE_DOCS, ...state.uploadedDocs];
+  rebuildDocumentCorpus();
   filtered.forEach((doc) => {
     state.enabledDocIds.add(doc.id);
     state.activeTickers.add(doc.ticker);

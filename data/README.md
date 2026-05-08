@@ -19,3 +19,7 @@ Each document should include a `sourceStatus`:
 - `real`: Real source text that has been reviewed and can be tied to an original filing, transcript, or announcement.
 
 NiveshScope displays these labels in the library, dossier, and evidence cards so research output does not blur demo evidence with real source material.
+
+## Builder Workflow
+
+In v6, the browser app includes `Source Pack Studio`. Use it to create source records, test them immediately in the live corpus, and export a JSON file. After review, copy those exported records into `documents.json`.

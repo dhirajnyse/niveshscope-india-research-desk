@@ -1479,6 +1479,128 @@ input[type="range"] {
   background: #ffffff;
 }
 
+.source-builder-section {
+  padding: 22px;
+}
+
+.source-builder-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(290px, 0.8fr);
+  gap: 14px;
+  align-items: start;
+}
+
+.source-builder-form,
+.source-pack-preview {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.96);
+  padding: 14px;
+}
+
+.source-builder-form {
+  display: grid;
+  gap: 12px;
+}
+
+.builder-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(150px, 1fr));
+  gap: 10px;
+}
+
+.source-builder-form label,
+.builder-section-editor label {
+  display: grid;
+  gap: 5px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.builder-section-editor {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.builder-section-editor label:first-child {
+  grid-column: 1 / -1;
+}
+
+.builder-section-editor textarea {
+  min-height: 132px;
+}
+
+.builder-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.builder-result {
+  min-height: 22px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 750;
+  line-height: 1.4;
+}
+
+.builder-result.is-success {
+  color: var(--green);
+}
+
+.builder-result.is-error {
+  color: var(--red);
+}
+
+.builder-result.is-neutral {
+  color: var(--muted);
+}
+
+.source-pack-list {
+  display: grid;
+  gap: 8px;
+}
+
+.source-pack-item {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  align-items: center;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel-strong);
+}
+
+.source-pack-item strong {
+  display: block;
+  margin-top: 5px;
+  color: var(--ink);
+  font-size: 13px;
+  line-height: 1.25;
+}
+
+.source-pack-item p {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.source-pack-item button {
+  min-height: 32px;
+  border: 1px solid rgba(20, 118, 111, 0.24);
+  border-radius: 8px;
+  padding: 0 10px;
+  color: var(--teal);
+  background: var(--teal-soft);
+  font-size: 12px;
+  font-weight: 850;
+}
+
 .evidence-card,
 .note-card {
   padding: 10px;
@@ -1608,6 +1730,16 @@ input[type="range"] {
 
   .right-rail {
     grid-template-columns: 1fr;
+  }
+
+  .source-builder-layout,
+  .builder-grid,
+  .builder-section-editor {
+    grid-template-columns: 1fr;
+  }
+
+  .builder-section-editor label:first-child {
+    grid-column: auto;
   }
 
   .context-band {

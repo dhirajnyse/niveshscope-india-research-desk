@@ -16,6 +16,7 @@ Evidence-backed Indian equity research for investors who want cited answers inst
 - Browser-side import for `.txt`, `.md`, `.csv`, `.html`, `.json`, and best-effort text-based `.pdf` files.
 - Guided import that lets users choose the company and source type before adding a document.
 - Visible source-quality labels for `synthetic`, `imported`, and `real` evidence.
+- Phase 6 Source Pack Studio for creating verified source records in the browser and exporting source-pack JSON.
 - INR crore valuation lens with revenue CAGR, FCF margin, terminal multiple, and discount-rate sensitivities.
 - Saved valuation cases stored locally in the browser.
 - One-click research outputs for risk memos, concall tone, valuation assumptions, peer comparison, and investment committee briefs.
@@ -51,6 +52,17 @@ The application shell is in `index.html`, `styles.css`, `launch.css`, and `app.j
 - `data/questions.json`: Left-rail question templates.
 - `data/watchlists.json`: Watchlist definitions and ticker aliases.
 - `data/source-pack-template.json`: Copyable template for adding real annual reports, concalls, results summaries, shareholding extracts, and NSE/BSE announcements.
+
+## Source Pack Studio
+
+The `Source Pack Studio` section lets you create real evidence records without editing JSON by hand:
+
+- Select company, source type, quality, period, date, and source URL.
+- Paste section text using source-type templates.
+- Add the record to the live browser corpus for immediate research.
+- Export the builder pack as JSON.
+
+The exported JSON can be reviewed and merged into `data/documents.json` when the source is ready to ship with the public app.
 
 ## Waitlist capture
 
