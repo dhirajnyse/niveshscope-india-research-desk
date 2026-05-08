@@ -1911,6 +1911,48 @@ input[type="range"] {
   font-weight: 900;
 }
 
+.source-matrix-export {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+  padding: 12px;
+  border: 1px solid rgba(179, 38, 30, 0.24);
+  border-radius: 8px;
+  background: var(--red-soft);
+}
+
+.source-matrix-export[hidden] {
+  display: none;
+}
+
+.source-matrix-export strong {
+  display: block;
+  color: var(--ink);
+  font-size: 14px;
+}
+
+.source-matrix-export span {
+  display: block;
+  margin-top: 4px;
+  color: var(--ink-soft);
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.source-matrix-export textarea {
+  width: 100%;
+  min-height: 180px;
+  resize: vertical;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px;
+  color: var(--ink);
+  background: #ffffff;
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
 .source-queue-section {
   padding: 22px;
 }

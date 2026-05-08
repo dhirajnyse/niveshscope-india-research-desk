@@ -27,6 +27,8 @@ Evidence-backed Indian equity research for investors who want cited answers inst
 - Phase 14 Live Source Capture Polish with an active replacement-task banner, sticky Source Studio actions, and a return-to-dossier flow after saving.
 - Phase 15 Source Export Readiness with builder-pack quality counts, upload guidance, and a clear `data/documents.json` shipping path.
 - Phase 16 Coverage Command Center with a company-by-source matrix, filtered gap views, next-gap action, and copyable matrix CSV.
+- Phase 17 Coverage CSV Reliability with verified clipboard copy, CSV download, and a manual CSV preview fallback when browser clipboard access is blocked.
+- Phase 18 PDF Reports with SEC-desk-style direct PDF export for the current research brief and saved briefs, plus separate Markdown export.
 - INR crore valuation lens with revenue CAGR, FCF margin, terminal multiple, and discount-rate sensitivities.
 - Saved valuation cases stored locally in the browser.
 - One-click research outputs for risk memos, concall tone, valuation assumptions, peer comparison, and investment committee briefs.
@@ -89,6 +91,8 @@ v7 and v8 add a repeatable collection workflow:
 - Source Pack Studio now keeps the selected replacement task visible at the top of the form, keeps builder actions reachable while scrolling, and provides `Return to dossier` after adding a source so completeness can be checked immediately.
 - Builder Pack now shows export readiness before shipping: REAL/IMP/SYN counts, missing source URLs, section counts, and the exact GitHub upload target. Use `Export source pack` for review, or `Export full documents.json` when you are ready to replace `data/documents.json` in the repository.
 - The `Coverage Command Center` gives a matrix view of every company against annual report, concall, results, shareholding, and announcement coverage. Filter to gaps, open the next missing source in Source Pack Studio, or copy the visible matrix as CSV.
+- Coverage CSV export now has two paths: `Copy matrix CSV` verifies whether the clipboard copy succeeded, while `Download CSV` saves the same visible matrix as a file. If the browser blocks clipboard access, the CSV appears in a selectable text area.
+- Use the top-right `PDF` button after running a report to download a branded research memo. Use `MD` for editable Markdown. Saved briefs also include a `PDF` action in the saved brief card.
 
 ## Waitlist capture
 

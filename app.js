@@ -10,7 +10,7 @@ const STORAGE_KEYS = {
 };
 
 const WAITLIST_ENDPOINT = "https://formsubmit.co/ajax/dhirajnyse@gmail.com";
-const DATA_VERSION = "20260508-13";
+const DATA_VERSION = "20260508-15";
 const DATA_FILES = {
   companies: "data/companies.json",
   documents: "data/documents.json",
@@ -412,6 +412,7 @@ function cacheElements() {
   els.copyBrief = document.querySelector("#copyBrief");
   els.saveBrief = document.querySelector("#saveBrief");
   els.exportBrief = document.querySelector("#exportBrief");
+  els.exportPdfBrief = document.querySelector("#exportPdfBrief");
   els.notebookList = document.querySelector("#notebookList");
   els.clearNotes = document.querySelector("#clearNotes");
   els.waitlistForm = document.querySelector("#waitlistForm");
@@ -445,9 +446,11 @@ function cacheElements() {
   els.matrixStatusFilter = document.querySelector("#matrixStatusFilter");
   els.matrixNextGap = document.querySelector("#matrixNextGap");
   els.copyCoverageMatrix = document.querySelector("#copyCoverageMatrix");
+  els.downloadCoverageMatrix = document.querySelector("#downloadCoverageMatrix");
   els.sourceMatrixSummary = document.querySelector("#sourceMatrixSummary");
   els.sourceMatrix = document.querySelector("#sourceMatrix");
   els.sourceMatrixResult = document.querySelector("#sourceMatrixResult");
+  els.sourceMatrixExport = document.querySelector("#sourceMatrixExport");
   els.queueTickerFilter = document.querySelector("#queueTickerFilter");
   els.queueStatusFilter = document.querySelector("#queueStatusFilter");
   els.generateSourceTasks = document.querySelector("#generateSourceTasks");
@@ -642,6 +645,9 @@ function bindEvents() {
   els.saveValuationCase.addEventListener("click", saveValuationCase);
   els.copyBrief.addEventListener("click", copyCurrentBrief);
   els.saveBrief.addEventListener("click", saveCurrentBrief);
+  if (els.exportPdfBrief) {
+    els.exportPdfBrief.addEventListener("click", exportPdfBrief);
+  }
   els.exportBrief.addEventListener("click", exportCurrentBrief);
   els.clearNotes.addEventListener("click", () => {
     state.notes = [];
@@ -722,6 +728,10 @@ function bindEvents() {
 
   if (els.copyCoverageMatrix) {
     els.copyCoverageMatrix.addEventListener("click", copyCoverageMatrixCsv);
+  }
+
+  if (els.downloadCoverageMatrix) {
+    els.downloadCoverageMatrix.addEventListener("click", downloadCoverageMatrixCsv);
   }
 
   if (els.generateSourceTasks) {
@@ -1308,14 +1318,47 @@ function makeCoverageMatrixCsv() {
   return [headers, ...dataRows].map((row) => row.map(csvCell).join(",")).join("\n");
 }
 
-function copyCoverageMatrixCsv() {
+async function copyCoverageMatrixCsv() {
   const csv = makeCoverageMatrixCsv();
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(csv).catch(() => fallbackCopy(csv));
+  hideCoverageMatrixExport();
+  const copied = await copyTextToClipboard(csv);
+  if (copied) {
+    flashSourceMatrixResult("Copied the visible coverage matrix as CSV.", "success");
   } else {
-    fallbackCopy(csv);
+    showCoverageMatrixExport(csv);
+    flashSourceMatrixResult("Clipboard copy was blocked. CSV is shown below and can also be downloaded.", "error");
   }
-  flashSourceMatrixResult("Copied the visible coverage matrix as CSV.", "success");
+}
+
+function downloadCoverageMatrixCsv() {
+  const csv = makeCoverageMatrixCsv();
+  const filename = `niveshscope-coverage-matrix-${new Date().toISOString().slice(0, 10)}.csv`;
+  downloadTextFile(filename, csv, "text/csv;charset=utf-8");
+  hideCoverageMatrixExport();
+  flashSourceMatrixResult("Downloaded the visible coverage matrix as CSV.", "success");
+}
+
+function showCoverageMatrixExport(csv) {
+  if (!els.sourceMatrixExport) return;
+  els.sourceMatrixExport.hidden = false;
+  els.sourceMatrixExport.innerHTML = `
+    <div>
+      <strong>Manual CSV copy</strong>
+      <span>Clipboard access is blocked in this browser session. Select the CSV below or use Download CSV.</span>
+    </div>
+    <textarea readonly rows="8">${escapeHtml(csv)}</textarea>
+  `;
+  const textarea = els.sourceMatrixExport.querySelector("textarea");
+  if (textarea) {
+    textarea.focus();
+    textarea.select();
+  }
+}
+
+function hideCoverageMatrixExport() {
+  if (!els.sourceMatrixExport) return;
+  els.sourceMatrixExport.hidden = true;
+  els.sourceMatrixExport.innerHTML = "";
 }
 
 function flashSourceMatrixResult(message, tone = "neutral") {
@@ -3311,6 +3354,7 @@ function renderNotebook() {
       <p>${escapeHtml(snippet(note.body, 220))}</p>
       <div class="note-actions">
         <button type="button" data-note-open="${escapeAttr(note.id)}">Open</button>
+        <button type="button" data-note-pdf="${escapeAttr(note.id)}">PDF</button>
         <button type="button" data-note-delete="${escapeAttr(note.id)}">Delete</button>
       </div>
     </article>
@@ -3319,6 +3363,9 @@ function renderNotebook() {
 
   els.notebookList.querySelectorAll("button[data-note-open]").forEach((button) => {
     button.addEventListener("click", () => openSavedBrief(button.dataset.noteOpen));
+  });
+  els.notebookList.querySelectorAll("button[data-note-pdf]").forEach((button) => {
+    button.addEventListener("click", () => exportSavedBriefPdf(button.dataset.notePdf));
   });
   els.notebookList.querySelectorAll("button[data-note-delete]").forEach((button) => {
     button.addEventListener("click", () => deleteSavedBrief(button.dataset.noteDelete));
@@ -3342,8 +3389,21 @@ function fallbackCopy(text) {
   textarea.style.left = "-9999px";
   document.body.appendChild(textarea);
   textarea.select();
-  document.execCommand("copy");
+  const copied = document.execCommand("copy");
   document.body.removeChild(textarea);
+  return copied;
+}
+
+async function copyTextToClipboard(text) {
+  if (navigator.clipboard && navigator.clipboard.writeText && window.isSecureContext) {
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch (error) {
+      return fallbackCopy(text);
+    }
+  }
+  return fallbackCopy(text);
 }
 
 function saveCurrentBrief() {
@@ -3429,6 +3489,18 @@ function openSavedBrief(noteId) {
   const note = state.notes.find((item) => item.id === noteId);
   if (!note) return;
   const meta = noteMeta(note);
+  state.lastBrief = note.body;
+  state.lastAnswerMeta = {
+    ...meta,
+    question: note.title,
+    ticker: meta.ticker,
+    company: meta.company,
+    qualityLabel: note.qualityLabel || "",
+    qualityClass: meta.mismatchCount ? "is-warning" : "is-strong",
+    citationCount: note.citationCount || 0,
+    citations: note.citations || []
+  };
+  state.currentCitations = hydrateSavedBriefCitations(note);
   els.answerPanel.innerHTML = `
     <div class="answer-header saved-brief-header">
       <div>
@@ -3465,6 +3537,45 @@ function deleteSavedBrief(noteId) {
   renderNotebook();
 }
 
+function hydrateSavedBriefCitations(note) {
+  const saved = Array.isArray(note.citations) ? note.citations : [];
+  return saved.map((citation, index) => ({
+    citationId: citation.citationId || `C${index + 1}`,
+    ticker: normalizeTicker(citation.ticker || note.ticker || note.intent || "DESK"),
+    company: citation.company || note.company || note.ticker || "Saved brief",
+    type: citation.type || "Saved source",
+    period: citation.period || "",
+    section: citation.section || "Saved evidence",
+    text: citation.text || snippet(note.body || "", 260),
+    sourceStatus: citation.sourceStatus || "imported",
+    score: Number(citation.score || 0)
+  }));
+}
+
+function exportSavedBriefPdf(noteId) {
+  const note = state.notes.find((item) => item.id === noteId);
+  if (!note) return;
+  const meta = noteMeta(note);
+  const citations = hydrateSavedBriefCitations(note);
+  const date = new Date().toISOString().slice(0, 10);
+  const filename = `niveshscope-${String(meta.ticker || "desk").toLowerCase()}-saved-brief-${date}.pdf`;
+  const pdfBytes = buildNiveshPdfBrief({
+    body: note.body,
+    meta: {
+      ...meta,
+      question: note.title,
+      ticker: meta.ticker,
+      company: meta.company,
+      qualityLabel: note.qualityLabel || "",
+      citationCount: note.citationCount || citations.length
+    },
+    citations,
+    title: note.title,
+    saved: true
+  });
+  downloadBinaryFile(filename, pdfBytes, "application/pdf");
+}
+
 function exportCurrentBrief() {
   if (!state.lastBrief) return;
   const meta = state.lastAnswerMeta || inferBriefMetaFromText(state.lastBrief);
@@ -3489,7 +3600,26 @@ function exportCurrentBrief() {
   ].join("\n");
 
   downloadTextFile(filename, content, "text/markdown;charset=utf-8");
-  flashButtonLabel(els.exportBrief, "Exported");
+  flashButtonLabel(els.exportBrief, "Saved");
+}
+
+function exportPdfBrief() {
+  if (!state.lastBrief) {
+    flashButtonLabel(els.exportPdfBrief, "Run first");
+    return;
+  }
+  const meta = state.lastAnswerMeta || inferBriefMetaFromText(state.lastBrief);
+  const ticker = meta.ticker || state.selectedTicker || "desk";
+  const date = new Date().toISOString().slice(0, 10);
+  const filename = `niveshscope-${String(ticker || "desk").toLowerCase()}-brief-${date}.pdf`;
+  const pdfBytes = buildNiveshPdfBrief({
+    body: state.lastBrief,
+    meta,
+    citations: state.currentCitations,
+    title: makePdfReportTitle(meta, state.lastBrief)
+  });
+  downloadBinaryFile(filename, pdfBytes, "application/pdf");
+  flashButtonLabel(els.exportPdfBrief, "Saved");
 }
 
 function downloadTextFile(filename, content, type = "text/plain;charset=utf-8") {
@@ -3502,6 +3632,376 @@ function downloadTextFile(filename, content, type = "text/plain;charset=utf-8") 
   link.click();
   link.remove();
   window.setTimeout(() => URL.revokeObjectURL(url), 0);
+}
+
+function downloadBinaryFile(filename, bytes, type = "application/octet-stream") {
+  const blob = new Blob([bytes], { type });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  window.setTimeout(() => URL.revokeObjectURL(url), 0);
+}
+
+function buildNiveshPdfBrief({ body, meta, citations, title, saved = false }) {
+  return createNiveshPdf(buildNiveshPdfBlocks({ body, meta, citations, title, saved }));
+}
+
+function buildNiveshPdfBlocks({ body, meta, citations, title, saved }) {
+  const safeMeta = meta || inferBriefMetaFromText(body);
+  const sourceRows = (citations || []).slice(0, 6).map((citation) => ({
+    id: citation.citationId || "C",
+    source: `${sourceStatusLabel(citation)} | ${citation.company || citation.ticker || "Source"} | ${citation.type || "Evidence"} ${citation.period ? `| ${citation.period}` : ""}`,
+    section: citation.section || "Evidence",
+    score: Number(citation.score || 0).toFixed(1),
+    text: citation.text || ""
+  }));
+  const blocks = [
+    {
+      type: "cover",
+      eyebrow: saved ? "NiveshScope saved memo" : "NiveshScope research memo",
+      title: title || makePdfReportTitle(safeMeta, body),
+      subtitle: "Evidence-backed Indian equity research across disclosures, concalls, exchange filings, and valuation read-through.",
+      generatedAt: new Date().toLocaleString()
+    },
+    {
+      type: "snapshot",
+      items: [
+        { label: "Focus", value: `${safeMeta.ticker || "Desk"} - ${safeMeta.company || "Research desk"}` },
+        { label: "Confidence", value: `${safeMeta.confidence || 0}%` },
+        { label: "Evidence", value: `${safeMeta.evidenceQuality || 0}% ${safeMeta.qualityLabel || "quality"}` },
+        { label: "Sources", value: `${safeMeta.citationCount || sourceRows.length || 0} citations` }
+      ]
+    },
+    { type: "audit", text: makeNiveshPdfAuditLine(safeMeta) },
+    { type: "heading", text: "Research brief" }
+  ];
+
+  splitPdfBriefBody(body).forEach((paragraph, index) => {
+    blocks.push({
+      type: index === 0 ? "callout" : "paragraph",
+      text: paragraph
+    });
+  });
+
+  if (sourceRows.length) {
+    blocks.push({ type: "heading", text: "Evidence pack" });
+    blocks.push({ type: "sourceTable", rows: sourceRows });
+  }
+
+  blocks.push({
+    type: "footnote",
+    text: "NiveshScope is research software, not investment advice. Starter SYN sources are demo evidence until replaced with verified company, exchange, or investor-relations documents."
+  });
+  return blocks;
+}
+
+function makePdfReportTitle(meta, body) {
+  const firstBriefLine = String(body || "")
+    .split(/\n/)
+    .map((line) => line.trim())
+    .find((line) => line && !/^(Evidence quality|Management tone|Ticker focus):/i.test(line));
+  if (meta && meta.question) return meta.question;
+  if (meta && meta.ticker && meta.intentLabel) return `${meta.ticker} ${meta.intentLabel}`;
+  return firstBriefLine || "NiveshScope research brief";
+}
+
+function makeNiveshPdfAuditLine(meta) {
+  const pieces = [
+    `${meta.evidenceQuality || 0}/100 evidence quality`,
+    `${meta.confidence || 0}% confidence`,
+    meta.guarded ? "single-company guard active" : "multi-company or saved mode",
+    meta.syntheticCount ? `${meta.syntheticCount} SYN citations` : "",
+    meta.mismatchCount ? `${meta.mismatchCount} off-ticker citation warning` : ""
+  ].filter(Boolean);
+  return `Source guard: ${pieces.join(" | ")}.`;
+}
+
+function splitPdfBriefBody(body) {
+  const text = String(body || "")
+    .replace(/\r/g, "")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+  if (!text) return ["No report text is available. Run an analysis before exporting a PDF."];
+  const paragraphs = text.split(/\n{2,}/)
+    .map((part) => part.replace(/\n/g, " ").replace(/\s+/g, " ").trim())
+    .filter(Boolean)
+    .slice(0, 14);
+  return paragraphs.length ? paragraphs : [text];
+}
+
+function createNiveshPdf(blocks) {
+  const pageWidth = 612;
+  const pageHeight = 792;
+  const margin = 54;
+  const bottom = 54;
+  const maxWidth = pageWidth - margin * 2;
+  const pages = [[]];
+  let y = pageHeight - margin;
+
+  const currentPage = () => pages[pages.length - 1];
+  const newPage = () => {
+    pages.push([]);
+    y = pageHeight - margin;
+  };
+  const ensureSpace = (height) => {
+    if (y - height < bottom) newPage();
+  };
+  const addFillRect = (x, rectY, width, height, color = "0.98 0.99 0.98") => {
+    currentPage().push(`q ${color} rg ${x} ${rectY} ${width} ${height} re f Q`);
+  };
+  const addStrokeRect = (x, rectY, width, height, color = "0.83 0.87 0.84", lineWidth = 0.6) => {
+    currentPage().push(`q ${color} RG ${lineWidth} w ${x} ${rectY} ${width} ${height} re S Q`);
+  };
+  const addTextLine = (text, x, textY, options = {}) => {
+    const size = options.size || 10;
+    const font = options.font || "F1";
+    const color = options.color || "0.06 0.09 0.08";
+    currentPage().push(`q ${color} rg BT /${font} ${size} Tf 0 Tw ${x} ${textY} Td (${pdfEscape(text)}) Tj ET Q`);
+  };
+  const addWrappedAt = (text, x, startY, width, options = {}) => {
+    const size = options.size || 10;
+    const font = options.font || "F1";
+    const leading = options.leading || Math.ceil(size * 1.35);
+    const color = options.color || "0.16 0.21 0.19";
+    const chars = Math.max(18, Math.floor(width / (size * 0.52)));
+    const lines = wrapPdfText(text, chars).slice(0, options.maxLines || 30);
+    let localY = startY;
+    lines.forEach((line, index) => {
+      const justify = Boolean(options.justify && index < lines.length - 1 && line.split(" ").length > 4);
+      const wordSpacing = justify ? computePdfWordSpacing(line, size, width) : 0;
+      currentPage().push(`q ${color} rg BT /${font} ${size} Tf ${wordSpacing.toFixed(3)} Tw ${x} ${localY} Td (${pdfEscape(line)}) Tj ET Q`);
+      localY -= leading;
+    });
+    return localY;
+  };
+  const addText = (text, options = {}) => {
+    const size = options.size || 10.5;
+    const font = options.font || "F1";
+    const leading = options.leading || Math.ceil(size * 1.35);
+    const indent = options.indent || 0;
+    const gapBefore = options.gapBefore || 0;
+    const gapAfter = options.gapAfter || 0;
+    const chars = Math.max(24, Math.floor((maxWidth - indent) / (size * 0.52)));
+    const lines = wrapPdfText(text, chars);
+    ensureSpace(gapBefore + lines.length * leading + gapAfter + 4);
+    y -= gapBefore;
+    lines.forEach((line, lineIndex) => {
+      const justify = Boolean(options.justify && lineIndex < lines.length - 1 && line.split(" ").length > 4);
+      const wordSpacing = justify ? computePdfWordSpacing(line, size, maxWidth - indent) : 0;
+      currentPage().push(`BT /${font} ${size} Tf ${wordSpacing.toFixed(3)} Tw ${margin + indent} ${y} Td (${pdfEscape(line)}) Tj ET`);
+      y -= leading;
+    });
+    y -= gapAfter;
+  };
+  const addCover = (block) => {
+    ensureSpace(112);
+    addFillRect(margin, y - 84, maxWidth, 88, "0.91 0.97 0.95");
+    addStrokeRect(margin, y - 84, maxWidth, 88, "0.32 0.63 0.55", 0.8);
+    addFillRect(margin + 16, y - 50, 34, 34, "0.06 0.09 0.08");
+    addTextLine("NS", margin + 23, y - 37, { size: 11, font: "F2", color: "0.95 0.62 0.24" });
+    addTextLine(block.eyebrow, margin + 62, y - 18, { size: 9, font: "F2", color: "0.03 0.39 0.34" });
+    const afterTitle = addWrappedAt(block.title, margin + 62, y - 36, maxWidth - 84, { size: 18, font: "F2", leading: 21, color: "0.06 0.09 0.08", maxLines: 2 });
+    addWrappedAt(block.subtitle, margin + 62, afterTitle - 3, maxWidth - 84, { size: 9.5, leading: 12, color: "0.39 0.45 0.42", maxLines: 2 });
+    addTextLine(`Generated ${block.generatedAt}`, pageWidth - margin - 154, y - 70, { size: 8, color: "0.39 0.45 0.42" });
+    y -= 104;
+  };
+  const addSnapshot = (block) => {
+    ensureSpace(76);
+    const gap = 8;
+    const cardWidth = (maxWidth - gap * 3) / 4;
+    const cardHeight = 56;
+    block.items.forEach((item, index) => {
+      const x = margin + index * (cardWidth + gap);
+      addFillRect(x, y - cardHeight, cardWidth, cardHeight, "0.98 0.99 0.98");
+      addStrokeRect(x, y - cardHeight, cardWidth, cardHeight, "0.83 0.87 0.84", 0.6);
+      addTextLine(item.label, x + 9, y - 16, { size: 7.5, font: "F2", color: "0.39 0.45 0.42" });
+      addWrappedAt(item.value, x + 9, y - 31, cardWidth - 18, { size: 10.5, font: "F2", leading: 12, maxLines: 2, color: "0.06 0.09 0.08" });
+    });
+    y -= cardHeight + 12;
+  };
+  const addAuditBand = (text) => {
+    ensureSpace(38);
+    addFillRect(margin, y - 28, maxWidth, 30, "0.89 0.96 0.94");
+    addStrokeRect(margin, y - 28, maxWidth, 30, "0.49 0.74 0.67", 0.6);
+    addTextLine("SOURCE GUARD", margin + 10, y - 11, { size: 7.5, font: "F2", color: "0.03 0.39 0.34" });
+    addWrappedAt(text.replace(/^Source guard:\s*/i, ""), margin + 92, y - 11, maxWidth - 104, { size: 9, font: "F2", leading: 11, maxLines: 2, color: "0.06 0.09 0.08" });
+    y -= 42;
+  };
+  const addCallout = (text) => {
+    const size = 10.25;
+    const chars = Math.max(24, Math.floor((maxWidth - 24) / (size * 0.52)));
+    const lines = wrapPdfText(text, chars);
+    const height = Math.max(48, 22 + lines.length * 14);
+    ensureSpace(height + 4);
+    addFillRect(margin, y - height, maxWidth, height, "0.98 0.99 0.98");
+    addStrokeRect(margin, y - height, maxWidth, height, "0.83 0.87 0.84", 0.6);
+    addWrappedAt(text, margin + 12, y - 18, maxWidth - 24, { size, leading: 14, justify: true, maxLines: 16 });
+    y -= height + 6;
+  };
+  const addSourceTable = (block) => {
+    if (!block.rows.length) return;
+    const rows = block.rows.slice(0, 6);
+    const gap = 8;
+    const cardWidth = (maxWidth - gap) / 2;
+    const cardHeight = 62;
+    const rowCount = Math.ceil(rows.length / 2);
+    ensureSpace(30 + rowCount * cardHeight + Math.max(0, rowCount - 1) * gap + 8);
+    addFillRect(margin, y - 22, maxWidth, 22, "0.06 0.09 0.08");
+    addTextLine("SOURCE STACK", margin + 9, y - 14, { size: 7.5, font: "F2", color: "1 1 1" });
+    addTextLine(`${rows.length} passages`, pageWidth - margin - 82, y - 14, { size: 7.2, font: "F2", color: "1 1 1" });
+    y -= 30;
+    rows.forEach((row, index) => {
+      const column = index % 2;
+      const rowIndex = Math.floor(index / 2);
+      const x = margin + column * (cardWidth + gap);
+      const top = y - rowIndex * (cardHeight + gap);
+      addFillRect(x, top - cardHeight, cardWidth, cardHeight, "1 1 1");
+      addStrokeRect(x, top - cardHeight, cardWidth, cardHeight, "0.83 0.87 0.84", 0.45);
+      addFillRect(x + 8, top - 22, 26, 15, "0.89 0.96 0.94");
+      addTextLine(row.id, x + 14, top - 17, { size: 7.5, font: "F2", color: "0.03 0.39 0.34" });
+      addWrappedAt(`${row.score} | ${snippet(row.source, 38)}`, x + 42, top - 14, cardWidth - 52, { size: 7.4, font: "F2", leading: 9, maxLines: 1 });
+      addWrappedAt(snippet(row.section, 58), x + 9, top - 34, cardWidth - 18, { size: 7.8, leading: 9, maxLines: 1, color: "0.16 0.21 0.19" });
+      addWrappedAt(snippet(row.text, 112), x + 9, top - 48, cardWidth - 18, { size: 7.1, leading: 8.3, maxLines: 1, color: "0.39 0.45 0.42" });
+    });
+    y -= rowCount * cardHeight + Math.max(0, rowCount - 1) * gap + 8;
+  };
+
+  blocks.forEach((block, index) => {
+    if (block.type === "cover") addCover(block);
+    else if (block.type === "snapshot") addSnapshot(block);
+    else if (block.type === "audit") addAuditBand(block.text);
+    else if (block.type === "callout") addCallout(block.text);
+    else if (block.type === "sourceTable") addSourceTable(block);
+    else if (block.type === "heading") {
+      addText(block.text, { size: 13, font: "F2", leading: 16, gapBefore: index ? 9 : 0, gapAfter: 2 });
+      currentPage().push(`0.83 0.87 0.84 RG 0.5 w ${margin} ${y + 4} m ${pageWidth - margin} ${y + 4} l S`);
+    } else if (block.type === "footnote") addText(block.text, { size: 8.1, font: "F1", leading: 10, gapBefore: 6, justify: true });
+    else addText(block.text, { size: 10.25, font: "F1", leading: 14, gapAfter: 4, justify: true });
+  });
+
+  decorateNiveshPdfPages(pages, pageWidth, pageHeight, margin);
+  return encodePdf(pages, pageWidth, pageHeight);
+}
+
+function decorateNiveshPdfPages(pages, pageWidth, pageHeight, margin) {
+  pages.forEach((commands, index) => {
+    commands.unshift(
+      `0.03 0.39 0.34 RG 0.8 w ${margin} ${pageHeight - 36} m ${pageWidth - margin} ${pageHeight - 36} l S`,
+      `BT /F2 8 Tf 0 Tw ${margin} ${pageHeight - 27} Td (NiveshScope Research Memo) Tj ET`
+    );
+    commands.push(
+      `0.83 0.87 0.84 RG 0.5 w ${margin} 36 m ${pageWidth - margin} 36 l S`,
+      `BT /F1 8 Tf 0 Tw ${margin} 24 Td (Research software - not investment advice) Tj ET`,
+      `BT /F1 8 Tf 0 Tw ${pageWidth - margin - 42} 24 Td (Page ${index + 1}/${pages.length}) Tj ET`
+    );
+  });
+}
+
+function encodePdf(pages, pageWidth, pageHeight) {
+  const objects = [];
+  const pageObjectNumbers = [];
+  objects.push("<< /Type /Catalog /Pages 2 0 R >>");
+  objects.push("");
+  objects.push("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>");
+  objects.push("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>");
+
+  pages.forEach((commands) => {
+    const pageNumber = objects.length + 1;
+    const contentNumber = pageNumber + 1;
+    pageObjectNumbers.push(pageNumber);
+    const content = commands.join("\n");
+    objects.push(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${pageWidth} ${pageHeight}] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents ${contentNumber} 0 R >>`);
+    objects.push(`<< /Length ${content.length} >>\nstream\n${content}\nendstream`);
+  });
+
+  objects[1] = `<< /Type /Pages /Kids [${pageObjectNumbers.map((number) => `${number} 0 R`).join(" ")}] /Count ${pageObjectNumbers.length} >>`;
+
+  let pdf = "%PDF-1.4\n";
+  const offsets = [0];
+  objects.forEach((object, index) => {
+    offsets.push(pdf.length);
+    pdf += `${index + 1} 0 obj\n${object}\nendobj\n`;
+  });
+  const xrefOffset = pdf.length;
+  pdf += `xref\n0 ${objects.length + 1}\n0000000000 65535 f \n`;
+  offsets.slice(1).forEach((offset) => {
+    pdf += `${String(offset).padStart(10, "0")} 00000 n \n`;
+  });
+  pdf += `trailer\n<< /Size ${objects.length + 1} /Root 1 0 R >>\nstartxref\n${xrefOffset}\n%%EOF`;
+
+  const bytes = new Uint8Array(pdf.length);
+  for (let index = 0; index < pdf.length; index += 1) {
+    bytes[index] = pdf.charCodeAt(index);
+  }
+  return bytes;
+}
+
+function wrapPdfText(text, maxChars) {
+  const words = pdfPlainText(text).split(/\s+/).filter(Boolean);
+  const lines = [];
+  let line = "";
+  words.forEach((word) => {
+    if (word.length > maxChars) {
+      if (line) {
+        lines.push(line);
+        line = "";
+      }
+      for (let index = 0; index < word.length; index += maxChars) {
+        lines.push(word.slice(index, index + maxChars));
+      }
+      return;
+    }
+    const next = line ? `${line} ${word}` : word;
+    if (next.length > maxChars && line) {
+      lines.push(line);
+      line = word;
+    } else {
+      line = next;
+    }
+  });
+  if (line) lines.push(line);
+  return lines.length ? lines : [""];
+}
+
+function computePdfWordSpacing(line, size, width) {
+  const spaces = (line.match(/ /g) || []).length;
+  if (!spaces) return 0;
+  const estimatedWidth = estimatePdfTextWidth(line, size);
+  const extra = width - estimatedWidth;
+  if (extra <= 0 || extra > 48) return 0;
+  return Math.min(5.5, extra / spaces);
+}
+
+function estimatePdfTextWidth(text, size) {
+  return pdfPlainText(text).split("").reduce((sum, char) => {
+    if (char === " ") return sum + size * 0.27;
+    if (/[il.,:;|'`]/.test(char)) return sum + size * 0.23;
+    if (/[mwMW]/.test(char)) return sum + size * 0.78;
+    if (/[A-Z]/.test(char)) return sum + size * 0.58;
+    if (/[0-9$%]/.test(char)) return sum + size * 0.52;
+    return sum + size * 0.48;
+  }, 0);
+}
+
+function pdfPlainText(value) {
+  return String(value || "")
+    .replace(/[\u2010-\u2015]/g, "-")
+    .replace(/[\u2018\u2019]/g, "'")
+    .replace(/[\u201C\u201D]/g, '"')
+    .replace(/[^\x20-\x7E]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function pdfEscape(value) {
+  return pdfPlainText(value)
+    .replace(/\\/g, "\\\\")
+    .replace(/\(/g, "\\(")
+    .replace(/\)/g, "\\)");
 }
 
 function flashButtonLabel(button, label) {
