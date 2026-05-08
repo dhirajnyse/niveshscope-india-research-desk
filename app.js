@@ -8,817 +8,20 @@ const STORAGE_KEYS = {
 };
 
 const WAITLIST_ENDPOINT = "https://formsubmit.co/ajax/dhirajnyse@gmail.com";
-
-const SAMPLE_COMPANIES = [
-  {
-    ticker: "RELIANCE",
-    name: "Reliance Industries",
-    sector: "Energy, retail, digital infrastructure",
-    revenue: 920000,
-    growth: 10,
-    grossMargin: 38.4,
-    opMargin: 16.8,
-    fcfMargin: 8,
-    netDebt: 108000,
-    shares: 676,
-    multiple: 16,
-    risk: 52,
-    sentiment: 68,
-    thesis: "Integrated cash engine with refining cyclicality, retail execution, telecom capex, and green-energy timing risk."
-  },
-  {
-    ticker: "TCS",
-    name: "Tata Consultancy Services",
-    sector: "IT services",
-    revenue: 255000,
-    growth: 7,
-    grossMargin: 41.2,
-    opMargin: 24.6,
-    fcfMargin: 21,
-    netDebt: -45000,
-    shares: 365,
-    multiple: 24,
-    risk: 34,
-    sentiment: 79,
-    thesis: "High cash conversion and order book visibility, offset by discretionary tech-spend and currency sensitivity."
-  },
-  {
-    ticker: "HDFCBANK",
-    name: "HDFC Bank",
-    sector: "Private sector bank",
-    revenue: 286000,
-    growth: 15,
-    grossMargin: 29.4,
-    opMargin: 27.8,
-    fcfMargin: 18,
-    netDebt: 0,
-    shares: 560,
-    multiple: 18,
-    risk: 46,
-    sentiment: 71,
-    thesis: "Deposit franchise and credit growth with margin pressure, unsecured-loan seasoning, and integration execution risk."
-  },
-  {
-    ticker: "INFY",
-    name: "Infosys",
-    sector: "IT services",
-    revenue: 153670,
-    growth: 6,
-    grossMargin: 37.5,
-    opMargin: 20.7,
-    fcfMargin: 18,
-    netDebt: -30000,
-    shares: 414,
-    multiple: 22,
-    risk: 38,
-    sentiment: 72,
-    thesis: "Digital transformation franchise with margin discipline, cash returns, and sensitivity to discretionary global tech demand."
-  },
-  {
-    ticker: "ICICIBANK",
-    name: "ICICI Bank",
-    sector: "Private sector bank",
-    revenue: 186000,
-    growth: 17,
-    grossMargin: 30,
-    opMargin: 29,
-    fcfMargin: 18,
-    netDebt: 0,
-    shares: 706,
-    multiple: 19,
-    risk: 42,
-    sentiment: 74,
-    thesis: "Compounding bank franchise with strong retail deposit engine, fee income, and credit-cost normalisation watchpoints."
-  },
-  {
-    ticker: "SBIN",
-    name: "State Bank of India",
-    sector: "Public sector bank",
-    revenue: 420000,
-    growth: 12,
-    grossMargin: 27,
-    opMargin: 23,
-    fcfMargin: 15,
-    netDebt: 0,
-    shares: 892,
-    multiple: 12,
-    risk: 49,
-    sentiment: 67,
-    thesis: "Scale banking franchise with deposit depth, corporate-cycle leverage, public-sector ownership, and asset-quality cyclicality."
-  },
-  {
-    ticker: "TATAMOTORS",
-    name: "Tata Motors",
-    sector: "Auto and EV mobility",
-    revenue: 146000,
-    growth: 18,
-    grossMargin: 31.6,
-    opMargin: 13.4,
-    fcfMargin: 7,
-    netDebt: 18000,
-    shares: 320,
-    multiple: 19,
-    risk: 61,
-    sentiment: 65,
-    thesis: "EV and export growth with commodity swings, battery sourcing, dealer inventory, and capex-cycle risk."
-  },
-  {
-    ticker: "LT",
-    name: "Larsen and Toubro",
-    sector: "Engineering and infrastructure",
-    revenue: 225000,
-    growth: 14,
-    grossMargin: 29,
-    opMargin: 11.5,
-    fcfMargin: 7,
-    netDebt: 32000,
-    shares: 137,
-    multiple: 21,
-    risk: 47,
-    sentiment: 76,
-    thesis: "Infrastructure execution leader with order-book visibility, working-capital intensity, and project margin discipline risk."
-  },
-  {
-    ticker: "BAJFINANCE",
-    name: "Bajaj Finance",
-    sector: "NBFC and consumer finance",
-    revenue: 62000,
-    growth: 23,
-    grossMargin: 28,
-    opMargin: 33,
-    fcfMargin: 14,
-    netDebt: 168000,
-    shares: 62,
-    multiple: 26,
-    risk: 58,
-    sentiment: 70,
-    thesis: "High-growth lending franchise with credit-cost, funding-cost, and unsecured-retail seasoning sensitivity."
-  },
-  {
-    ticker: "ADANIENT",
-    name: "Adani Enterprises",
-    sector: "Infrastructure incubation",
-    revenue: 98000,
-    growth: 20,
-    grossMargin: 24,
-    opMargin: 9.5,
-    fcfMargin: 4,
-    netDebt: 76000,
-    shares: 114,
-    multiple: 25,
-    risk: 68,
-    sentiment: 61,
-    thesis: "Infrastructure incubator with optionality across airports, green energy, and logistics, balanced by leverage and execution risk."
-  }
-];
-
-const PUBLIC_TICKER_ALIASES = {
-  RIL: { ticker: "RELIANCE", note: "Reliance Industries alias" },
-  HDFC: { ticker: "HDFCBANK", note: "HDFC Bank alias" },
-  INFOSYS: { ticker: "INFY", note: "Infosys alias" },
-  ICICI: { ticker: "ICICIBANK", note: "ICICI Bank alias" },
-  SBI: { ticker: "SBIN", note: "State Bank of India alias" },
-  TATA: { ticker: "TATAMOTORS", note: "Tata Motors alias" },
-  LARSEN: { ticker: "LT", note: "Larsen and Toubro alias" },
-  LNT: { ticker: "LT", note: "Larsen and Toubro alias" },
-  BAJAJFINANCE: { ticker: "BAJFINANCE", note: "Bajaj Finance alias" },
-  NIFTY: { ticker: "RELIANCE", note: "Nifty heavyweight starter context" }
+const DATA_VERSION = "20260508-2";
+const DATA_FILES = {
+  companies: "data/companies.json",
+  documents: "data/documents.json",
+  questions: "data/questions.json",
+  watchlists: "data/watchlists.json"
 };
 
-const RISK_FACTOR_LIBRARY = {
-  RELIANCE: [
-    {
-      title: "Commodity spreads and refining-cycle volatility",
-      severity: "High",
-      terms: ["refining", "crude", "spread", "margin", "commodity", "export duty", "cycle"],
-      body:
-        "A large share of cash generation still depends on refining and petrochemical spreads. Crude volatility, export duties, or weaker downstream demand can compress consolidated margins even when consumer and digital businesses keep growing."
-    },
-    {
-      title: "Green-energy capex and execution timing",
-      severity: "Medium",
-      terms: ["capex", "green", "hydrogen", "battery", "solar", "execution", "commissioning"],
-      body:
-        "The new-energy plan could become a durable growth option, but returns depend on commissioning schedules, policy incentives, technology cost curves, and disciplined capital allocation."
-    },
-    {
-      title: "Telecom monetisation and leverage discipline",
-      severity: "Medium",
-      terms: ["telecom", "arpu", "spectrum", "debt", "leverage", "tariff"],
-      body:
-        "Digital infrastructure returns rely on ARPU repair, spectrum economics, and monetisation of platform investments. If tariff hikes lag capex, free cash flow can stay below headline EBITDA growth."
-    }
-  ],
-  TCS: [
-    {
-      title: "Discretionary tech-spend slowdown",
-      severity: "High",
-      terms: ["discretionary", "deal", "pipeline", "client", "budget", "spend", "demand"],
-      body:
-        "Client decision cycles can lengthen when global enterprises defer discretionary transformation work. Deal wins may remain healthy, but revenue conversion and pricing can lag until budgets reopen."
-    },
-    {
-      title: "Talent pyramid and onsite-cost pressure",
-      severity: "Medium",
-      terms: ["attrition", "wage", "utilisation", "onsite", "subcontractor", "pyramid"],
-      body:
-        "Operating margin depends on utilisation, fresher deployment, onsite mix, and subcontractor discipline. A wage cycle or weaker pyramid can dilute the usual cash-conversion advantage."
-    },
-    {
-      title: "Currency translation and cross-border exposure",
-      severity: "Medium",
-      terms: ["currency", "rupee", "dollar", "fx", "hedge", "translation"],
-      body:
-        "A stronger rupee, hedge roll-offs, or regional weakness can pressure reported growth. The desk should separate constant-currency demand quality from translation noise."
-    }
-  ],
-  HDFCBANK: [
-    {
-      title: "Deposit competition and NIM compression",
-      severity: "High",
-      terms: ["deposit", "nim", "casa", "cost of funds", "competition", "margin"],
-      body:
-        "System-wide competition for deposits can raise funding costs faster than loan yields. If CASA mix weakens, credit growth may not translate into proportional earnings growth."
-    },
-    {
-      title: "Unsecured retail and SME credit seasoning",
-      severity: "High",
-      terms: ["unsecured", "retail", "sme", "slippage", "npa", "credit cost"],
-      body:
-        "Fast growth in unsecured retail, cards, or SME credit can look clean until portfolios season. Slippages, collection efficiency, and provisioning language need closer monitoring."
-    },
-    {
-      title: "Merger integration and technology execution",
-      severity: "Medium",
-      terms: ["integration", "migration", "technology", "branch", "cost", "synergy"],
-      body:
-        "Integration programmes can absorb management bandwidth and raise operating cost. The evidence stack should watch whether promised synergies arrive without service or credit disruption."
-    }
-  ],
-  TATAMOTORS: [
-    {
-      title: "Commodity cost and battery-sourcing volatility",
-      severity: "High",
-      terms: ["commodity", "steel", "aluminium", "lithium", "battery", "sourcing", "margin"],
-      body:
-        "Vehicle margins can move quickly with steel, aluminium, lithium, and imported component costs. The risk is amplified when price hikes lag input inflation."
-    },
-    {
-      title: "Dealer inventory and rural-demand cyclicality",
-      severity: "Medium",
-      terms: ["dealer", "inventory", "rural", "monsoon", "demand", "channel"],
-      body:
-        "Channel inventory and rural demand can make volume growth less durable than headline wholesales suggest. The desk should cross-check management tone against dealer-stock disclosures."
-    },
-    {
-      title: "EV capex, platform timing, and subsidy risk",
-      severity: "Medium",
-      terms: ["ev", "capex", "platform", "subsidy", "battery", "launch", "capacity"],
-      body:
-        "EV programmes can create long-run optionality, but returns depend on launch cadence, battery localisation, charging partnerships, and subsidy stability."
-    }
-  ],
-  INFY: [
-    {
-      title: "Discretionary demand and deal conversion",
-      severity: "High",
-      terms: ["discretionary", "deal", "pipeline", "client", "budget", "conversion"],
-      body:
-        "Revenue acceleration depends on client budgets reopening and large deals converting into run-rate revenue. A long discretionary slowdown can cap growth even when renewal activity remains healthy."
-    },
-    {
-      title: "Margin defence and employee utilisation",
-      severity: "Medium",
-      terms: ["margin", "utilisation", "wage", "subcontractor", "onsite", "pyramid"],
-      body:
-        "Margin resilience depends on utilisation, offshore mix, fresher deployment, wage inflation, and subcontractor normalisation."
-    },
-    {
-      title: "Currency and regional exposure",
-      severity: "Medium",
-      terms: ["currency", "dollar", "rupee", "europe", "north america", "hedge"],
-      body:
-        "Rupee appreciation, hedge roll-offs, or regional demand weakness can pressure reported growth and operating margin."
-    }
-  ],
-  ICICIBANK: [
-    {
-      title: "Unsecured retail seasoning",
-      severity: "High",
-      terms: ["unsecured", "credit card", "personal loan", "slippage", "npa", "credit cost"],
-      body:
-        "Fast retail growth should be tested against early delinquencies, underwriting quality, and provisioning language before assuming credit costs stay benign."
-    },
-    {
-      title: "Deposit competition",
-      severity: "Medium",
-      terms: ["deposit", "casa", "cost of funds", "nim", "competition"],
-      body:
-        "Deposit mobilisation and CASA quality remain important if system liquidity tightens or mutual funds compete harder for household savings."
-    },
-    {
-      title: "Technology and operational resilience",
-      severity: "Medium",
-      terms: ["technology", "cyber", "digital", "outage", "operational"],
-      body:
-        "Digital growth improves efficiency, but the bank needs resilient systems, cyber controls, and service quality at scale."
-    }
-  ],
-  SBIN: [
-    {
-      title: "Asset-quality cyclicality",
-      severity: "High",
-      terms: ["npa", "slippage", "restructuring", "corporate", "credit cost"],
-      body:
-        "The lending cycle can turn quickly for large public-sector banks. Corporate stress, agricultural exposure, and SME stress should be checked against provisioning buffers."
-    },
-    {
-      title: "Public-sector ownership and capital allocation",
-      severity: "Medium",
-      terms: ["government", "capital", "dividend", "policy", "psu"],
-      body:
-        "Public-sector ownership can influence capital allocation, dividend policy, and strategic priorities beyond minority-shareholder return optimisation."
-    },
-    {
-      title: "Margin pressure in competitive deposits",
-      severity: "Medium",
-      terms: ["deposit", "casa", "nim", "cost of funds", "rate"],
-      body:
-        "Large deposit scale is an advantage, but margin pressure can still appear when term-deposit repricing is faster than loan-yield repricing."
-    }
-  ],
-  LT: [
-    {
-      title: "Execution and working-capital intensity",
-      severity: "High",
-      terms: ["project", "execution", "working capital", "receivable", "order", "delay"],
-      body:
-        "Order-book visibility is valuable only if projects convert into cash. Receivable days, advance payments, and delay language should be watched closely."
-    },
-    {
-      title: "Infrastructure margin discipline",
-      severity: "Medium",
-      terms: ["margin", "cost overrun", "contract", "commodity", "fixed price"],
-      body:
-        "Fixed-price contracts, commodity movements, and cost overruns can dilute headline order inflow quality."
-    },
-    {
-      title: "Middle East and domestic cycle exposure",
-      severity: "Medium",
-      terms: ["middle east", "domestic", "capex", "government", "infrastructure"],
-      body:
-        "The company benefits from infrastructure capex, but sector concentration and regional execution exposure should be separated from durable core profitability."
-    }
-  ],
-  BAJFINANCE: [
-    {
-      title: "Funding-cost and liquidity risk",
-      severity: "High",
-      terms: ["funding", "liquidity", "borrowing", "cost of funds", "rate"],
-      body:
-        "High growth needs reliable funding. If borrowing costs rise faster than yields, spread and valuation assumptions need to be reset."
-    },
-    {
-      title: "Unsecured consumer-credit seasoning",
-      severity: "High",
-      terms: ["unsecured", "personal loan", "consumer", "slippage", "credit cost"],
-      body:
-        "Consumer-credit growth can hide risk until cohorts season. Collection efficiency, early delinquencies, and provisioning language deserve priority."
-    },
-    {
-      title: "Regulatory scrutiny",
-      severity: "Medium",
-      terms: ["rbi", "regulatory", "digital lending", "compliance", "supervision"],
-      body:
-        "Digital lending scale can attract regulatory attention around product design, customer consent, recovery practices, and risk weights."
-    }
-  ],
-  ADANIENT: [
-    {
-      title: "Leverage and funding access",
-      severity: "High",
-      terms: ["debt", "leverage", "refinancing", "funding", "rating"],
-      body:
-        "Infrastructure incubation depends on financing access. Refinancing costs, pledge disclosures, and group leverage language should be monitored."
-    },
-    {
-      title: "Execution across incubating businesses",
-      severity: "High",
-      terms: ["airport", "green", "hydrogen", "logistics", "execution", "capex"],
-      body:
-        "Multiple growth platforms can create optionality, but capex-heavy projects need clear commissioning, utilisation, and return milestones."
-    },
-    {
-      title: "Governance and disclosure confidence",
-      severity: "Medium",
-      terms: ["governance", "promoter", "pledge", "related party", "disclosure"],
-      body:
-        "The research process should connect growth claims to transparent disclosures around related-party exposure, pledge risk, and cash conversion."
-    }
-  ]
-};
-
-const SAMPLE_DOCS = [
-  {
-    id: "RELIANCE-annual-2025",
-    ticker: "RELIANCE",
-    company: "Reliance Industries",
-    type: "Annual report",
-    period: "FY2025",
-    date: "2026-04-28",
-    sections: [
-      {
-        title: "Business overview",
-        text:
-          "Reliance Industries operates an integrated energy, consumer retail, and digital infrastructure platform. FY2025 consolidated revenue was Rs 920000 crore, up 10% year over year. Consumer retail store count expanded 14%, digital subscribers grew 8%, and refining throughput stayed high despite weaker petrochemical spreads."
-      },
-      {
-        title: "Management discussion and analysis",
-        text:
-          "Operating margin improved to 16.8% as retail scale and telecom tariff repair offset weaker petrochemical margins. Management said new-energy capex remains front-loaded and may pressure reported free cash flow until solar module, battery, and green hydrogen assets begin commercial production."
-      },
-      {
-        title: "Risk factors",
-        text:
-          "The company faces volatility in crude oil, refining spreads, petrochemical demand, exchange rates, government duties, and project commissioning schedules. Telecom spectrum payments, retail working capital, and green-energy execution could affect leverage and cash conversion."
-      },
-      {
-        title: "Liquidity and capital resources",
-        text:
-          "Free cash flow before growth projects was Rs 73500 crore. Net debt stood at Rs 108000 crore after spectrum payments, store expansion, and new-energy capex. Management highlighted asset monetisation and disciplined capital recycling as priorities."
-      }
-    ]
-  },
-  {
-    id: "RELIANCE-concall-q4-2025",
-    ticker: "RELIANCE",
-    company: "Reliance Industries",
-    type: "Concall transcript",
-    period: "Q4 FY2025",
-    date: "2026-04-29",
-    sections: [
-      {
-        title: "Prepared remarks",
-        text:
-          "Management said consumer and digital businesses now provide a steadier earnings base than the refining cycle alone. The team expects telecom ARPU to improve through selective tariff actions and expects retail margin to benefit from private label and supply-chain density."
-      },
-      {
-        title: "Analyst Q&A",
-        text:
-          "When asked about new-energy returns, the CFO said the project pipeline is staged and will be funded through internal accruals, partnerships, and possible asset-level monetisation. Management acknowledged that commissioning dates are the key swing factor for free cash flow."
-      },
-      {
-        title: "Analyst Q&A",
-        text:
-          "On petrochemicals, management said spreads remain below mid-cycle levels and that inventory discipline is important. The CEO said the company will prioritise capital discipline over simply chasing volume growth."
-      }
-    ]
-  },
-  {
-    id: "TCS-annual-2025",
-    ticker: "TCS",
-    company: "Tata Consultancy Services",
-    type: "Annual report",
-    period: "FY2025",
-    date: "2026-04-18",
-    sections: [
-      {
-        title: "Business overview",
-        text:
-          "Tata Consultancy Services provides IT services, consulting, cloud migration, managed services, and AI-enabled transformation programmes for global enterprises. FY2025 revenue was Rs 255000 crore, up 7%, with an order book of Rs 345000 crore equivalent and broad participation from BFSI, manufacturing, retail, and life sciences clients."
-      },
-      {
-        title: "Management discussion and analysis",
-        text:
-          "Operating margin was 24.6%, supported by utilisation, offshore mix, and lower subcontractor cost. Management said discretionary programmes remain selective in North America, but cost-takeout and cloud optimisation work continue to convert from pipeline to revenue."
-      },
-      {
-        title: "Risk factors",
-        text:
-          "Revenue growth can be affected by client budget reductions, delayed transformation projects, currency movements, visa rules, wage inflation, data-protection obligations, and vendor-consolidation pressure."
-      },
-      {
-        title: "Liquidity and capital resources",
-        text:
-          "Free cash flow was Rs 53500 crore and cash exceeded debt by Rs 45000 crore. The board maintained a high payout ratio while preserving capacity for tuck-in acquisitions and AI platform investment."
-      }
-    ]
-  },
-  {
-    id: "TCS-concall-q4-2025",
-    ticker: "TCS",
-    company: "Tata Consultancy Services",
-    type: "Concall transcript",
-    period: "Q4 FY2025",
-    date: "2026-04-19",
-    sections: [
-      {
-        title: "Prepared remarks",
-        text:
-          "Management said clients are prioritising efficiency, cloud optimisation, and AI pilots with visible payback. The CEO said large transformation decisions are taking longer, but renewal quality remains strong and deal closures improved sequentially."
-      },
-      {
-        title: "Analyst Q&A",
-        text:
-          "The CFO said the company is not assuming a sharp discretionary recovery in the base case. Margin defence depends on utilisation, fresher deployment, automation, and the ability to reduce subcontractor intensity."
-      },
-      {
-        title: "Analyst Q&A",
-        text:
-          "When asked about currency, management said hedges protect near-term margin, but a stronger rupee would still be a reported-growth headwind if constant-currency growth stays modest."
-      }
-    ]
-  },
-  {
-    id: "HDFCBANK-annual-2025",
-    ticker: "HDFCBANK",
-    company: "HDFC Bank",
-    type: "Annual report",
-    period: "FY2025",
-    date: "2026-04-24",
-    sections: [
-      {
-        title: "Business overview",
-        text:
-          "HDFC Bank is a private-sector lender with retail, SME, wholesale, payments, and wealth-management franchises. FY2025 net interest income and fee income totalled Rs 286000 crore, up 15%, while advances grew 16% and deposits grew 13%."
-      },
-      {
-        title: "Management discussion and analysis",
-        text:
-          "Net interest margin compressed 22 basis points as term-deposit costs repriced faster than loan yields. Operating margin stayed resilient through fee income and branch productivity, but management noted that deposit mobilisation remains the most important execution priority."
-      },
-      {
-        title: "Risk factors",
-        text:
-          "The bank faces credit-cost normalisation, unsecured retail loan seasoning, cyber risk, technology migration, liquidity coverage requirements, regulatory scrutiny, and deposit competition from mutual funds and smaller banks."
-      },
-      {
-        title: "Liquidity and capital resources",
-        text:
-          "The common equity tier 1 ratio was 15.6%, gross NPA was 1.2%, and provision coverage was 74%. Management said capital is sufficient for mid-teens loan growth under the base scenario."
-      }
-    ]
-  },
-  {
-    id: "HDFCBANK-concall-q4-2025",
-    ticker: "HDFCBANK",
-    company: "HDFC Bank",
-    type: "Concall transcript",
-    period: "Q4 FY2025",
-    date: "2026-04-25",
-    sections: [
-      {
-        title: "Prepared remarks",
-        text:
-          "Management said loan growth remains broad-based, but the bank will not chase low-spread wholesale growth. The CEO said deposit quality and digital engagement matter more than near-term market-share optics."
-      },
-      {
-        title: "Analyst Q&A",
-        text:
-          "The CFO said cost of funds may stay elevated for two more quarters. Management expects NIM to stabilise if deposit pricing peaks and the loan book reprices upward."
-      },
-      {
-        title: "Analyst Q&A",
-        text:
-          "When asked about unsecured credit, management said early-bucket delinquencies are stable but acknowledged that the portfolio needs another two to three quarters of seasoning before loss rates are fully visible."
-      }
-    ]
-  },
-  {
-    id: "TATAMOTORS-annual-2025",
-    ticker: "TATAMOTORS",
-    company: "Tata Motors",
-    type: "Annual report",
-    period: "FY2025",
-    date: "2026-05-02",
-    sections: [
-      {
-        title: "Business overview",
-        text:
-          "Tata Motors manufactures passenger vehicles, utility vehicles, commercial vehicles, EV platforms, and connected-mobility components. FY2025 revenue was Rs 146000 crore, up 18%, with EV sales up 46% and export revenue up 19%."
-      },
-      {
-        title: "Management discussion and analysis",
-        text:
-          "Operating margin improved to 13.4% as premium SUV mix and export realisations offset higher battery and electronic-component costs. Management said EV platform capex will remain elevated through FY2027."
-      },
-      {
-        title: "Risk factors",
-        text:
-          "Commodity inflation, battery supply, charging infrastructure, subsidy changes, dealer inventory, rural-demand cyclicality, and foreign-exchange movements could affect volume growth and margins."
-      },
-      {
-        title: "Liquidity and capital resources",
-        text:
-          "Free cash flow was Rs 10200 crore before strategic EV investments. Net debt was Rs 18000 crore. Management expects capex to peak as the next EV platform moves from tooling to launch."
-      }
-    ]
-  },
-  {
-    id: "TATAMOTORS-exchange-q4-2025",
-    ticker: "TATAMOTORS",
-    company: "Tata Motors",
-    type: "Exchange announcement",
-    period: "Q4 FY2025",
-    date: "2026-05-03",
-    sections: [
-      {
-        title: "Monthly volume filing",
-        text:
-          "The company reported domestic wholesale growth of 17% and export growth of 21%. Dealer inventory normalised to 28 days from 37 days in the previous quarter, but management noted that rural demand depends on monsoon progression and financing availability."
-      },
-      {
-        title: "Investor update",
-        text:
-          "Management said the EV order book remains strong, but launch cadence will be paced with battery localisation and charging partnerships. The company expects commodity cost headwinds to moderate in the second half."
-      }
-    ]
-  },
-  {
-    id: "INFY-annual-2025",
-    ticker: "INFY",
-    company: "Infosys",
-    type: "Annual report",
-    period: "FY2025",
-    date: "2026-04-16",
-    sections: [
-      {
-        title: "Business overview",
-        text:
-          "Infosys provides consulting, cloud migration, digital transformation, engineering, and AI-enabled services for global clients. FY2025 revenue was Rs 153670 crore, up 6%, with large-deal total contract value improving but discretionary programme starts still uneven across North America and Europe."
-      },
-      {
-        title: "Management discussion and analysis",
-        text:
-          "Operating margin was 20.7%. Management highlighted automation, utilisation, and offshore delivery as margin levers, while noting that client decision cycles remain elongated for discretionary transformation work."
-      },
-      {
-        title: "Risk factors",
-        text:
-          "Risks include client budget cuts, currency volatility, wage inflation, attrition, subcontractor cost, data-protection obligations, and slower conversion of large deals into revenue."
-      }
-    ]
-  },
-  {
-    id: "ICICIBANK-annual-2025",
-    ticker: "ICICIBANK",
-    company: "ICICI Bank",
-    type: "Annual report",
-    period: "FY2025",
-    date: "2026-04-22",
-    sections: [
-      {
-        title: "Business overview",
-        text:
-          "ICICI Bank operates retail, corporate, SME, treasury, payments, and wealth-management businesses. FY2025 net interest income and fees totalled Rs 186000 crore, up 17%, with advances growth led by retail and business banking."
-      },
-      {
-        title: "Management discussion and analysis",
-        text:
-          "Operating margin remained strong as fee income and productivity offset higher deposit costs. Management said the bank will prioritise risk-calibrated growth and granular deposits over headline loan-market share."
-      },
-      {
-        title: "Risk factors",
-        text:
-          "The bank faces unsecured retail seasoning, SME credit slippage, cyber risk, deposit competition, liquidity coverage requirements, and regulatory scrutiny around digital products."
-      }
-    ]
-  },
-  {
-    id: "SBIN-results-q4-2025",
-    ticker: "SBIN",
-    company: "State Bank of India",
-    type: "Quarterly results",
-    period: "Q4 FY2025",
-    date: "2026-05-01",
-    sections: [
-      {
-        title: "Results review",
-        text:
-          "State Bank of India reported broad-based loan growth across retail, corporate, and agriculture. Deposit growth remained steady, but management said term-deposit repricing can keep net interest margin range-bound for another quarter."
-      },
-      {
-        title: "Asset quality",
-        text:
-          "Gross NPA and slippage ratios remained controlled, supported by recoveries and write-backs. The bank noted that SME and agriculture portfolios require monitoring if rural cash flows weaken."
-      },
-      {
-        title: "Capital resources",
-        text:
-          "Capital ratios remained above regulatory requirements. Management said growth will be funded through internal accruals and a disciplined balance between loan growth, dividend payout, and provisioning buffers."
-      }
-    ]
-  },
-  {
-    id: "LT-exchange-orderbook-2025",
-    ticker: "LT",
-    company: "Larsen and Toubro",
-    type: "Exchange announcement",
-    period: "FY2025 update",
-    date: "2026-04-27",
-    sections: [
-      {
-        title: "Order book",
-        text:
-          "Larsen and Toubro reported healthy order inflow from domestic infrastructure, hydrocarbon, power transmission, and Middle East projects. Management said execution visibility is strong, but project mix and working-capital discipline remain important for cash conversion."
-      },
-      {
-        title: "Risk factors",
-        text:
-          "The company faces project execution delays, fixed-price contract risk, commodity movements, receivable collection risk, labour availability, and geopolitical exposure in international orders."
-      },
-      {
-        title: "Management tone",
-        text:
-          "Management sounded constructive on public-sector infrastructure capex and private-sector manufacturing orders, while cautioning that margins should be viewed against project mix rather than only order-inflow headlines."
-      }
-    ]
-  },
-  {
-    id: "BAJFINANCE-concall-q4-2025",
-    ticker: "BAJFINANCE",
-    company: "Bajaj Finance",
-    type: "Concall transcript",
-    period: "Q4 FY2025",
-    date: "2026-04-30",
-    sections: [
-      {
-        title: "Prepared remarks",
-        text:
-          "Management said customer franchise growth, cross-sell intensity, and digital collections remain strong. The company expects loan growth to stay above system growth, but funding cost and risk weights remain important inputs to spread guidance."
-      },
-      {
-        title: "Analyst Q&A",
-        text:
-          "When asked about unsecured consumer credit, management said early-bucket delinquencies are stable but underwriting filters have been tightened in select customer cohorts."
-      },
-      {
-        title: "Risk factors",
-        text:
-          "Key risks include elevated funding cost, liquidity-market volatility, unsecured loan seasoning, regulatory scrutiny, collection efficiency, and technology resilience."
-      }
-    ]
-  },
-  {
-    id: "ADANIENT-annual-2025",
-    ticker: "ADANIENT",
-    company: "Adani Enterprises",
-    type: "Annual report",
-    period: "FY2025",
-    date: "2026-05-05",
-    sections: [
-      {
-        title: "Business overview",
-        text:
-          "Adani Enterprises incubates infrastructure platforms across airports, green energy, logistics, mining services, roads, and digital businesses. FY2025 revenue was Rs 98000 crore, up 20%, with growth led by airports and new infrastructure businesses."
-      },
-      {
-        title: "Management discussion and analysis",
-        text:
-          "Management said the portfolio is transitioning from incubation to scale, but capex intensity remains elevated. The company highlighted asset-level funding, strategic partnerships, and operating leverage as important drivers of future cash conversion."
-      },
-      {
-        title: "Risk factors",
-        text:
-          "Risks include leverage, refinancing access, regulatory approvals, project execution, related-party perception, promoter pledge sensitivity, commodity-linked exposure, and governance or disclosure confidence."
-      }
-    ]
-  },
-  {
-    id: "india-model-note-cross-sector",
-    ticker: "RELIANCE",
-    company: "India cross-sector model note",
-    type: "Valuation model",
-    period: "Base cases",
-    date: "2026-05-04",
-    sections: [
-      {
-        title: "Scenario assumptions",
-        text:
-          "An India-market quality screen favours companies with cash conversion, promoter alignment, low pledge risk, strong disclosure quality, and earnings resilience through rate and commodity cycles. Tata Consultancy Services has the strongest cash conversion. HDFC Bank has compounding loan growth but deposit-cost sensitivity. Reliance Industries has optionality in consumer and green energy but heavier capex. Tata Motors has the fastest growth but the highest commodity and EV execution sensitivity."
-      },
-      {
-        title: "Committee debate",
-        text:
-          "For a higher-rate scenario, the model penalises stretched working capital, weak deposit growth, external financing needs, and capex programmes where returns are back-ended. The committee should flex terminal multiples only after testing FCF margin, credit cost, capex intensity, and promoter or pledge disclosures."
-      }
-    ]
-  }
-];
-
-const QUESTION_TEMPLATES = [
-  "What are the risks for $RELIANCE?",
-  "Compare $TCS and $HDFCBANK on margin durability and cash conversion.",
-  "Where does management sound less confident than the annual report?",
-  "Is $TATAMOTORS EV capex a free-cash-flow risk or a growth moat?",
-  "Compare $INFY and $TCS on deal conversion and margin defence.",
-  "Which bank looks better if deposits stay expensive: $HDFCBANK, $ICICIBANK, or $SBIN?",
-  "Does $BAJFINANCE growth justify the funding and credit-cycle risk?",
-  "What should I watch in $LT order book quality and working capital?",
-  "What are the three most material risks hidden behind revenue growth?",
-  "Which company looks better if rates stay high and deposits stay expensive?",
-  "What valuation assumptions should I flex first before buying?"
-];
+let SAMPLE_COMPANIES = [];
+let PUBLIC_TICKER_ALIASES = {};
+let RISK_FACTOR_LIBRARY = {};
+let SAMPLE_DOCS = [];
+let QUESTION_TEMPLATES = [];
+let WATCHLIST_CONFIG = { defaultWatchlist: "starter-india-largecap", watchlists: [], aliases: {} };
 
 const STOP_WORDS = new Set([
   "a",
@@ -960,10 +163,10 @@ const NEGATIVE_TERMS = [
 
 const state = {
   documents: [],
-  activeTickers: new Set(SAMPLE_COMPANIES.map((company) => company.ticker)),
+  activeTickers: new Set(),
   enabledDocIds: new Set(),
   answerDepth: "brief",
-  selectedTicker: "RELIANCE",
+  selectedTicker: "",
   tickerFocus: null,
   lastFocusKey: null,
   uploadedDocs: [],
@@ -978,16 +181,24 @@ const state = {
 
 const els = {};
 
-document.addEventListener("DOMContentLoaded", init);
+document.addEventListener("DOMContentLoaded", () => {
+  init().catch((error) => {
+    console.error(error);
+    showDataLoadError(error);
+  });
+});
 
-function init() {
+async function init() {
   cacheElements();
+  await loadDeskData();
   window.NiveshScopeRunAnalysis = submitCurrentQuestion;
   window.NiveshScopeScanDisclosure = scanFilingFromCurrentQuestion;
   state.uploadedDocs = loadJson(STORAGE_KEYS.uploads, []);
   state.notes = loadJson(STORAGE_KEYS.notes, []);
   state.waitlistLeads = loadJson(STORAGE_KEYS.waitlist, []);
   state.valuationCases = loadJson(STORAGE_KEYS.valuationCases, []);
+  state.activeTickers = new Set(getDefaultWatchlistTickers());
+  state.selectedTicker = state.activeTickers.values().next().value || SAMPLE_COMPANIES[0]?.ticker || "";
   state.documents = [...SAMPLE_DOCS, ...state.uploadedDocs];
   state.documents.forEach((doc) => state.enabledDocIds.add(doc.id));
   for (const doc of state.uploadedDocs) {
@@ -1009,6 +220,46 @@ function init() {
   updateValuation();
   renderEvidence([]);
   drawSignalMap();
+}
+
+async function loadDeskData() {
+  const [companies, documents, questions, watchlists] = await Promise.all([
+    fetchJson(DATA_FILES.companies),
+    fetchJson(DATA_FILES.documents),
+    fetchJson(DATA_FILES.questions),
+    fetchJson(DATA_FILES.watchlists)
+  ]);
+
+  SAMPLE_COMPANIES = companies.map(normalizeCompanyRecord);
+  SAMPLE_DOCS = documents.map((doc) => normalizeDocumentRecord(doc, "synthetic"));
+  QUESTION_TEMPLATES = questions;
+  WATCHLIST_CONFIG = watchlists;
+  PUBLIC_TICKER_ALIASES = watchlists.aliases || {};
+  RISK_FACTOR_LIBRARY = Object.fromEntries(SAMPLE_COMPANIES.map((company) => [company.ticker, company.riskFactors || []]));
+}
+
+async function fetchJson(path) {
+  const response = await fetch(`${path}?v=${DATA_VERSION}`, { cache: "no-store" });
+  if (!response.ok) {
+    throw new Error(`Could not load ${path} (${response.status})`);
+  }
+  return response.json();
+}
+
+function showDataLoadError(error) {
+  cacheElements();
+  const message = window.location.protocol === "file:"
+    ? "NiveshScope v5 loads its data from JSON files. Open it through GitHub Pages or a local web server so the browser can fetch the data folder."
+    : "NiveshScope could not load its data files. Confirm the data folder was uploaded at the repository root.";
+  if (els.answerPanel) {
+    els.answerPanel.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-kicker">Data unavailable</div>
+        <h2>Source pack files did not load.</h2>
+        <p>${escapeHtml(message)} ${escapeHtml(error.message || "")}</p>
+      </div>
+    `;
+  }
 }
 
 function cacheElements() {
@@ -1067,6 +318,32 @@ function cacheElements() {
   els.waitlistTickers = document.querySelector("#waitlistTickers");
   els.waitlistQuestion = document.querySelector("#waitlistQuestion");
   els.waitlistResult = document.querySelector("#waitlistResult");
+}
+
+function normalizeCompanyRecord(company) {
+  return {
+    ...company,
+    ticker: normalizeTicker(company.ticker),
+    riskFactors: Array.isArray(company.riskFactors) ? company.riskFactors : []
+  };
+}
+
+function normalizeDocumentRecord(doc, fallbackStatus = "synthetic") {
+  return {
+    ...doc,
+    ticker: normalizeTicker(doc.ticker),
+    sourceStatus: normalizeSourceStatus(doc.sourceStatus || fallbackStatus),
+    sourceLabel: doc.sourceLabel || defaultSourceLabel(doc.sourceStatus || fallbackStatus),
+    sourceUrl: doc.sourceUrl || "",
+    sections: Array.isArray(doc.sections) ? doc.sections : []
+  };
+}
+
+function getDefaultWatchlistTickers() {
+  const defaultWatchlist = (WATCHLIST_CONFIG.watchlists || []).find((watchlist) => watchlist.id === WATCHLIST_CONFIG.defaultWatchlist)
+    || (WATCHLIST_CONFIG.watchlists || [])[0];
+  const tickers = defaultWatchlist ? defaultWatchlist.tickers : SAMPLE_COMPANIES.map((company) => company.ticker);
+  return tickers.filter((ticker) => SAMPLE_COMPANIES.some((company) => company.ticker === ticker));
 }
 
 function bindEvents() {
@@ -1320,7 +597,7 @@ function renderLibrary() {
           <strong>${escapeHtml(doc.ticker)} - ${escapeHtml(doc.period)}</strong>
           <span>${escapeHtml(doc.company)} - ${escapeHtml(doc.date)}</span>
         </span>
-        <span class="source-kind">${escapeHtml(shortDocType(doc.type))}</span>
+        <span class="source-kind ${sourceStatusClass(doc)}">${escapeHtml(shortDocType(doc.type))} - ${escapeHtml(shortSourceStatus(doc))}</span>
       </label>
     `;
   }).join("");
@@ -1353,7 +630,7 @@ function renderImportSummary(report = state.importReport) {
     : "";
   els.importSummary.innerHTML = `
     <strong>${report.added.length} source${report.added.length === 1 ? "" : "s"} imported</strong>
-    <span>${escapeHtml(report.sections)} sections, ${escapeHtml(report.metrics)} metrics, ${escapeHtml(report.tickers.join(", ") || "CUSTOM")} coverage updated.</span>
+    <span>${escapeHtml(report.sections)} sections, ${escapeHtml(report.metrics)} metrics, ${escapeHtml(report.tickers.join(", ") || "CUSTOM")} coverage updated as imported evidence.</span>
     ${skippedText}
   `;
 }
@@ -1373,6 +650,7 @@ function renderCompanyDossier() {
     .slice(0, 4);
   const riskFactors = (RISK_FACTOR_LIBRARY[company.ticker] || makeGenericRiskBlueprint(company)).slice(0, 3);
   const sourceMix = sourceMixForDocs(enabledDocs);
+  const sourceQuality = sourceStatusSummary(enabledDocs);
   const questions = [
     `What changed in $${company.ticker} disclosures and management tone?`,
     `What are the three most material risks for $${company.ticker}?`,
@@ -1395,11 +673,12 @@ function renderCompanyDossier() {
       <span>Source coverage</span>
       <strong>${enabledDocs.length}/${docs.length} docs enabled</strong>
       <p>${escapeHtml(sourceMix || "Enable or import documents to build a richer source mix.")}</p>
+      <p>${escapeHtml(sourceQuality || "No source quality labels yet.")}</p>
     </div>
     <div class="dossier-timeline">
       ${latestDocs.length ? latestDocs.map((doc) => `
         <article>
-          <span>${escapeHtml(shortDocType(doc.type))}</span>
+          <span class="${sourceStatusClass(doc)}">${escapeHtml(shortDocType(doc.type))} - ${escapeHtml(shortSourceStatus(doc))}</span>
           <strong>${escapeHtml(doc.period)}</strong>
           <em>${escapeHtml(doc.date)}</em>
         </article>
@@ -1446,7 +725,7 @@ function renderContextBand() {
 
   const tiles = [
     focusTile,
-    { label: "Enabled docs", value: enabledDocs.length, sub: `${state.uploadedDocs.length} uploaded` },
+    { label: "Enabled docs", value: enabledDocs.length, sub: sourceStatusSummary(enabledDocs) || `${state.uploadedDocs.length} uploaded` },
     { label: "Avg op margin", value: `${averageMargin.toFixed(1)}%`, sub: "Selected coverage" },
     { label: "Risk index", value: Math.round(averageRisk), sub: citationCount ? `${citationCount} current citations` : "Pre-query baseline" }
   ];
@@ -1809,7 +1088,7 @@ function renderEvidence(citations) {
     <article class="evidence-card" id="evidence-${escapeAttr(citation.citationId)}">
       <div class="evidence-meta">
         <span>${escapeHtml(citation.citationId)} - ${escapeHtml(citation.ticker)}</span>
-        <span>${citation.score.toFixed(1)}</span>
+        <span><i class="source-badge ${sourceStatusClass(citation)}">${escapeHtml(shortSourceStatus(citation))}</i>${citation.score.toFixed(1)}</span>
       </div>
       <strong>${escapeHtml(citation.type)} - ${escapeHtml(citation.period)} - ${escapeHtml(citation.section)}</strong>
       <p>${escapeHtml(snippet(citation.text, 280))}</p>
@@ -1836,6 +1115,9 @@ function buildChunks(docs) {
           type: doc.type,
           period: doc.period,
           date: doc.date,
+          sourceStatus: doc.sourceStatus,
+          sourceLabel: doc.sourceLabel,
+          sourceUrl: doc.sourceUrl,
           section: section.title,
           text,
           tokens,
@@ -2196,6 +1478,50 @@ function sourceMixForDocs(docs) {
     .join(" | ");
 }
 
+function sourceStatusSummary(docs) {
+  if (!docs.length) return "";
+  const counts = docs.reduce((groups, doc) => {
+    const label = shortSourceStatus(doc);
+    groups[label] = (groups[label] || 0) + 1;
+    return groups;
+  }, {});
+  return Object.entries(counts)
+    .map(([label, count]) => `${label} ${count}`)
+    .join(" | ");
+}
+
+function normalizeSourceStatus(value) {
+  const status = String(value || "").toLowerCase();
+  if (status === "real" || status === "verified") return "real";
+  if (status === "imported" || status === "user") return "imported";
+  return "synthetic";
+}
+
+function sourceStatusClass(doc) {
+  return `source-${normalizeSourceStatus(doc && doc.sourceStatus)}`;
+}
+
+function shortSourceStatus(doc) {
+  const status = normalizeSourceStatus(doc && doc.sourceStatus);
+  if (status === "real") return "REAL";
+  if (status === "imported") return "IMP";
+  return "SYN";
+}
+
+function sourceStatusLabel(doc) {
+  const status = normalizeSourceStatus(doc && doc.sourceStatus);
+  if (status === "real") return doc.sourceLabel || "Real source";
+  if (status === "imported") return doc.sourceLabel || "Imported source";
+  return doc.sourceLabel || "Synthetic starter evidence";
+}
+
+function defaultSourceLabel(status) {
+  const normalized = normalizeSourceStatus(status);
+  if (normalized === "real") return "Real source";
+  if (normalized === "imported") return "Imported source";
+  return "Synthetic starter evidence";
+}
+
 function getCompanies() {
   const byTicker = new Map(SAMPLE_COMPANIES.map((company) => [company.ticker, { ...company }]));
   for (const doc of state.uploadedDocs) {
@@ -2444,7 +1770,7 @@ function exportCurrentBrief() {
   const filename = `niveshscope-${String(ticker || "desk").toLowerCase()}-brief-${date}.md`;
   const evidence = state.currentCitations.length
     ? state.currentCitations.map((citation) => {
-        return `### ${citation.citationId} - ${citation.company} ${citation.type} (${citation.period})\n\n${citation.section}: ${citation.text}`;
+        return `### ${citation.citationId} - ${citation.company} ${citation.type} (${citation.period})\n\nSource quality: ${sourceStatusLabel(citation)}\n\n${citation.section}: ${citation.text}`;
       }).join("\n\n")
     : "No evidence stack available. Run an analysis first.";
   const content = [
@@ -2649,6 +1975,9 @@ function makeUploadedDoc({ ticker, title, type, text }) {
     type: String(type || "Research note"),
     period: cleanTitle,
     date: new Date().toISOString().slice(0, 10),
+    sourceStatus: "imported",
+    sourceLabel: "Imported by user",
+    sourceUrl: "",
     sections: splitImportedText(cleanText)
   };
 }

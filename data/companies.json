@@ -1,0 +1,565 @@
+[
+  {
+    "ticker": "RELIANCE",
+    "name": "Reliance Industries",
+    "sector": "Energy, retail, digital infrastructure",
+    "revenue": 920000,
+    "growth": 10,
+    "grossMargin": 38.4,
+    "opMargin": 16.8,
+    "fcfMargin": 8,
+    "netDebt": 108000,
+    "shares": 676,
+    "multiple": 16,
+    "risk": 52,
+    "sentiment": 68,
+    "thesis": "Integrated cash engine with refining cyclicality, retail execution, telecom capex, and green-energy timing risk.",
+    "riskFactors": [
+      {
+        "title": "Commodity spreads and refining-cycle volatility",
+        "severity": "High",
+        "terms": [
+          "refining",
+          "crude",
+          "spread",
+          "margin",
+          "commodity",
+          "export duty",
+          "cycle"
+        ],
+        "body": "A large share of cash generation still depends on refining and petrochemical spreads. Crude volatility, export duties, or weaker downstream demand can compress consolidated margins even when consumer and digital businesses keep growing."
+      },
+      {
+        "title": "Green-energy capex and execution timing",
+        "severity": "Medium",
+        "terms": [
+          "capex",
+          "green",
+          "hydrogen",
+          "battery",
+          "solar",
+          "execution",
+          "commissioning"
+        ],
+        "body": "The new-energy plan could become a durable growth option, but returns depend on commissioning schedules, policy incentives, technology cost curves, and disciplined capital allocation."
+      },
+      {
+        "title": "Telecom monetisation and leverage discipline",
+        "severity": "Medium",
+        "terms": [
+          "telecom",
+          "arpu",
+          "spectrum",
+          "debt",
+          "leverage",
+          "tariff"
+        ],
+        "body": "Digital infrastructure returns rely on ARPU repair, spectrum economics, and monetisation of platform investments. If tariff hikes lag capex, free cash flow can stay below headline EBITDA growth."
+      }
+    ]
+  },
+  {
+    "ticker": "TCS",
+    "name": "Tata Consultancy Services",
+    "sector": "IT services",
+    "revenue": 255000,
+    "growth": 7,
+    "grossMargin": 41.2,
+    "opMargin": 24.6,
+    "fcfMargin": 21,
+    "netDebt": -45000,
+    "shares": 365,
+    "multiple": 24,
+    "risk": 34,
+    "sentiment": 79,
+    "thesis": "High cash conversion and order book visibility, offset by discretionary tech-spend and currency sensitivity.",
+    "riskFactors": [
+      {
+        "title": "Discretionary tech-spend slowdown",
+        "severity": "High",
+        "terms": [
+          "discretionary",
+          "deal",
+          "pipeline",
+          "client",
+          "budget",
+          "spend",
+          "demand"
+        ],
+        "body": "Client decision cycles can lengthen when global enterprises defer discretionary transformation work. Deal wins may remain healthy, but revenue conversion and pricing can lag until budgets reopen."
+      },
+      {
+        "title": "Talent pyramid and onsite-cost pressure",
+        "severity": "Medium",
+        "terms": [
+          "attrition",
+          "wage",
+          "utilisation",
+          "onsite",
+          "subcontractor",
+          "pyramid"
+        ],
+        "body": "Operating margin depends on utilisation, fresher deployment, onsite mix, and subcontractor discipline. A wage cycle or weaker pyramid can dilute the usual cash-conversion advantage."
+      },
+      {
+        "title": "Currency translation and cross-border exposure",
+        "severity": "Medium",
+        "terms": [
+          "currency",
+          "rupee",
+          "dollar",
+          "fx",
+          "hedge",
+          "translation"
+        ],
+        "body": "A stronger rupee, hedge roll-offs, or regional weakness can pressure reported growth. The desk should separate constant-currency demand quality from translation noise."
+      }
+    ]
+  },
+  {
+    "ticker": "HDFCBANK",
+    "name": "HDFC Bank",
+    "sector": "Private sector bank",
+    "revenue": 286000,
+    "growth": 15,
+    "grossMargin": 29.4,
+    "opMargin": 27.8,
+    "fcfMargin": 18,
+    "netDebt": 0,
+    "shares": 560,
+    "multiple": 18,
+    "risk": 46,
+    "sentiment": 71,
+    "thesis": "Deposit franchise and credit growth with margin pressure, unsecured-loan seasoning, and integration execution risk.",
+    "riskFactors": [
+      {
+        "title": "Deposit competition and NIM compression",
+        "severity": "High",
+        "terms": [
+          "deposit",
+          "nim",
+          "casa",
+          "cost of funds",
+          "competition",
+          "margin"
+        ],
+        "body": "System-wide competition for deposits can raise funding costs faster than loan yields. If CASA mix weakens, credit growth may not translate into proportional earnings growth."
+      },
+      {
+        "title": "Unsecured retail and SME credit seasoning",
+        "severity": "High",
+        "terms": [
+          "unsecured",
+          "retail",
+          "sme",
+          "slippage",
+          "npa",
+          "credit cost"
+        ],
+        "body": "Fast growth in unsecured retail, cards, or SME credit can look clean until portfolios season. Slippages, collection efficiency, and provisioning language need closer monitoring."
+      },
+      {
+        "title": "Merger integration and technology execution",
+        "severity": "Medium",
+        "terms": [
+          "integration",
+          "migration",
+          "technology",
+          "branch",
+          "cost",
+          "synergy"
+        ],
+        "body": "Integration programmes can absorb management bandwidth and raise operating cost. The evidence stack should watch whether promised synergies arrive without service or credit disruption."
+      }
+    ]
+  },
+  {
+    "ticker": "INFY",
+    "name": "Infosys",
+    "sector": "IT services",
+    "revenue": 153670,
+    "growth": 6,
+    "grossMargin": 37.5,
+    "opMargin": 20.7,
+    "fcfMargin": 18,
+    "netDebt": -30000,
+    "shares": 414,
+    "multiple": 22,
+    "risk": 38,
+    "sentiment": 72,
+    "thesis": "Digital transformation franchise with margin discipline, cash returns, and sensitivity to discretionary global tech demand.",
+    "riskFactors": [
+      {
+        "title": "Discretionary demand and deal conversion",
+        "severity": "High",
+        "terms": [
+          "discretionary",
+          "deal",
+          "pipeline",
+          "client",
+          "budget",
+          "conversion"
+        ],
+        "body": "Revenue acceleration depends on client budgets reopening and large deals converting into run-rate revenue. A long discretionary slowdown can cap growth even when renewal activity remains healthy."
+      },
+      {
+        "title": "Margin defence and employee utilisation",
+        "severity": "Medium",
+        "terms": [
+          "margin",
+          "utilisation",
+          "wage",
+          "subcontractor",
+          "onsite",
+          "pyramid"
+        ],
+        "body": "Margin resilience depends on utilisation, offshore mix, fresher deployment, wage inflation, and subcontractor normalisation."
+      },
+      {
+        "title": "Currency and regional exposure",
+        "severity": "Medium",
+        "terms": [
+          "currency",
+          "dollar",
+          "rupee",
+          "europe",
+          "north america",
+          "hedge"
+        ],
+        "body": "Rupee appreciation, hedge roll-offs, or regional demand weakness can pressure reported growth and operating margin."
+      }
+    ]
+  },
+  {
+    "ticker": "ICICIBANK",
+    "name": "ICICI Bank",
+    "sector": "Private sector bank",
+    "revenue": 186000,
+    "growth": 17,
+    "grossMargin": 30,
+    "opMargin": 29,
+    "fcfMargin": 18,
+    "netDebt": 0,
+    "shares": 706,
+    "multiple": 19,
+    "risk": 42,
+    "sentiment": 74,
+    "thesis": "Compounding bank franchise with strong retail deposit engine, fee income, and credit-cost normalisation watchpoints.",
+    "riskFactors": [
+      {
+        "title": "Unsecured retail seasoning",
+        "severity": "High",
+        "terms": [
+          "unsecured",
+          "credit card",
+          "personal loan",
+          "slippage",
+          "npa",
+          "credit cost"
+        ],
+        "body": "Fast retail growth should be tested against early delinquencies, underwriting quality, and provisioning language before assuming credit costs stay benign."
+      },
+      {
+        "title": "Deposit competition",
+        "severity": "Medium",
+        "terms": [
+          "deposit",
+          "casa",
+          "cost of funds",
+          "nim",
+          "competition"
+        ],
+        "body": "Deposit mobilisation and CASA quality remain important if system liquidity tightens or mutual funds compete harder for household savings."
+      },
+      {
+        "title": "Technology and operational resilience",
+        "severity": "Medium",
+        "terms": [
+          "technology",
+          "cyber",
+          "digital",
+          "outage",
+          "operational"
+        ],
+        "body": "Digital growth improves efficiency, but the bank needs resilient systems, cyber controls, and service quality at scale."
+      }
+    ]
+  },
+  {
+    "ticker": "SBIN",
+    "name": "State Bank of India",
+    "sector": "Public sector bank",
+    "revenue": 420000,
+    "growth": 12,
+    "grossMargin": 27,
+    "opMargin": 23,
+    "fcfMargin": 15,
+    "netDebt": 0,
+    "shares": 892,
+    "multiple": 12,
+    "risk": 49,
+    "sentiment": 67,
+    "thesis": "Scale banking franchise with deposit depth, corporate-cycle leverage, public-sector ownership, and asset-quality cyclicality.",
+    "riskFactors": [
+      {
+        "title": "Asset-quality cyclicality",
+        "severity": "High",
+        "terms": [
+          "npa",
+          "slippage",
+          "restructuring",
+          "corporate",
+          "credit cost"
+        ],
+        "body": "The lending cycle can turn quickly for large public-sector banks. Corporate stress, agricultural exposure, and SME stress should be checked against provisioning buffers."
+      },
+      {
+        "title": "Public-sector ownership and capital allocation",
+        "severity": "Medium",
+        "terms": [
+          "government",
+          "capital",
+          "dividend",
+          "policy",
+          "psu"
+        ],
+        "body": "Public-sector ownership can influence capital allocation, dividend policy, and strategic priorities beyond minority-shareholder return optimisation."
+      },
+      {
+        "title": "Margin pressure in competitive deposits",
+        "severity": "Medium",
+        "terms": [
+          "deposit",
+          "casa",
+          "nim",
+          "cost of funds",
+          "rate"
+        ],
+        "body": "Large deposit scale is an advantage, but margin pressure can still appear when term-deposit repricing is faster than loan-yield repricing."
+      }
+    ]
+  },
+  {
+    "ticker": "TATAMOTORS",
+    "name": "Tata Motors",
+    "sector": "Auto and EV mobility",
+    "revenue": 146000,
+    "growth": 18,
+    "grossMargin": 31.6,
+    "opMargin": 13.4,
+    "fcfMargin": 7,
+    "netDebt": 18000,
+    "shares": 320,
+    "multiple": 19,
+    "risk": 61,
+    "sentiment": 65,
+    "thesis": "EV and export growth with commodity swings, battery sourcing, dealer inventory, and capex-cycle risk.",
+    "riskFactors": [
+      {
+        "title": "Commodity cost and battery-sourcing volatility",
+        "severity": "High",
+        "terms": [
+          "commodity",
+          "steel",
+          "aluminium",
+          "lithium",
+          "battery",
+          "sourcing",
+          "margin"
+        ],
+        "body": "Vehicle margins can move quickly with steel, aluminium, lithium, and imported component costs. The risk is amplified when price hikes lag input inflation."
+      },
+      {
+        "title": "Dealer inventory and rural-demand cyclicality",
+        "severity": "Medium",
+        "terms": [
+          "dealer",
+          "inventory",
+          "rural",
+          "monsoon",
+          "demand",
+          "channel"
+        ],
+        "body": "Channel inventory and rural demand can make volume growth less durable than headline wholesales suggest. The desk should cross-check management tone against dealer-stock disclosures."
+      },
+      {
+        "title": "EV capex, platform timing, and subsidy risk",
+        "severity": "Medium",
+        "terms": [
+          "ev",
+          "capex",
+          "platform",
+          "subsidy",
+          "battery",
+          "launch",
+          "capacity"
+        ],
+        "body": "EV programmes can create long-run optionality, but returns depend on launch cadence, battery localisation, charging partnerships, and subsidy stability."
+      }
+    ]
+  },
+  {
+    "ticker": "LT",
+    "name": "Larsen and Toubro",
+    "sector": "Engineering and infrastructure",
+    "revenue": 225000,
+    "growth": 14,
+    "grossMargin": 29,
+    "opMargin": 11.5,
+    "fcfMargin": 7,
+    "netDebt": 32000,
+    "shares": 137,
+    "multiple": 21,
+    "risk": 47,
+    "sentiment": 76,
+    "thesis": "Infrastructure execution leader with order-book visibility, working-capital intensity, and project margin discipline risk.",
+    "riskFactors": [
+      {
+        "title": "Execution and working-capital intensity",
+        "severity": "High",
+        "terms": [
+          "project",
+          "execution",
+          "working capital",
+          "receivable",
+          "order",
+          "delay"
+        ],
+        "body": "Order-book visibility is valuable only if projects convert into cash. Receivable days, advance payments, and delay language should be watched closely."
+      },
+      {
+        "title": "Infrastructure margin discipline",
+        "severity": "Medium",
+        "terms": [
+          "margin",
+          "cost overrun",
+          "contract",
+          "commodity",
+          "fixed price"
+        ],
+        "body": "Fixed-price contracts, commodity movements, and cost overruns can dilute headline order inflow quality."
+      },
+      {
+        "title": "Middle East and domestic cycle exposure",
+        "severity": "Medium",
+        "terms": [
+          "middle east",
+          "domestic",
+          "capex",
+          "government",
+          "infrastructure"
+        ],
+        "body": "The company benefits from infrastructure capex, but sector concentration and regional execution exposure should be separated from durable core profitability."
+      }
+    ]
+  },
+  {
+    "ticker": "BAJFINANCE",
+    "name": "Bajaj Finance",
+    "sector": "NBFC and consumer finance",
+    "revenue": 62000,
+    "growth": 23,
+    "grossMargin": 28,
+    "opMargin": 33,
+    "fcfMargin": 14,
+    "netDebt": 168000,
+    "shares": 62,
+    "multiple": 26,
+    "risk": 58,
+    "sentiment": 70,
+    "thesis": "High-growth lending franchise with credit-cost, funding-cost, and unsecured-retail seasoning sensitivity.",
+    "riskFactors": [
+      {
+        "title": "Funding-cost and liquidity risk",
+        "severity": "High",
+        "terms": [
+          "funding",
+          "liquidity",
+          "borrowing",
+          "cost of funds",
+          "rate"
+        ],
+        "body": "High growth needs reliable funding. If borrowing costs rise faster than yields, spread and valuation assumptions need to be reset."
+      },
+      {
+        "title": "Unsecured consumer-credit seasoning",
+        "severity": "High",
+        "terms": [
+          "unsecured",
+          "personal loan",
+          "consumer",
+          "slippage",
+          "credit cost"
+        ],
+        "body": "Consumer-credit growth can hide risk until cohorts season. Collection efficiency, early delinquencies, and provisioning language deserve priority."
+      },
+      {
+        "title": "Regulatory scrutiny",
+        "severity": "Medium",
+        "terms": [
+          "rbi",
+          "regulatory",
+          "digital lending",
+          "compliance",
+          "supervision"
+        ],
+        "body": "Digital lending scale can attract regulatory attention around product design, customer consent, recovery practices, and risk weights."
+      }
+    ]
+  },
+  {
+    "ticker": "ADANIENT",
+    "name": "Adani Enterprises",
+    "sector": "Infrastructure incubation",
+    "revenue": 98000,
+    "growth": 20,
+    "grossMargin": 24,
+    "opMargin": 9.5,
+    "fcfMargin": 4,
+    "netDebt": 76000,
+    "shares": 114,
+    "multiple": 25,
+    "risk": 68,
+    "sentiment": 61,
+    "thesis": "Infrastructure incubator with optionality across airports, green energy, and logistics, balanced by leverage and execution risk.",
+    "riskFactors": [
+      {
+        "title": "Leverage and funding access",
+        "severity": "High",
+        "terms": [
+          "debt",
+          "leverage",
+          "refinancing",
+          "funding",
+          "rating"
+        ],
+        "body": "Infrastructure incubation depends on financing access. Refinancing costs, pledge disclosures, and group leverage language should be monitored."
+      },
+      {
+        "title": "Execution across incubating businesses",
+        "severity": "High",
+        "terms": [
+          "airport",
+          "green",
+          "hydrogen",
+          "logistics",
+          "execution",
+          "capex"
+        ],
+        "body": "Multiple growth platforms can create optionality, but capex-heavy projects need clear commissioning, utilisation, and return milestones."
+      },
+      {
+        "title": "Governance and disclosure confidence",
+        "severity": "Medium",
+        "terms": [
+          "governance",
+          "promoter",
+          "pledge",
+          "related party",
+          "disclosure"
+        ],
+        "body": "The research process should connect growth claims to transparent disclosures around related-party exposure, pledge risk, and cash conversion."
+      }
+    ]
+  }
+]

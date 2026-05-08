@@ -6,6 +6,7 @@ Evidence-backed Indian equity research for investors who want cited answers inst
 
 - Client-side retrieval over a synthetic Indian-market disclosure corpus.
 - Phase 3 starter watchlist: RELIANCE, TCS, HDFCBANK, INFY, ICICIBANK, SBIN, TATAMOTORS, LT, BAJFINANCE, and ADANIENT.
+- Phase 5 data architecture with `data/companies.json`, `data/documents.json`, `data/questions.json`, and `data/watchlists.json`.
 - Source-ranked answers with citation cards, confidence scoring, and management-tone read-throughs.
 - Risk questions return exactly three cited risk factors with severity labels.
 - India-style ticker aliases such as `$RELIANCE`, `$TCS`, `$HDFCBANK`, and `$TATAMOTORS`.
@@ -14,6 +15,7 @@ Evidence-backed Indian equity research for investors who want cited answers inst
 - Import report for pasted/uploaded documents, including section count, metric count, ticker coverage, and skipped-file feedback.
 - Browser-side import for `.txt`, `.md`, `.csv`, `.html`, `.json`, and best-effort text-based `.pdf` files.
 - Guided import that lets users choose the company and source type before adding a document.
+- Visible source-quality labels for `synthetic`, `imported`, and `real` evidence.
 - INR crore valuation lens with revenue CAGR, FCF margin, terminal multiple, and discount-rate sensitivities.
 - Saved valuation cases stored locally in the browser.
 - One-click research outputs for risk memos, concall tone, valuation assumptions, peer comparison, and investment committee briefs.
@@ -38,7 +40,17 @@ Suggested SaaS packaging:
 
 ## Open the app
 
-Open `index.html` in a browser. No build step or server is required.
+Open the deployed GitHub Pages URL. Because v5 loads JSON from the `data/` folder, local `file://` opening may be blocked by browser fetch rules. For local testing, use any small static web server from the project root.
+
+## Data architecture
+
+The application shell is in `index.html`, `styles.css`, `launch.css`, and `app.js`. The research universe now lives in `data/`:
+
+- `data/companies.json`: Companies, model assumptions, thesis text, and risk-factor templates.
+- `data/documents.json`: Starter source sections used by retrieval.
+- `data/questions.json`: Left-rail question templates.
+- `data/watchlists.json`: Watchlist definitions and ticker aliases.
+- `data/source-pack-template.json`: Copyable template for adding real annual reports, concalls, results summaries, shareholding extracts, and NSE/BSE announcements.
 
 ## Waitlist capture
 
@@ -46,7 +58,7 @@ The waitlist form posts to FormSubmit at `dhirajnyse@gmail.com` and also stores 
 
 ## Notes
 
-The bundled companies use real Indian listed-company tickers, but the starter disclosures and fundamentals are still synthetic so the prototype is safe to evaluate offline. Import real annual reports, exchange announcements, concall transcripts, shareholding patterns, rating notes, or model notes before using the workflow for live research. PDF import is best-effort in a static browser app and works best for text-based PDFs; scanned PDFs should be converted to text first. NiveshScope is research software, not investment advice. The valuation panel is a scenario lens, not a price target.
+The bundled companies use real Indian listed-company tickers, but the starter disclosures and fundamentals are still synthetic so the prototype is safe to evaluate. Import real annual reports, exchange announcements, concall transcripts, shareholding patterns, rating notes, or model notes before using the workflow for live research. PDF import is best-effort in a static browser app and works best for text-based PDFs; scanned PDFs should be converted to text first. NiveshScope is research software, not investment advice. The valuation panel is a scenario lens, not a price target.
 
 ## Live data roadmap
 

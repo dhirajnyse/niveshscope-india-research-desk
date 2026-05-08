@@ -562,6 +562,30 @@ button {
   white-space: nowrap;
 }
 
+.source-kind.source-synthetic,
+.source-badge.source-synthetic,
+.dossier-timeline span.source-synthetic {
+  color: var(--amber);
+  border-color: rgba(164, 92, 24, 0.25);
+  background: var(--amber-soft);
+}
+
+.source-kind.source-imported,
+.source-badge.source-imported,
+.dossier-timeline span.source-imported {
+  color: var(--blue);
+  border-color: rgba(47, 101, 176, 0.25);
+  background: var(--blue-soft);
+}
+
+.source-kind.source-real,
+.source-badge.source-real,
+.dossier-timeline span.source-real {
+  color: var(--green);
+  border-color: rgba(47, 133, 77, 0.25);
+  background: var(--green-soft);
+}
+
 .file-drop {
   min-height: 78px;
   display: grid;
@@ -1477,6 +1501,20 @@ input[type="range"] {
   font-size: 11px;
   font-weight: 800;
   text-transform: uppercase;
+}
+
+.source-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 18px;
+  margin-right: 6px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0 6px;
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 900;
+  line-height: 1;
 }
 
 .evidence-card strong,
