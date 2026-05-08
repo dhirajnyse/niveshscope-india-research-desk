@@ -781,6 +781,37 @@ textarea:focus {
   background: #f2f6fd;
 }
 
+.evidence-guard-toggle {
+  min-height: 44px;
+  display: grid;
+  grid-template-columns: auto minmax(120px, auto) 1fr;
+  gap: 8px;
+  align-items: center;
+  padding: 9px 10px;
+  border: 1px solid rgba(20, 118, 111, 0.22);
+  border-radius: 8px;
+  background: var(--teal-soft);
+}
+
+.evidence-guard-toggle input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--teal);
+}
+
+.evidence-guard-toggle span {
+  color: var(--teal);
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.evidence-guard-toggle em {
+  color: var(--muted);
+  font-size: 12px;
+  font-style: normal;
+  line-height: 1.35;
+}
+
 .query-actions {
   justify-content: space-between;
 }
@@ -905,7 +936,7 @@ textarea:focus {
 
 .answer-header {
   display: grid;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: 1fr auto auto;
   gap: 12px;
   align-items: start;
   padding-bottom: 14px;
@@ -943,12 +974,28 @@ textarea:focus {
   font-size: 22px;
 }
 
+.evidence-quality-box.is-strong {
+  border-color: rgba(47, 133, 77, 0.26);
+  background: var(--green-soft);
+}
+
+.evidence-quality-box.is-mixed {
+  border-color: rgba(164, 92, 24, 0.22);
+  background: var(--amber-soft);
+}
+
+.evidence-quality-box.is-warning {
+  border-color: rgba(179, 38, 30, 0.22);
+  background: var(--red-soft);
+}
+
 .answer-body {
   display: grid;
   gap: 14px;
   padding-top: 16px;
 }
 
+.evidence-guard-card,
 .ticker-focus-card,
 .tone-meter-card {
   padding: 13px;
@@ -957,6 +1004,27 @@ textarea:focus {
   background: var(--panel-strong);
 }
 
+.evidence-guard-card {
+  display: grid;
+  gap: 8px;
+}
+
+.evidence-guard-card.is-strong {
+  border-color: rgba(47, 133, 77, 0.24);
+  background: var(--green-soft);
+}
+
+.evidence-guard-card.is-mixed {
+  border-color: rgba(164, 92, 24, 0.24);
+  background: var(--amber-soft);
+}
+
+.evidence-guard-card.is-warning {
+  border-color: rgba(179, 38, 30, 0.26);
+  background: var(--red-soft);
+}
+
+.evidence-guard-card span,
 .ticker-focus-card span,
 .tone-meter-top span {
   color: var(--teal);
@@ -965,6 +1033,7 @@ textarea:focus {
   text-transform: uppercase;
 }
 
+.evidence-guard-card strong,
 .ticker-focus-card strong {
   display: block;
   margin-top: 6px;
@@ -972,6 +1041,7 @@ textarea:focus {
   font-size: 17px;
 }
 
+.evidence-guard-card p,
 .ticker-focus-card p,
 .tone-meter-card p {
   margin: 7px 0 0;
@@ -2382,6 +2452,7 @@ input[type="range"] {
   .source-queue-list,
   .source-workspace-list,
   .workspace-task-top,
+  .evidence-guard-toggle,
   .source-task-head {
     grid-template-columns: 1fr;
   }

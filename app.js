@@ -10,7 +10,7 @@ const STORAGE_KEYS = {
 };
 
 const WAITLIST_ENDPOINT = "https://formsubmit.co/ajax/dhirajnyse@gmail.com";
-const DATA_VERSION = "20260508-7";
+const DATA_VERSION = "20260508-8";
 const DATA_FILES = {
   companies: "data/companies.json",
   documents: "data/documents.json",
@@ -261,6 +261,7 @@ const state = {
   importReport: null,
   lastBrief: null,
   currentCitations: [],
+  onlySelectedTicker: true,
   isRunning: false
 };
 
@@ -382,6 +383,7 @@ function cacheElements() {
   els.memoShortcuts = document.querySelector(".memo-shortcuts");
   els.scanFilingButton = document.querySelector("#scanFilingButton");
   els.runAnalysisButton = document.querySelector("#runAnalysisButton");
+  els.onlySelectedTicker = document.querySelector("#onlySelectedTicker");
   els.contextBand = document.querySelector("#contextBand");
   els.answerPanel = document.querySelector("#answerPanel");
   els.evidenceList = document.querySelector("#evidenceList");
@@ -510,6 +512,15 @@ function bindEvents() {
     event.preventDefault();
     submitCurrentQuestion();
   });
+
+  if (els.onlySelectedTicker) {
+    els.onlySelectedTicker.addEventListener("change", () => {
+      state.onlySelectedTicker = els.onlySelectedTicker.checked;
+      if (els.queryInput.value.trim() && state.currentCitations.length) {
+        runAnalysis(els.queryInput.value.trim());
+      }
+    });
+  }
 
   document.querySelectorAll(".segment").forEach((button) => {
     button.addEventListener("click", () => {
@@ -1855,14 +1866,15 @@ function runAnalysis(question) {
 
   const tickerFocus = syncTickerFocus(question);
   const retrievalQuestion = addTickerContext(question, tickerFocus);
-  const docs = getEnabledDocs();
+  const explicitCompare = isExplicitCompareQuestion(question);
+  const docs = getGuardedDocs(getEnabledDocs(), tickerFocus, explicitCompare);
   if (!docs.length) {
     renderNoDocs(question);
     return;
   }
 
   const chunks = buildChunks(docs);
-  const ranked = rankChunks(retrievalQuestion, chunks).slice(0, 8);
+  const ranked = rankChunks(retrievalQuestion, chunks, { tickerFocus, explicitCompare }).slice(0, 8);
   if (!ranked.length) {
     renderNoHits(question);
     return;
@@ -1875,7 +1887,8 @@ function runAnalysis(question) {
   state.currentCitations = citations;
 
   const intent = detectIntent(retrievalQuestion);
-  const answerModel = buildAnswerModel(question, citations, intent, tickerFocus);
+  const guardMeta = makeEvidenceGuardMeta(question, citations, tickerFocus, explicitCompare);
+  const answerModel = buildAnswerModel(question, citations, intent, tickerFocus, guardMeta);
   state.lastBrief = answerModel.plainText;
   renderAnswer(answerModel);
   renderEvidence(citations);
@@ -1911,15 +1924,17 @@ function renderNoHits(question) {
   renderContextBand();
 }
 
-function buildAnswerModel(question, citations, intent, tickerFocus = null) {
-  const compareMode = isCompareQuestion(question, citations);
+function buildAnswerModel(question, citations, intent, tickerFocus = null, guardMeta = null) {
+  const compareMode = guardMeta ? guardMeta.compareMode : isExplicitCompareQuestion(question);
   const grouped = groupCitationsByTicker(citations);
   const rankedCompanies = rankCompaniesForQuestion(question, grouped, intent);
   const confidence = computeConfidence(citations, rankedCompanies);
+  const quality = guardMeta || makeEvidenceGuardMeta(question, citations, tickerFocus, compareMode);
   const headline = makeHeadline(question, compareMode, rankedCompanies, intent);
   const thesis = makeThesis(compareMode, rankedCompanies, citations, intent);
   const toneMeter = makeToneMeter(rankedCompanies, citations);
   const focusNotice = makeTickerFocusNotice(tickerFocus);
+  const guardNotice = makeEvidenceGuardNotice(quality);
   const evidenceBullets = citations.slice(0, state.answerDepth === "brief" ? 3 : 5).map((citation, index) => {
     return `<li>${makeEvidenceSentence(citation, intent)} ${citationLink(index)}</li>`;
   }).join("");
@@ -1990,8 +2005,13 @@ function buildAnswerModel(question, citations, intent, tickerFocus = null) {
         <span>Confidence</span>
         <strong>${confidence}%</strong>
       </div>
+      <div class="confidence-box evidence-quality-box ${escapeAttr(quality.qualityClass)}">
+        <span>Evidence quality</span>
+        <strong>${quality.score}%</strong>
+      </div>
     </div>
     <div class="answer-body">
+      ${guardNotice}
       ${focusNotice}
       ${toneMeter.html}
       ${sections.join("")}
@@ -2000,6 +2020,7 @@ function buildAnswerModel(question, citations, intent, tickerFocus = null) {
 
   const plainParts = [
     `${intent.label} | ${confidence}% confidence`,
+    `Evidence quality: ${quality.score}% (${quality.label})`,
     `Management tone: ${toneMeter.label} (${toneMeter.percent}/100)`,
     tickerFocus ? `Ticker focus: ${tickerFocus.rawTicker}${tickerFocus.isAlias ? ` maps to ${tickerFocus.ticker} (${tickerFocus.note})` : ""}` : "",
     stripHtml(headline),
@@ -2071,6 +2092,24 @@ function makeTickerFocusNotice(focus) {
   `;
 }
 
+function makeEvidenceGuardNotice(meta) {
+  if (!meta) return "";
+  const mismatchText = meta.mismatches.length
+    ? `${meta.mismatches.length} off-ticker citation${meta.mismatches.length === 1 ? "" : "s"} detected: ${meta.mismatches.map((citation) => citation.citationId).join(", ")}.`
+    : meta.compareMode
+      ? "Comparative citations are allowed for this question."
+      : "No off-ticker citations in the current answer.";
+  return `
+    <section class="evidence-guard-card ${escapeAttr(meta.qualityClass)}">
+      <div>
+        <span>Evidence guard</span>
+        <strong>${escapeHtml(meta.label)} - ${meta.score}% quality</strong>
+      </div>
+      <p>${escapeHtml(meta.message)} ${escapeHtml(mismatchText)}</p>
+    </section>
+  `;
+}
+
 function renderAnswer(answerModel) {
   els.answerPanel.innerHTML = answerModel.html;
   els.answerPanel.querySelectorAll(".citation-link").forEach((link) => {
@@ -2137,13 +2176,21 @@ function buildChunks(docs) {
   return chunks;
 }
 
-function rankChunks(question, chunks) {
+function getGuardedDocs(docs, tickerFocus, explicitCompare) {
+  if (!state.onlySelectedTicker || explicitCompare) return docs;
+  const focusTicker = tickerFocus ? tickerFocus.ticker : state.selectedTicker;
+  if (!focusTicker) return docs;
+  const focusedDocs = docs.filter((doc) => doc.ticker === focusTicker);
+  return focusedDocs.length ? focusedDocs : docs;
+}
+
+function rankChunks(question, chunks, options = {}) {
   const queryTokens = expandTokens(question);
   const intent = detectIntent(question);
   const lowerQuestion = question.toLowerCase();
-  const tickersInQuestion = getCompanies()
-    .filter((company) => lowerQuestion.includes(company.ticker.toLowerCase()) || lowerQuestion.includes(company.name.toLowerCase()))
-    .map((company) => company.ticker);
+  const focusTicker = options.tickerFocus ? options.tickerFocus.ticker : "";
+  const strictFocus = state.onlySelectedTicker && focusTicker && !options.explicitCompare;
+  const tickersInQuestion = Array.from(getMentionedTickers(question));
 
   return chunks
     .map((chunk) => {
@@ -2159,6 +2206,8 @@ function rankChunks(question, chunks) {
         }
       }
       if (tickersInQuestion.includes(chunk.ticker)) score += 6;
+      if (strictFocus && chunk.ticker === focusTicker) score += 8;
+      if (strictFocus && chunk.ticker !== focusTicker) score -= 14;
       if (/call|concall|tone|management|confidence|guidance/.test(lowerQuestion) && /call|concall/i.test(chunk.type)) score += 3.5;
       if (/filing|annual|report|risk factor|mda|md&a|announcement|shareholding/.test(lowerQuestion) && /annual|filing|announcement|shareholding/i.test(chunk.type)) score += 3.5;
       if (/valuation|model|multiple|discount/.test(lowerQuestion) && /model/i.test(chunk.type)) score += 5;
@@ -2168,6 +2217,44 @@ function rankChunks(question, chunks) {
     })
     .filter((chunk) => chunk.score > 2)
     .sort((a, b) => b.score - a.score);
+}
+
+function makeEvidenceGuardMeta(question, citations, tickerFocus, explicitCompare) {
+  const compareMode = explicitCompare;
+  const focusTicker = tickerFocus ? tickerFocus.ticker : state.selectedTicker;
+  const focusCitations = focusTicker ? citations.filter((citation) => citation.ticker === focusTicker) : citations;
+  const mismatches = focusTicker && !compareMode
+    ? citations.filter((citation) => citation.ticker !== focusTicker)
+    : [];
+  const docs = new Set(citations.map((citation) => citation.docId)).size;
+  const types = new Set(citations.map((citation) => citation.type)).size;
+  const sourceQuality = citations.reduce((sum, citation) => {
+    const status = normalizeSourceStatus(citation.sourceStatus);
+    if (status === "real") return sum + 12;
+    if (status === "imported") return sum + 8;
+    return sum + 4;
+  }, 0);
+  const focusRatio = citations.length ? focusCitations.length / citations.length : 1;
+  let score = 45 + docs * 5 + types * 6 + sourceQuality / Math.max(citations.length, 1) + Math.round(focusRatio * 24) - mismatches.length * 18;
+  if (state.onlySelectedTicker && focusTicker && !compareMode && mismatches.length === 0) score += 8;
+  if (compareMode) score += Math.min(new Set(citations.map((citation) => citation.ticker)).size * 4, 12);
+  score = Math.max(18, Math.min(98, Math.round(score)));
+  const qualityClass = mismatches.length ? "is-warning" : score >= 78 ? "is-strong" : "is-mixed";
+  const label = mismatches.length ? "Check citations" : score >= 78 ? "Strong guard" : "Adequate guard";
+  const message = compareMode
+    ? "The question is explicitly comparative, so multiple tickers are allowed in the evidence stack."
+    : state.onlySelectedTicker && focusTicker
+      ? `Single-company guard is active for ${focusTicker}.`
+      : "Single-company guard is relaxed, so the answer can draw from the enabled coverage universe.";
+  return {
+    compareMode,
+    focusTicker,
+    mismatches,
+    score,
+    label,
+    qualityClass,
+    message
+  };
 }
 
 function expandTokens(text) {
@@ -2460,10 +2547,25 @@ function citationLink(index) {
   return `<a class="citation-link" href="#evidence-${escapeAttr(citation.citationId)}">${escapeHtml(citation.citationId)}</a>`;
 }
 
-function isCompareQuestion(question, citations) {
+function isExplicitCompareQuestion(question) {
   const lower = question.toLowerCase();
-  const tickers = new Set(citations.map((citation) => citation.ticker));
-  return tickers.size > 1 || /compare|versus| vs |which|better|best|rank/i.test(lower);
+  const mentionedTickers = getMentionedTickers(question);
+  return mentionedTickers.size > 1 || /compare|versus|\bvs\b|which company|which bank|better|best|rank|peer/i.test(lower);
+}
+
+function getMentionedTickers(question) {
+  const text = String(question || "");
+  const lower = text.toLowerCase();
+  const mentioned = new Set(getCompanies()
+    .filter((company) => lower.includes(company.ticker.toLowerCase()) || lower.includes(company.name.toLowerCase()))
+    .map((company) => company.ticker));
+  const cashTags = text.match(/\$([A-Z][A-Z0-9.]{0,11})\b/gi) || [];
+  cashTags.forEach((tag) => {
+    const rawTicker = normalizeTicker(tag.slice(1));
+    const company = getCompany(rawTicker) || getCompany(PUBLIC_TICKER_ALIASES[rawTicker]?.ticker);
+    if (company) mentioned.add(company.ticker);
+  });
+  return mentioned;
 }
 
 function getEnabledDocs() {
