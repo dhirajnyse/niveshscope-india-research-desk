@@ -35,6 +35,22 @@ Evidence-backed Indian equity research for investors who want cited answers inst
 - Phase 22 Production Foundation with a visible launch-plan section, architecture docs, data provenance rules, repository operations guidance, and automated static checks.
 - Phase 23 Real Source Starter Pack with priority readiness cards for RELIANCE, TCS, and HDFCBANK, source-type replacement actions, and investment-use readiness warnings inside reports.
 - Phase 24 Source Collection Assistant with beginner collection steps, explicit `Open source site` and `Fill URL` actions, and progress memory while replacing synthetic sources.
+- Phase 25 Real Filing Capture Mode with paste preview, before/after readiness impact, REAL-source verification checks, and one-click training samples.
+- Phase 26 Evidence-to-Brief Workbench with memo readiness scoring, evidence/source-gap mapping, packet copy, and packet JSON export.
+- Phase 27 Memo Review Room with saved human review decisions, conviction notes, open-risk tracking, and exportable review logs.
+- Phase 28 Launch Control Room with launch readiness scoring, blocker routing, company readiness ranking, post-upload tests, and audit pack export.
+- Phase 29 Source Intake Doctor with pre-save source quality scoring, REAL-save blocking, citation note copy, URL review, section-depth checks, and sample-source guardrails.
+- Phase 30 Investment Readiness Gate with answer-level export posture, blocker checks, next-gap routing, readiness-note copy, and PDF/Markdown gate metadata.
+- Phase 31 Decision Journal with research-decision logging, thesis strength, review horizon, trigger criteria, valuation snapshot, exportable journal, and launch-control decision tracking.
+- Phase 32 Review Radar with due-date triage, overdue decision alerts, evidence-task follow-up, copy/export radar packs, and Launch Control integration.
+- Phase 33 Portfolio Watchtower with company-level readiness scoring, next-action routing, source-gap triage, review-due tracking, and operating-board export.
+- Phase 34 Catalyst Calendar with dated research events, review/source/risk/ready filters, next-catalyst routing, and calendar export.
+- Phase 35 Daily Briefing with morning/source/review/launch modes, first-action routing, briefing copy/export, and Launch Control integration.
+- Phase 36 Desk Task Board with persistent briefing-task capture, task status workflow, route-back actions, copy/export, and Launch Control integration.
+- Phase 37 Research Sprint Planner with focus/source/review/launch sprint modes, capacity planning, sprint-task capture, copy/export, and Launch Control integration.
+- Phase 38 IC Memo Builder with committee/pilot/source-review formats, gate-aware blocker routing, review and decision trail checks, valuation context, PDF export, JSON export, and Launch Control integration.
+- Phase 39 Claim Trace Inspector with answer and IC-memo claim extraction, citation-strength scoring, SYN/unsupported claim warnings, weakest-claim routing, copy/export trace packs, and Launch Control integration.
+- Phase 40 Answer Quality Lab with release, citation, committee, and export QA views; blocker scoring; top-fix routing; Markdown/JSON QA reports; and Launch Control integration.
 - INR crore valuation lens with revenue CAGR, FCF margin, terminal multiple, and discount-rate sensitivities.
 - Saved valuation cases stored locally in the browser.
 - One-click research outputs for risk memos, concall tone, valuation assumptions, peer comparison, and investment committee briefs.
@@ -124,6 +140,22 @@ v22 adds the first durable project foundation around the working desk:
 - `docs/DATA_PROVENANCE.md`: source status rules, required source fields, and review checklist.
 - `docs/REAL_SOURCE_STARTER_PACK.md`: priority-company source workflow and readiness levels.
 - `docs/SOURCE_COLLECTION_ASSISTANT.md`: beginner workflow for collecting and pasting official source evidence.
+- `docs/REAL_FILING_CAPTURE_MODE.md`: filing capture preview, readiness impact, confidence gate, and training sample workflow.
+- `docs/BRIEF_WORKBENCH.md`: memo readiness scoring, evidence-to-gap mapping, and packet export rules.
+- `docs/MEMO_REVIEW_ROOM.md`: human review workflow, decision log fields, and launch audit direction.
+- `docs/LAUNCH_CONTROL_ROOM.md`: launch score inputs, blocker routing, upload checklist, and audit pack structure.
+- `docs/SOURCE_INTAKE_DOCTOR.md`: source intake score, REAL evidence blocker rules, and citation-note workflow.
+- `docs/INVESTMENT_READINESS_GATE.md`: investment-use posture rules, blocker list, routing actions, and export metadata.
+- `docs/DECISION_JOURNAL.md`: research decision ledger, fields, local storage behavior, and production audit direction.
+- `docs/REVIEW_RADAR.md`: follow-up workflow for saved decisions, due-date scoring, evidence-task routing, and launch readiness use.
+- `docs/PORTFOLIO_WATCHTOWER.md`: daily operating board, company scoring, next-action routing, and portfolio export structure.
+- `docs/CATALYST_CALENDAR.md`: dated research operating calendar, event sources, routing rules, and production scheduling direction.
+- `docs/DAILY_BRIEFING.md`: morning command workflow, briefing modes, first-action routing, and production briefing direction.
+- `docs/DESK_TASK_BOARD.md`: task capture, status workflow, routing, exports, and production task-management direction.
+- `docs/RESEARCH_SPRINT_PLANNER.md`: focused sprint planning, capacity rules, task-board/briefing inputs, routing, exports, and production scheduling direction.
+- `docs/IC_MEMO_BUILDER.md`: committee memo packet assembly, blocker routing, export behavior, and production investment-committee direction.
+- `docs/CLAIM_TRACE_INSPECTOR.md`: claim-level citation tracing, weak-claim routing, exports, and launch-control blocker rules.
+- `docs/ANSWER_QUALITY_LAB.md`: answer-level QA scoring, quality dimensions, top-fix routing, exports, and launch-control blocker rules.
 - `docs/LAUNCH_ROADMAP.md`: phased path from static proof to source library, accounts, automation, and launch hardening.
 - `docs/REPO_OPERATIONS.md`: upload workflow, versioning rules, quality checks, and future branch strategy.
 - `scripts/static-check.mjs`: local repository checks for CSP presence, version marker, data JSON validity, and accidental inline handlers.
@@ -155,6 +187,173 @@ v24 makes the replacement workflow clearer:
 - Opening a source site or filling a URL updates the task progress memory.
 - Running `Detect and fill builder` marks the task as pasted/review-in-progress.
 - Adding a REAL source marks the task verified through the existing source-progress flow.
+
+## Real Filing Capture Mode
+
+v25 adds a safer final step before evidence enters the corpus:
+
+- `Load sample filing` lets a user learn the flow without using an official source immediately.
+- The filing preview detects company, source type, period, useful sections, and readiness impact.
+- Before adding evidence, the app shows what changes, such as `Needed -> REAL ready` or `Needed -> IMP review`.
+- REAL records require three confirmations: official URL verified, text copied from the same document, and period/date checked.
+- Sample text is marked `IMP review` by default so it cannot accidentally look like verified evidence.
+
+## Evidence-to-Brief Workbench
+
+v26 turns a generated answer into a memo packet:
+
+- The `Brief workbench` panel scores whether the current answer is ready for pilot review or still needs evidence work.
+- It checks for a generated answer, at least three citations, source-type spread, evidence quality, REAL citation mix, and company-level REAL source coverage.
+- The evidence/source map shows which citations were used and which required source slots are still open.
+- `Copy memo packet` creates a committee-style Markdown packet with question, brief, readiness checks, evidence, and open gaps.
+- `Export packet JSON` saves the same packet as structured JSON for future backend storage.
+- `Open next source gap` jumps straight from the memo review to the exact Source Studio replacement task.
+
+## Memo Review Room
+
+v27 adds the human review layer after a memo packet is created:
+
+- Save a review decision such as `Needs source work`, `Pilot memo ready`, `Committee review ready`, `Watchlist only`, or `Reject thesis`.
+- Record conviction, owner, review note, and open risk or next action.
+- Each saved review stores the memo score, confidence, evidence quality, REAL source coverage, open gaps, and citation metadata.
+- Export the full review log as JSON or copy it as Markdown.
+- Delete individual review entries or clear the local browser review log.
+
+This is the first step toward a future production audit trail where every research memo has an answer, evidence packet, reviewer decision, and source-gap history.
+
+## Launch Control Room
+
+v28 gives the project one launch cockpit:
+
+- Shows a launch score and status label for the current version.
+- Measures REAL source coverage, starter-company readiness, review-log depth, and current memo quality.
+- Lists launch blockers and routes the next blocker into the right workflow.
+- Ranks companies by required source readiness.
+- Provides a post-upload test plan for GitHub Pages releases.
+- Exports a launch audit JSON pack with blockers, company readiness, memo packet, review log, and test plan.
+- Copies a Markdown upload checklist for manual release tracking.
+
+## Source Intake Doctor
+
+v29 improves the real-data intake workflow inside Source Pack Studio:
+
+- `Check intake` scores the selected company, source URL, source host, citation depth, period/date, sample status, and REAL confidence checks.
+- REAL records are blocked if the doctor finds high-priority issues such as missing HTTPS URL, weak citation text, training sample marked REAL, or incomplete confidence checks.
+- `Copy citation note` creates a Markdown source intake note with fields, checks, and citation section previews.
+- The doctor updates while you paste text, fill URLs, edit sections, change quality, or load sample filings.
+- This makes the path from NSE/BSE/company filing to usable source record clearer and harder to misuse.
+
+## Investment Readiness Gate
+
+v30 adds a research-output control between the question form and the answer:
+
+- Scores the active memo as demo, review-only, pilot draft, or committee-ready candidate.
+- Checks active answer, citation depth, source spread, evidence quality, confidence, off-ticker drift, REAL citation mix, company source coverage, and human review status.
+- Shows the first required blocker and routes the next source gap into Source Pack Studio.
+- Copies a Markdown readiness note for review logs or launch checklists.
+- Adds gate status and score to PDF/Markdown exports so reports carry their evidence posture.
+
+## Decision Journal
+
+v31 adds a decision ledger after the review room:
+
+- Saves the human research decision attached to the current memo and readiness gate.
+- Captures thesis strength, review horizon, next review date, owner, decision note, trigger or kill criteria, and next evidence task.
+- Stores the current gate score, memo score, evidence quality, REAL source coverage, and valuation snapshot with each entry.
+- Exports the decision journal as JSON or copies it as Markdown for research files.
+- Feeds Launch Control with decision-count tracking and a blocker when no decision trail exists.
+
+## Review Radar
+
+v32 turns saved decisions into follow-up work:
+
+- Reads Decision Journal entries and ranks overdue, due, upcoming, scheduled, and unscheduled reviews.
+- Shows a follow-up score, due count, overdue count, upcoming count, open evidence tasks, and unscheduled decisions.
+- Filters the radar by due reviews, upcoming reviews, or open evidence tasks.
+- Opens the next review directly into the right source-replacement workflow when a source gap exists.
+- Copies a Markdown radar or exports structured JSON for research operations.
+- Feeds Launch Control with review-radar blockers when older conclusions or evidence tasks need attention.
+
+## Portfolio Watchtower
+
+v33 adds a daily operating board above Launch Control:
+
+- Scores every company using REAL source coverage, review state, decision state, risk, and open follow-up pressure.
+- Highlights the next company action, such as replacing a source, opening a due review, creating a decision, or refreshing a risk memo.
+- Filters companies by source gaps, due reviews, pilot candidates, and high-risk names.
+- Sorts by priority, readiness, or risk.
+- Copies a Markdown operating board or exports structured JSON for research operations.
+- Feeds Launch Control with watchtower score and audit-pack metadata.
+
+## Catalyst Calendar
+
+v34 adds dated research operations:
+
+- Builds catalyst events from Review Radar dates, Portfolio Watchtower source gaps, high-risk companies, and pilot candidates.
+- Filters by reviews, source work, risk refreshes, and pilot-candidate check-ins.
+- Limits the view to the next 7, 30, 90, or all open days.
+- Routes the next catalyst into the right workflow: review follow-up, Source Studio, or a desk question.
+- Copies a Markdown calendar or exports structured JSON.
+- Feeds Launch Control with calendar score, overdue count, and source-event pressure.
+
+## Daily Briefing
+
+v35 adds a morning command layer:
+
+- Combines Catalyst Calendar, Portfolio Watchtower, and Review Radar into one prioritized action list.
+- Switches between morning desk, source sprint, review sprint, and launch prep modes.
+- Shows a focus score, urgent-action count, source-work count, review count, and launch posture.
+- Routes `Start first action` into the exact source task, review follow-up, portfolio action, or catalyst event.
+- Copies a Markdown briefing or exports structured JSON for the daily research file.
+- Feeds Launch Control with briefing score, first action, audit-pack metadata, and urgent-action blockers.
+
+## Desk Task Board
+
+v36 turns briefing actions into persistent execution work:
+
+- Captures the first Daily Briefing action or any individual briefing card into a local task board.
+- Tracks queued, in-progress, and done statuses with high-priority labels.
+- Routes each task back into the right workflow: source work, review follow-up, portfolio action, catalyst event, or desk question.
+- Filters open, high-priority, source, review, done, and all tasks.
+- Copies the task board as Markdown or exports structured JSON.
+- Feeds Launch Control with open-task count, high-priority pressure, done count, and audit-pack metadata.
+
+## Research Sprint Planner
+
+v37 converts open work into a focused research session:
+
+- Builds a sprint from open Desk Task Board items first, then fills remaining capacity from Daily Briefing.
+- Supports 90-minute focus, source sprint, review sprint, launch prep, and full-day queue modes.
+- Lets the user choose sprint capacity across 3, 5, 8, or 12 actions.
+- Captures uncaptured briefing actions into the task board one at a time or as a sprint batch.
+- Routes sprint items back into the right workflow and exports the sprint as Markdown or JSON.
+- Feeds Launch Control with sprint score, planned count, first action, and audit-pack metadata.
+
+## IC Memo Builder
+
+v38 turns the live desk state into a reviewable committee packet:
+
+- Builds committee, pilot, source-review, and watchlist memo formats from the current answer, gate, valuation lens, review trail, decision trail, and sprint handoff.
+- Routes the top blocker back into the exact workflow that needs work.
+- Copies Markdown, exports branded PDF, exports JSON, and feeds Launch Control with memo readiness.
+
+## Claim Trace Inspector
+
+v39 checks whether the visible research claims are actually supported:
+
+- Extracts material claims from the current answer or IC memo packet.
+- Scores each claim against the current citation stack, highlighting unsupported critical claims and SYN-backed claims.
+- Opens the weakest claim directly into evidence review or the next source gap.
+- Copies Markdown trace notes, exports JSON trace packs, and feeds Launch Control with a claim-quality score and blockers.
+
+## Answer Quality Lab
+
+v40 adds a release-grade QA console for the current answer:
+
+- Scores active answer, citation depth, evidence quality, REAL source mix, claim support, ticker discipline, readiness gate, review trail, committee packet, and export hygiene.
+- Switches between release readiness, citation quality, committee memo, and export hygiene views.
+- Opens the top fix into the right workflow instead of leaving the user to guess.
+- Copies a Markdown QA report, exports structured QA JSON, and feeds Launch Control with answer-quality score and blockers.
 
 ## Waitlist capture
 

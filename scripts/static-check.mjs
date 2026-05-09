@@ -25,9 +25,9 @@ const index = read("index.html");
 const app = read("app.js");
 
 assert(index.includes("Content-Security-Policy"), "index.html is missing the CSP meta tag.");
-assert(index.includes("Collection assistant v24"), "index.html does not show the v24 status marker.");
+assert(index.includes("Answer quality v40"), "index.html does not show the v40 status marker.");
 assert(!/\son[a-z]+\s*=/i.test(index), "index.html contains an inline event handler.");
-assert(app.includes('const DATA_VERSION = "20260508-21";'), "app.js DATA_VERSION is not aligned with v24.");
+assert(app.includes('const DATA_VERSION = "20260509-14";'), "app.js DATA_VERSION is not aligned with v40.");
 assert(app.includes("normalizeExternalUrl"), "app.js is missing source URL normalization.");
 assert(app.includes("MAX_IMPORT_FILE_BYTES"), "app.js is missing import size limits.");
 assert(app.includes("STARTER_PACK_TICKERS"), "app.js is missing the real-source starter pack list.");
@@ -35,6 +35,39 @@ assert(app.includes("makeInvestmentReadinessNotice"), "app.js is missing investm
 assert(app.includes("makeSourceCollectionSteps"), "app.js is missing source collection assistant steps.");
 assert(app.includes("Open source site"), "app.js is missing explicit source-opening labels.");
 assert(app.includes("Fill URL"), "app.js is missing explicit URL-fill labels.");
+assert(app.includes("renderFilingCapturePreview"), "app.js is missing filing capture preview.");
+assert(index.includes("Load sample filing") && app.includes("loadSampleFilingText"), "app.js or index.html is missing sample filing workflow.");
+assert(app.includes("isSourceConfidenceReady"), "app.js is missing the REAL-source confidence gate.");
+assert(index.includes("brief-workbench") && app.includes("renderBriefWorkbench"), "app.js or index.html is missing the evidence-to-brief workbench.");
+assert(app.includes("makeBriefPacketMarkdown") && app.includes("exportBriefPacketJson"), "app.js is missing memo packet export support.");
+assert(index.includes("memo-review-room") && app.includes("renderMemoReviewRoom"), "app.js or index.html is missing the memo review room.");
+assert(app.includes("saveMemoReview") && app.includes("exportMemoReviewLog"), "app.js is missing memo review save/export support.");
+assert(index.includes("launch-control-room") && app.includes("renderLaunchControlRoom"), "app.js or index.html is missing the launch control room.");
+assert(app.includes("makeLaunchAudit") && app.includes("exportLaunchAuditPack"), "app.js is missing launch audit support.");
+assert(index.includes("source-intake-doctor") && app.includes("renderSourceIntakeDoctor"), "app.js or index.html is missing the source intake doctor.");
+assert(app.includes("makeSourceIntakeAudit") && app.includes("copySourceCitationNote"), "app.js is missing source intake audit/citation support.");
+assert(index.includes("investment-gate") && app.includes("renderInvestmentGate"), "app.js or index.html is missing the investment readiness gate.");
+assert(app.includes("makeInvestmentGateAudit") && app.includes("copyInvestmentGateNote"), "app.js is missing investment gate audit/copy support.");
+assert(index.includes("decision-journal") && app.includes("renderDecisionJournal"), "app.js or index.html is missing the decision journal.");
+assert(app.includes("saveDecisionJournalEntry") && app.includes("makeDecisionJournalJson"), "app.js is missing decision journal save/export support.");
+assert(index.includes("review-radar") && app.includes("renderReviewRadar"), "app.js or index.html is missing the review radar.");
+assert(app.includes("makeReviewRadarJson") && app.includes("copyReviewRadar"), "app.js is missing review radar copy/export support.");
+assert(index.includes("portfolio-watchtower") && app.includes("renderPortfolioWatchtower"), "app.js or index.html is missing the portfolio watchtower.");
+assert(app.includes("makePortfolioWatchtowerJson") && app.includes("copyPortfolioWatchtower"), "app.js is missing portfolio watchtower copy/export support.");
+assert(index.includes("catalyst-calendar") && app.includes("renderCatalystCalendar"), "app.js or index.html is missing the catalyst calendar.");
+assert(app.includes("makeCatalystCalendarJson") && app.includes("copyCatalystCalendar"), "app.js is missing catalyst calendar copy/export support.");
+assert(index.includes("daily-briefing") && app.includes("renderDailyBriefing"), "app.js or index.html is missing the daily briefing.");
+assert(app.includes("makeDailyBriefingJson") && app.includes("copyDailyBriefing"), "app.js is missing daily briefing copy/export support.");
+assert(index.includes("desk-task-board") && app.includes("renderDeskTaskBoard"), "app.js or index.html is missing the desk task board.");
+assert(app.includes("makeDeskTaskBoardJson") && app.includes("captureDailyBriefingTask"), "app.js is missing desk task board capture/export support.");
+assert(index.includes("research-sprint-planner") && app.includes("renderResearchSprintPlanner"), "app.js or index.html is missing the research sprint planner.");
+assert(app.includes("makeResearchSprintJson") && app.includes("captureResearchSprintTasks"), "app.js is missing research sprint planner copy/export support.");
+assert(index.includes("ic-memo-builder") && app.includes("renderIcMemoBuilder"), "app.js or index.html is missing the IC memo builder.");
+assert(app.includes("makeIcMemoJson") && app.includes("exportIcMemoPdf"), "app.js is missing IC memo copy/export support.");
+assert(index.includes("claim-trace-inspector") && app.includes("renderClaimTraceInspector"), "app.js or index.html is missing the claim trace inspector.");
+assert(app.includes("makeClaimTraceJson") && app.includes("openWeakestClaim"), "app.js is missing claim trace copy/export support.");
+assert(index.includes("answer-quality-lab") && app.includes("renderAnswerQualityLab"), "app.js or index.html is missing the answer quality lab.");
+assert(app.includes("makeAnswerQualityJson") && app.includes("openAnswerQualityFix"), "app.js is missing answer quality copy/export support.");
 
 for (const file of listFiles("data").filter((name) => name.endsWith(".json"))) {
   try {
@@ -51,6 +84,22 @@ for (const required of [
   "docs/DATA_PROVENANCE.md",
   "docs/REAL_SOURCE_STARTER_PACK.md",
   "docs/SOURCE_COLLECTION_ASSISTANT.md",
+  "docs/REAL_FILING_CAPTURE_MODE.md",
+  "docs/BRIEF_WORKBENCH.md",
+  "docs/MEMO_REVIEW_ROOM.md",
+  "docs/LAUNCH_CONTROL_ROOM.md",
+  "docs/SOURCE_INTAKE_DOCTOR.md",
+  "docs/INVESTMENT_READINESS_GATE.md",
+  "docs/DECISION_JOURNAL.md",
+  "docs/REVIEW_RADAR.md",
+  "docs/PORTFOLIO_WATCHTOWER.md",
+  "docs/CATALYST_CALENDAR.md",
+  "docs/DAILY_BRIEFING.md",
+  "docs/DESK_TASK_BOARD.md",
+  "docs/RESEARCH_SPRINT_PLANNER.md",
+  "docs/IC_MEMO_BUILDER.md",
+  "docs/CLAIM_TRACE_INSPECTOR.md",
+  "docs/ANSWER_QUALITY_LAB.md",
   "docs/LAUNCH_ROADMAP.md",
   "docs/REPO_OPERATIONS.md"
 ]) {
