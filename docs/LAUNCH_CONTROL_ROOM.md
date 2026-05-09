@@ -20,6 +20,10 @@ The Launch Control Room reads the same browser state used by the desk:
 - IC Memo Builder score, committee-packet blockers, PDF/JSON export readiness, and review/decision trail status.
 - Claim Trace Inspector score, unsupported claim count, SYN-backed claim count, weakest claim, and blocker status.
 - Answer Quality Lab score, blocking dimension count, review dimension count, export posture, and top fix.
+- Trust Center score, required trust blockers, source URL trust, storage footprint, and top hardening action.
+- Release Doctor runtime marker score, required root-manifest checklist, package name, and GitHub Pages upload-shape guidance.
+- Operator Coach next-action state, including the current primary route and desk score.
+- Evidence Vault saved-citation count, ticker spread, and REAL/SYN source mix.
 - Current evidence mix, including SYN citation warnings.
 
 No external service is called. The launch score is a local readiness view, not a production compliance result.
@@ -41,6 +45,10 @@ The score blends:
 - IC Memo Builder committee-packet score.
 - Claim Trace Inspector quality score.
 - Answer Quality Lab score.
+- Trust Center score.
+- Release Doctor score.
+- Operator Coach score.
+- Evidence Vault saved-citation coverage.
 - Current memo score.
 - Open blocker count.
 
@@ -66,6 +74,8 @@ The `Open next blocker` button routes the user to the right workflow:
 - IC memo blockers scroll to IC Memo Builder so the committee packet can be completed.
 - Claim-trace blockers scroll to Claim Trace Inspector so the weakest unsupported claim can be opened.
 - Answer-quality blockers scroll to Answer Quality Lab so the top QA fix can be opened.
+- Release Doctor blockers scroll to the root-manifest guard so the upload shape can be checked before publishing.
+- Operator Coach actions sit above Launch Control and choose the highest-value route before the user has to inspect every blocker manually.
 - Missing memo blockers load a starter desk question.
 - Current-memo blockers open the Brief Workbench.
 
@@ -90,6 +100,9 @@ This keeps the release workflow action-oriented instead of just informational.
 - IC Memo Builder summary, sections, blockers, valuation context, review trail, and decision trail.
 - Claim Trace Inspector summary, claim list, source status, support score, and citation match metadata.
 - Answer Quality Lab score, dimensions, blockers, top fix, claim trace summary, and QA test plan.
+- Trust Center score, browser-side security checks, source URL trust state, storage footprint, and hardening action.
+- Evidence Vault summary, saved citation items, ticker list, and source-status mix.
+- Release Doctor root manifest, runtime checks, package name, upload rule, and smoke tests.
 - Post-upload test plan.
 
 The JSON is designed as the future shape for backend release audits and admin dashboards.
@@ -101,6 +114,7 @@ The JSON is designed as the future shape for backend release audits and admin da
 - Upload steps.
 - Current blockers.
 - Post-upload tests.
+- A Release Doctor root manifest covering the files and folders that must sit at the GitHub repository root.
 - A reminder that launch control does not replace human source verification.
 
 Use this after uploading a new ZIP to GitHub Pages so each release has the same smoke-test rhythm.

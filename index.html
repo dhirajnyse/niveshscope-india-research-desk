@@ -1,26 +1,1452 @@
-# Trust Center
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' https://formsubmit.co; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self' https://formsubmit.co; upgrade-insecure-requests"
+    />
+    <title>NiveshScope | Evidence-Backed Indian Equity Research</title>
+    <meta
+      name="description"
+      content="Evidence-backed Indian equity research across annual reports, NSE/BSE announcements, concall transcripts, shareholding patterns, and valuation scenarios."
+    />
+    <meta name="theme-color" content="#111815" />
+    <meta name="application-name" content="NiveshScope" />
+    <meta name="apple-mobile-web-app-title" content="NiveshScope" />
+    <link rel="canonical" href="https://dhirajnyse.github.io/niveshscope-india-research-desk/" />
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="assets/niveshscope-logo.svg" />
+    <link rel="manifest" href="site.webmanifest?v=20260509-22" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="NiveshScope" />
+    <meta property="og:title" content="NiveshScope | Ask Indian disclosures. See the evidence." />
+    <meta
+      property="og:description"
+      content="Research Indian equities through annual reports, exchange announcements, concalls, shareholding patterns, and valuation scenarios."
+    />
+    <meta property="og:url" content="https://dhirajnyse.github.io/niveshscope-india-research-desk/" />
+    <meta property="og:image" content="https://dhirajnyse.github.io/niveshscope-india-research-desk/assets/niveshscope-social-card.svg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="NiveshScope | Ask Indian disclosures. See the evidence." />
+    <meta
+      name="twitter:description"
+      content="Evidence-backed Indian equity research across filings, concalls, exchange announcements, shareholding, and valuation."
+    />
+    <meta name="twitter:image" content="https://dhirajnyse.github.io/niveshscope-india-research-desk/assets/niveshscope-social-card.svg" />
+    <link rel="stylesheet" href="styles.css?v=20260509-22" />
+    <link rel="stylesheet" href="launch.css?v=20260509-22" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="brand">
+          <img class="brand-mark" src="assets/niveshscope-logo.svg" alt="" aria-hidden="true" />
+          <div>
+            <h1>NiveshScope</h1>
+            <p>Indian market research desk</p>
+          </div>
+        </div>
+        <div class="status-strip" aria-label="Research status">
+          <span class="status-pill is-live">Desk ready</span>
+          <span class="status-pill">NSE/BSE</span>
+          <span class="status-pill">Concall tone</span>
+          <span class="status-pill">INR valuation</span>
+          <span class="status-pill">Source review v47</span>
+        </div>
+        <div class="top-actions">
+          <button class="icon-button" id="copyBrief" type="button" title="Copy current brief" aria-label="Copy current brief">
+            <span aria-hidden="true">Copy</span>
+          </button>
+          <button class="icon-button" id="saveBrief" type="button" title="Save current brief" aria-label="Save current brief">
+            <span aria-hidden="true">Save</span>
+          </button>
+          <button class="icon-button" id="exportPdfBrief" type="button" title="Export current brief as PDF" aria-label="Export current brief as PDF">
+            <span aria-hidden="true">PDF</span>
+          </button>
+          <button class="icon-button" id="exportBrief" type="button" title="Export current brief as Markdown" aria-label="Export current brief as Markdown">
+            <span aria-hidden="true">MD</span>
+          </button>
+        </div>
+      </header>
 
-NiveshScope v44 adds a Trust Center to make product security visible inside the research desk. The product is still a static browser prototype, but it now has a dedicated panel that checks the loaded app shape, source hygiene, import limits, evidence traceability, and export controls before the user treats a research answer as pilot-ready.
+      <section class="launch-hero" aria-labelledby="launchTitle">
+        <div class="launch-copy">
+          <div class="hero-brand-lockup">
+            <img class="hero-logo" src="assets/niveshscope-logo.svg" alt="" aria-hidden="true" />
+            <span>NiveshScope</span>
+          </div>
+          <span class="launch-kicker">Indian equities, source-first</span>
+          <h2 id="launchTitle">Ask Indian disclosures. See the evidence.</h2>
+          <p>
+            NiveshScope turns annual reports, exchange announcements, concall transcripts, shareholding patterns, and valuation scenarios into cited research briefs.
+          </p>
+          <div class="launch-actions">
+            <a class="primary-link" href="#desk">Open the desk</a>
+            <a class="secondary-link" href="#brief-workbench">Brief workbench</a>
+            <a class="secondary-link" href="#investment-gate">Readiness gate</a>
+            <a class="secondary-link" href="#memo-review-room">Review room</a>
+            <a class="secondary-link" href="#decision-journal">Decision journal</a>
+            <a class="secondary-link" href="#review-radar">Review radar</a>
+            <a class="secondary-link" href="#portfolio-watchtower">Watchtower</a>
+            <a class="secondary-link" href="#catalyst-calendar">Catalyst calendar</a>
+            <a class="secondary-link" href="#daily-briefing">Daily briefing</a>
+            <a class="secondary-link" href="#desk-task-board">Task board</a>
+            <a class="secondary-link" href="#research-sprint-planner">Sprint planner</a>
+            <a class="secondary-link" href="#ic-memo-builder">IC memo</a>
+            <a class="secondary-link" href="#claim-trace-inspector">Claim trace</a>
+            <a class="secondary-link" href="#answer-quality-lab">Answer quality</a>
+            <a class="secondary-link" href="#trust-center">Trust center</a>
+            <a class="secondary-link" href="#operator-coach">Operator coach</a>
+            <a class="secondary-link" href="#evidence-vault">Evidence vault</a>
+            <a class="secondary-link" href="#launch-control-room">Launch control</a>
+            <a class="secondary-link" href="#release-doctor">Release doctor</a>
+            <a class="secondary-link" href="#source-builder">Source studio</a>
+            <a class="secondary-link" href="#guided-source-collector">Source guide</a>
+            <a class="secondary-link" href="#source-citation-extractor">Citation extractor</a>
+            <a class="secondary-link" href="#source-review-gate">Review gate</a>
+            <a class="secondary-link" href="#source-intake-doctor">Intake doctor</a>
+            <a class="secondary-link" href="#real-starter">Starter pack</a>
+            <a class="secondary-link" href="#coverage-command">Coverage map</a>
+            <a class="secondary-link" href="#source-queue">Source queue</a>
+            <a class="secondary-link" href="#source-hub">Acquisition hub</a>
+            <a class="secondary-link" href="#source-workspace">Workspace</a>
+            <a class="secondary-link" href="#foundation">Launch plan</a>
+            <a class="secondary-link" href="#waitlist">Join pilot</a>
+          </div>
+          <div class="workflow-strip" aria-label="NiveshScope workflow">
+            <span>Disclose</span>
+            <span>Ask</span>
+            <span>Verify</span>
+            <span>Model</span>
+          </div>
+        </div>
+        <div class="hero-insights" aria-label="NiveshScope product signals">
+          <div>
+            <span>Built For</span>
+            <strong>Investors who read beyond headlines and tips</strong>
+          </div>
+          <div>
+            <span>Sources</span>
+            <strong>Annual reports, concalls, NSE/BSE updates</strong>
+          </div>
+          <div>
+            <span>Output</span>
+            <strong>Cited briefs with INR valuation read-through</strong>
+          </div>
+        </div>
+        <div class="research-preview" aria-label="Example research brief preview">
+          <div class="preview-topline">
+            <span>Brief Preview</span>
+            <strong>88%</strong>
+          </div>
+          <h3>Which company handles high rates better if deposits stay expensive?</h3>
+          <p>TCS leads because cash conversion and net cash reduce rate sensitivity, while HDFCBANK needs deposit-cost stabilisation.</p>
+          <div class="preview-evidence">
+            <div>
+              <span>C1</span>
+              <strong>Annual report</strong>
+              <em>Free cash flow was Rs 53500 crore.</em>
+            </div>
+            <div>
+              <span>C2</span>
+              <strong>Concall transcript</strong>
+              <em>Management is not assuming a sharp recovery.</em>
+            </div>
+          </div>
+          <div class="preview-stats">
+            <span>Rs 799+</span>
+            <span>Source-linked</span>
+            <span>NSE/BSE</span>
+          </div>
+        </div>
+      </section>
 
-## What It Checks
+      <main class="terminal-layout" id="desk">
+        <aside class="left-rail" aria-label="Research setup">
+          <section class="panel">
+            <div class="panel-heading">
+              <h2>Question Templates</h2>
+              <span id="questionCount">7</span>
+            </div>
+            <div class="template-stack" id="templateStack"></div>
+            <div class="demo-proxy-note">
+              <strong>Starter watchlist</strong>
+            <span>RELIANCE, TCS, HDFCBANK, INFY, ICICIBANK, SBIN, TATAMOTORS, LT, BAJFINANCE, and ADANIENT. Starter data now lives in JSON source-pack files.</span>
+            </div>
+          </section>
 
-The Trust Center scores ten visible controls:
+          <section class="panel">
+            <div class="panel-heading">
+              <h2>Coverage</h2>
+              <button class="text-button" id="selectAllTickers" type="button">All</button>
+            </div>
+            <div class="coverage-list" id="coverageList"></div>
+          </section>
 
-- Static Content Security Policy with same-origin scripts, blocked object embeds, and pinned base URI.
-- Absence of inline event handler attributes in the loaded DOM.
-- Source URL trust, using the configured trusted-domain list for official company, NSE, BSE, SEBI, and research-source links.
-- Import limits for per-file size, total upload size, and pasted source text length.
-- REAL source coverage across the required annual report, concall, results, shareholding, and announcement source slots.
-- Current answer citation safety, including SYN and imported citation counts.
-- Evidence Vault traceability, including saved item count and REAL saved evidence.
-- Local browser storage footprint.
-- PDF, Markdown, and copy export controls.
-- Release Doctor shape checks for GitHub Pages upload safety.
+          <section class="panel">
+            <div class="panel-heading">
+              <h2>Library</h2>
+              <span id="documentCount">0 docs</span>
+            </div>
+            <div class="library-list" id="libraryList"></div>
+          </section>
 
-## How To Use It
+          <section class="panel upload-panel">
+            <div class="panel-heading">
+              <h2>Import</h2>
+              <button class="text-button danger" id="clearUploads" type="button">Clear uploads</button>
+            </div>
+            <label class="file-drop" for="fileInput">
+              <span class="file-drop-icon" aria-hidden="true">DOC</span>
+              <span>Drop in annual report text, concall notes, exchange filings, shareholding extracts, rating notes, model notes, or text-based PDFs.</span>
+              <input id="fileInput" type="file" accept=".txt,.md,.csv,.html,.json,.pdf" multiple />
+            </label>
+            <div class="import-summary" id="importSummary" aria-live="polite">
+              <strong>Import status</strong>
+              <span>Paste or upload source text to build a private browser corpus for this session.</span>
+            </div>
+            <form class="paste-form" id="pasteForm">
+              <div class="field-row">
+                <label>
+                  <span>Company</span>
+                  <select id="importTickerSelect" aria-label="Import company"></select>
+                </label>
+                <label>
+                  <span>Ticker</span>
+                  <input id="pasteTicker" type="text" maxlength="12" value="CUSTOM" />
+                </label>
+                <label>
+                  <span>Type</span>
+                  <select id="pasteType">
+                    <option>Annual report</option>
+                    <option>Quarterly results</option>
+                    <option>Concall transcript</option>
+                    <option>Exchange announcement</option>
+                    <option>Shareholding pattern</option>
+                    <option>Credit rating note</option>
+                    <option>Valuation model</option>
+                    <option>Research note</option>
+                  </select>
+                </label>
+              </div>
+              <label>
+                <span>Title</span>
+                <input id="pasteTitle" type="text" value="Imported Indian market document" />
+              </label>
+              <label>
+                <span>Text</span>
+                <textarea id="pasteText" rows="4" placeholder="Paste disclosure, concall, or model text"></textarea>
+              </label>
+              <button class="primary-button small" type="submit">Add to corpus</button>
+            </form>
+          </section>
+        </aside>
 
-Open `Trust center` from the hero navigation. The panel shows a trust score, six operating metrics, and a checklist. `Open top hardening action` routes to the exact workflow that can improve the weakest control. `Copy trust report` creates a Markdown note, and `Export trust report` creates JSON for release records.
+        <section class="workbench" aria-label="Research answer desk">
+          <section class="query-panel">
+            <div class="context-band" id="contextBand"></div>
+            <form id="queryForm" class="query-form">
+              <label for="queryInput">Ask the desk</label>
+              <textarea
+                id="queryInput"
+                rows="4"
+                placeholder="Example: Compare $TCS and $HDFCBANK on margin durability and cash conversion."
+              ></textarea>
+              <div class="memo-shortcuts" aria-label="Research output shortcuts">
+                <button type="button" data-memo="risk">Risk memo</button>
+                <button type="button" data-memo="tone">Concall tone</button>
+                <button type="button" data-memo="valuation">Valuation assumptions</button>
+                <button type="button" data-memo="peer">Peer compare</button>
+                <button type="button" data-memo="committee">Committee brief</button>
+              </div>
+              <label class="evidence-guard-toggle">
+                <input id="onlySelectedTicker" type="checkbox" checked />
+                <span>Only selected ticker</span>
+                <em>Single-company answers stay anchored unless the question is explicitly comparative.</em>
+              </label>
+              <div class="query-actions">
+                <div class="segmented" role="group" aria-label="Answer depth">
+                  <button type="button" class="segment is-active" data-depth="brief">Brief</button>
+                  <button type="button" class="segment" data-depth="desk">Desk</button>
+                  <button type="button" class="segment" data-depth="committee">Committee</button>
+                </div>
+                <div class="query-run-actions">
+                  <button class="secondary-button scan-button" id="scanFilingButton" type="button">Scan disclosure</button>
+                  <button class="primary-button" id="runAnalysisButton" type="button">Run analysis</button>
+                </div>
+              </div>
+            </form>
+          </section>
 
-## Security Direction
+          <section class="operator-coach-panel" id="operator-coach" aria-labelledby="operatorCoachTitle">
+            <div class="operator-coach-head">
+              <div>
+                <span>Operator Coach</span>
+                <h2 id="operatorCoachTitle">One next move for the desk.</h2>
+              </div>
+              <strong id="operatorCoachStatus">Reading desk state</strong>
+            </div>
+            <div class="operator-coach-summary" id="operatorCoachSummary"></div>
+            <div class="operator-coach-queue" id="operatorCoachQueue"></div>
+            <div class="builder-actions operator-coach-actions">
+              <button class="primary-button" id="operatorCoachDo" type="button">Do next action</button>
+              <button class="secondary-button" id="copyOperatorPlan" type="button">Copy plan</button>
+              <button class="secondary-button" id="exportOperatorPlan" type="button">Export plan</button>
+            </div>
+            <div class="builder-result" id="operatorCoachResult" aria-live="polite"></div>
+          </section>
 
-This static panel is a product-shape guard. Production should add authenticated accounts, role-based permissions, server-side source hashing, malware scanning for uploads, dependency and secret scans in CI, immutable audit logs, reviewer identity, and signed source-transition records.
+          <section class="investment-gate-panel" id="investment-gate" aria-labelledby="investmentGateTitle">
+            <div class="investment-gate-head">
+              <div>
+                <span>Investment Readiness Gate</span>
+                <h2 id="investmentGateTitle">Know whether the answer is demo, review, or committee-ready.</h2>
+              </div>
+              <strong id="investmentGateStatus">No brief yet</strong>
+            </div>
+            <div class="investment-gate-summary" id="investmentGateSummary"></div>
+            <div class="investment-gate-checks" id="investmentGateChecks"></div>
+            <div class="investment-gate-actions">
+              <button class="primary-button small" id="runInvestmentGate" type="button">Run gate</button>
+              <button class="secondary-button small" id="openInvestmentGateGap" type="button">Open next evidence gap</button>
+              <button class="secondary-button small" id="copyInvestmentGateNote" type="button">Copy readiness note</button>
+            </div>
+            <div class="builder-result" id="investmentGateResult" aria-live="polite"></div>
+          </section>
+
+          <section class="answer-panel" id="answerPanel">
+            <div class="empty-state">
+              <div class="empty-kicker">Ready</div>
+              <h2>Ask across disclosures, concalls, and imported notes.</h2>
+              <p>
+                The desk retrieves source passages, weighs management tone against disclosed risks, and drafts a cited answer with valuation read-through.
+              </p>
+            </div>
+          </section>
+
+          <section class="panel evidence-vault-panel" id="evidence-vault" aria-labelledby="evidenceVaultTitle">
+            <div class="panel-heading">
+              <h2 id="evidenceVaultTitle">Evidence Vault</h2>
+              <span id="evidenceVaultStatus">0 saved</span>
+            </div>
+            <div class="evidence-vault-summary" id="evidenceVaultSummary"></div>
+            <div class="builder-actions evidence-vault-actions">
+              <button class="primary-button" id="saveCurrentEvidence" type="button">Save current citations</button>
+              <button class="secondary-button" id="copyEvidenceVault" type="button">Copy vault</button>
+              <button class="secondary-button" id="exportEvidenceVault" type="button">Export vault</button>
+              <button class="text-button danger" id="clearEvidenceVault" type="button">Clear vault</button>
+            </div>
+            <div class="evidence-vault-list" id="evidenceVaultList"></div>
+            <div class="builder-result" id="evidenceVaultResult" aria-live="polite"></div>
+          </section>
+
+          <section class="panel brief-workbench-panel" id="brief-workbench" aria-labelledby="briefWorkbenchTitle">
+            <div class="panel-heading">
+              <h2 id="briefWorkbenchTitle">Brief Workbench</h2>
+              <span id="briefWorkbenchStatus">No brief yet</span>
+            </div>
+            <div class="brief-workbench-summary" id="briefWorkbenchSummary"></div>
+            <div class="brief-readiness-grid" id="briefReadinessGrid"></div>
+            <div class="brief-source-map" id="briefSourceMap"></div>
+            <div class="builder-actions brief-workbench-actions">
+              <button class="primary-button" id="copyBriefPacket" type="button">Copy memo packet</button>
+              <button class="secondary-button" id="exportBriefPacketJson" type="button">Export packet JSON</button>
+              <button class="secondary-button" id="openBriefNextGap" type="button">Open next source gap</button>
+            </div>
+            <div class="builder-result" id="briefWorkbenchResult" aria-live="polite"></div>
+          </section>
+
+          <section class="panel memo-review-panel" id="memo-review-room" aria-labelledby="memoReviewTitle">
+            <div class="panel-heading">
+              <h2 id="memoReviewTitle">Memo Review Room</h2>
+              <span id="memoReviewCount">0 reviews</span>
+            </div>
+            <form class="memo-review-form" id="memoReviewForm">
+              <div class="memo-review-context" id="memoReviewContext"></div>
+              <div class="builder-grid">
+                <label>
+                  <span>Decision</span>
+                  <select id="memoReviewDecision">
+                    <option value="needs-source-work">Needs source work</option>
+                    <option value="pilot-ready">Pilot memo ready</option>
+                    <option value="committee-ready">Committee review ready</option>
+                    <option value="watchlist-only">Watchlist only</option>
+                    <option value="reject-thesis">Reject thesis</option>
+                  </select>
+                </label>
+                <label>
+                  <span>Conviction</span>
+                  <select id="memoReviewConviction">
+                    <option>Low</option>
+                    <option selected>Medium</option>
+                    <option>High</option>
+                  </select>
+                </label>
+                <label>
+                  <span>Next owner</span>
+                  <input id="memoReviewOwner" type="text" value="Research desk" maxlength="60" />
+                </label>
+              </div>
+              <label>
+                <span>Review note</span>
+                <textarea id="memoReviewNote" rows="4" placeholder="Write the reason for the decision, what is credible, and what still needs verification."></textarea>
+              </label>
+              <label>
+                <span>Open risk or next action</span>
+                <textarea id="memoReviewRisk" rows="3" placeholder="Example: Replace SYN results citation with NSE result PDF, then rerun risk memo."></textarea>
+              </label>
+              <div class="builder-actions memo-review-actions">
+                <button class="primary-button" id="saveMemoReview" type="submit">Save review</button>
+                <button class="secondary-button" id="exportMemoReviews" type="button">Export review log</button>
+                <button class="secondary-button" id="copyMemoReviews" type="button">Copy review log</button>
+                <button class="text-button danger" id="clearMemoReviews" type="button">Clear reviews</button>
+              </div>
+              <div class="builder-result" id="memoReviewResult" aria-live="polite"></div>
+            </form>
+            <div class="memo-review-list" id="memoReviewList"></div>
+          </section>
+
+          <section class="panel decision-journal-panel" id="decision-journal" aria-labelledby="decisionJournalTitle">
+            <div class="panel-heading">
+              <h2 id="decisionJournalTitle">Decision Journal</h2>
+              <span id="decisionJournalCount">0 decisions</span>
+            </div>
+            <form class="decision-journal-form" id="decisionJournalForm">
+              <div class="decision-journal-context" id="decisionJournalContext"></div>
+              <div class="builder-grid">
+                <label>
+                  <span>Research decision</span>
+                  <select id="decisionJournalDecision">
+                    <option value="needs-source-work">Needs source work</option>
+                    <option value="watchlist-candidate">Watchlist candidate</option>
+                    <option value="committee-candidate">Committee candidate</option>
+                    <option value="monitor-only">Monitor only</option>
+                    <option value="reject-thesis">Reject thesis</option>
+                  </select>
+                </label>
+                <label>
+                  <span>Thesis strength</span>
+                  <select id="decisionJournalStrength">
+                    <option>Low</option>
+                    <option selected>Medium</option>
+                    <option>High</option>
+                  </select>
+                </label>
+                <label>
+                  <span>Review horizon</span>
+                  <select id="decisionJournalHorizon">
+                    <option>Next disclosure</option>
+                    <option selected>Quarterly review</option>
+                    <option>30 days</option>
+                    <option>Event-driven</option>
+                    <option>Archive</option>
+                  </select>
+                </label>
+                <label>
+                  <span>Next review date</span>
+                  <input id="decisionJournalDate" type="date" />
+                </label>
+                <label>
+                  <span>Owner</span>
+                  <input id="decisionJournalOwner" type="text" value="Research desk" maxlength="60" />
+                </label>
+              </div>
+              <label>
+                <span>Decision note</span>
+                <textarea id="decisionJournalNote" rows="4" placeholder="Record why this memo is being advanced, monitored, rejected, or sent back for source work."></textarea>
+              </label>
+              <div class="builder-grid two-col">
+                <label>
+                  <span>Trigger or kill criteria</span>
+                  <textarea id="decisionJournalTrigger" rows="3" placeholder="Example: thesis weakens if deposit costs stay elevated for two quarters or FCF conversion deteriorates."></textarea>
+                </label>
+                <label>
+                  <span>Next evidence task</span>
+                  <textarea id="decisionJournalEvidenceTask" rows="3" placeholder="Example: replace SYN results citation with NSE Q4 results PDF and rerun the gate."></textarea>
+                </label>
+              </div>
+              <div class="builder-actions decision-journal-actions">
+                <button class="primary-button" id="saveDecisionJournalEntry" type="submit">Save decision</button>
+                <button class="secondary-button" id="exportDecisionJournal" type="button">Export journal</button>
+                <button class="secondary-button" id="copyDecisionJournal" type="button">Copy journal</button>
+                <button class="text-button danger" id="clearDecisionJournal" type="button">Clear journal</button>
+              </div>
+              <div class="builder-result" id="decisionJournalResult" aria-live="polite"></div>
+            </form>
+            <div class="decision-journal-list" id="decisionJournalList"></div>
+          </section>
+
+          <section class="panel review-radar-panel" id="review-radar" aria-labelledby="reviewRadarTitle">
+            <div class="panel-heading">
+              <h2 id="reviewRadarTitle">Review Radar</h2>
+              <span id="reviewRadarStatus">No reviews</span>
+            </div>
+            <div class="review-radar-summary" id="reviewRadarSummary"></div>
+            <div class="review-radar-toolbar">
+              <label>
+                <span>View</span>
+                <select id="reviewRadarFilter">
+                  <option value="all">All decisions</option>
+                  <option value="due">Due or overdue</option>
+                  <option value="upcoming">Upcoming</option>
+                  <option value="tasks">Open evidence tasks</option>
+                </select>
+              </label>
+              <div class="builder-actions review-radar-actions">
+                <button class="primary-button" id="openNextReview" type="button">Open next review</button>
+                <button class="secondary-button" id="copyReviewRadar" type="button">Copy radar</button>
+                <button class="secondary-button" id="exportReviewRadar" type="button">Export radar</button>
+              </div>
+            </div>
+            <div class="review-radar-list" id="reviewRadarList"></div>
+            <div class="builder-result" id="reviewRadarResult" aria-live="polite"></div>
+          </section>
+
+          <section class="panel portfolio-watchtower-panel" id="portfolio-watchtower" aria-labelledby="portfolioWatchtowerTitle">
+            <div class="panel-heading">
+              <h2 id="portfolioWatchtowerTitle">Portfolio Watchtower</h2>
+              <span id="portfolioWatchtowerStatus">Scanning</span>
+            </div>
+            <div class="portfolio-watchtower-summary" id="portfolioWatchtowerSummary"></div>
+            <div class="portfolio-watchtower-toolbar">
+              <label>
+                <span>View</span>
+                <select id="portfolioWatchtowerFilter">
+                  <option value="all">All companies</option>
+                  <option value="source">Source gaps</option>
+                  <option value="review">Review due</option>
+                  <option value="ready">Pilot candidates</option>
+                  <option value="risk">High risk</option>
+                </select>
+              </label>
+              <label>
+                <span>Sort</span>
+                <select id="portfolioWatchtowerSort">
+                  <option value="priority">Priority</option>
+                  <option value="readiness">Readiness</option>
+                  <option value="risk">Risk</option>
+                </select>
+              </label>
+              <div class="builder-actions portfolio-watchtower-actions">
+                <button class="primary-button" id="openPortfolioAction" type="button">Open next action</button>
+                <button class="secondary-button" id="copyPortfolioWatchtower" type="button">Copy watchtower</button>
+                <button class="secondary-button" id="exportPortfolioWatchtower" type="button">Export watchtower</button>
+              </div>
+            </div>
+            <div class="portfolio-watchtower-list" id="portfolioWatchtowerList"></div>
+            <div class="builder-result" id="portfolioWatchtowerResult" aria-live="polite"></div>
+          </section>
+
+          <section class="panel catalyst-calendar-panel" id="catalyst-calendar" aria-labelledby="catalystCalendarTitle">
+            <div class="panel-heading">
+              <h2 id="catalystCalendarTitle">Catalyst Calendar</h2>
+              <span id="catalystCalendarStatus">Building</span>
+            </div>
+            <div class="catalyst-calendar-summary" id="catalystCalendarSummary"></div>
+            <div class="catalyst-calendar-toolbar">
+              <label>
+                <span>View</span>
+                <select id="catalystCalendarFilter">
+                  <option value="all">All catalysts</option>
+                  <option value="review">Reviews</option>
+                  <option value="source">Source work</option>
+                  <option value="risk">Risk refresh</option>
+                  <option value="ready">Pilot candidates</option>
+                </select>
+              </label>
+              <label>
+                <span>Horizon</span>
+                <select id="catalystCalendarHorizon">
+                  <option value="7">Next 7 days</option>
+                  <option value="30" selected>Next 30 days</option>
+                  <option value="90">Next 90 days</option>
+                  <option value="all">All open</option>
+                </select>
+              </label>
+              <div class="builder-actions catalyst-calendar-actions">
+                <button class="primary-button" id="openCatalystAction" type="button">Open next catalyst</button>
+                <button class="secondary-button" id="copyCatalystCalendar" type="button">Copy calendar</button>
+                <button class="secondary-button" id="exportCatalystCalendar" type="button">Export calendar</button>
+              </div>
+            </div>
+            <div class="catalyst-calendar-list" id="catalystCalendarList"></div>
+            <div class="builder-result" id="catalystCalendarResult" aria-live="polite"></div>
+          </section>
+
+          <section class="panel daily-briefing-panel" id="daily-briefing" aria-labelledby="dailyBriefingTitle">
+            <div class="panel-heading">
+              <h2 id="dailyBriefingTitle">Daily Briefing</h2>
+              <span id="dailyBriefingStatus">Preparing</span>
+            </div>
+            <div class="daily-briefing-summary" id="dailyBriefingSummary"></div>
+            <div class="daily-briefing-toolbar">
+              <label>
+                <span>Briefing mode</span>
+                <select id="dailyBriefingMode">
+                  <option value="morning" selected>Morning desk</option>
+                  <option value="source">Source sprint</option>
+                  <option value="review">Review sprint</option>
+                  <option value="launch">Launch prep</option>
+                </select>
+              </label>
+              <div class="builder-actions daily-briefing-actions">
+                <button class="primary-button" id="openDailyBriefingAction" type="button">Start first action</button>
+                <button class="secondary-button" id="captureDailyBriefingTask" type="button">Add to tasks</button>
+                <button class="secondary-button" id="copyDailyBriefing" type="button">Copy briefing</button>
+                <button class="secondary-button" id="exportDailyBriefing" type="button">Export briefing</button>
+              </div>
+            </div>
+            <div class="daily-briefing-list" id="dailyBriefingList"></div>
+            <div class="builder-result" id="dailyBriefingResult" aria-live="polite"></div>
+          </section>
+
+          <section class="panel desk-task-board-panel" id="desk-task-board" aria-labelledby="deskTaskBoardTitle">
+            <div class="panel-heading">
+              <h2 id="deskTaskBoardTitle">Desk Task Board</h2>
+              <span id="deskTaskBoardStatus">Tracking</span>
+            </div>
+            <div class="desk-task-summary" id="deskTaskSummary"></div>
+            <div class="desk-task-toolbar">
+              <label>
+                <span>Task view</span>
+                <select id="deskTaskFilter">
+                  <option value="open" selected>Open tasks</option>
+                  <option value="all">All tasks</option>
+                  <option value="high">High priority</option>
+                  <option value="source">Source tasks</option>
+                  <option value="review">Review tasks</option>
+                  <option value="done">Done tasks</option>
+                </select>
+              </label>
+              <div class="builder-actions desk-task-actions">
+                <button class="primary-button" id="captureFirstTask" type="button">Capture first briefing task</button>
+                <button class="secondary-button" id="copyDeskTasks" type="button">Copy tasks</button>
+                <button class="secondary-button" id="exportDeskTasks" type="button">Export tasks</button>
+                <button class="secondary-button" id="clearCompletedTasks" type="button">Clear done</button>
+              </div>
+            </div>
+            <div class="desk-task-list" id="deskTaskList"></div>
+            <div class="builder-result" id="deskTaskResult" aria-live="polite"></div>
+          </section>
+
+          <section class="panel research-sprint-panel" id="research-sprint-planner" aria-labelledby="researchSprintTitle">
+            <div class="panel-heading">
+              <h2 id="researchSprintTitle">Research Sprint Planner</h2>
+              <span id="researchSprintStatus">Planning</span>
+            </div>
+            <div class="research-sprint-summary" id="researchSprintSummary"></div>
+            <div class="research-sprint-toolbar">
+              <label>
+                <span>Sprint mode</span>
+                <select id="researchSprintMode">
+                  <option value="focus" selected>90-minute focus</option>
+                  <option value="source">Source sprint</option>
+                  <option value="review">Review sprint</option>
+                  <option value="launch">Launch prep</option>
+                  <option value="full">Full-day queue</option>
+                </select>
+              </label>
+              <label>
+                <span>Capacity</span>
+                <select id="researchSprintCapacity">
+                  <option value="3">3 actions</option>
+                  <option value="5" selected>5 actions</option>
+                  <option value="8">8 actions</option>
+                  <option value="12">12 actions</option>
+                </select>
+              </label>
+              <div class="builder-actions research-sprint-actions">
+                <button class="primary-button" id="startResearchSprint" type="button">Start sprint</button>
+                <button class="secondary-button" id="captureSprintTasks" type="button">Capture sprint tasks</button>
+                <button class="secondary-button" id="copyResearchSprint" type="button">Copy sprint</button>
+                <button class="secondary-button" id="exportResearchSprint" type="button">Export sprint</button>
+              </div>
+            </div>
+            <div class="research-sprint-list" id="researchSprintList"></div>
+            <div class="builder-result" id="researchSprintResult" aria-live="polite"></div>
+          </section>
+
+          <section class="panel ic-memo-panel" id="ic-memo-builder" aria-labelledby="icMemoTitle">
+            <div class="panel-heading">
+              <h2 id="icMemoTitle">IC Memo Builder</h2>
+              <span id="icMemoStatus">Drafting</span>
+            </div>
+            <div class="ic-memo-summary" id="icMemoSummary"></div>
+            <div class="ic-memo-toolbar">
+              <label>
+                <span>Memo format</span>
+                <select id="icMemoMode">
+                  <option value="committee" selected>Committee packet</option>
+                  <option value="pilot">Pilot pre-read</option>
+                  <option value="source-review">Source review</option>
+                  <option value="watchlist">Watchlist note</option>
+                </select>
+              </label>
+              <div class="builder-actions ic-memo-actions">
+                <button class="primary-button" id="openIcMemoBlocker" type="button">Open memo blocker</button>
+                <button class="secondary-button" id="copyIcMemo" type="button">Copy IC memo</button>
+                <button class="secondary-button" id="exportIcMemoPdf" type="button">Export PDF</button>
+                <button class="secondary-button" id="exportIcMemoJson" type="button">Export JSON</button>
+              </div>
+            </div>
+            <div class="ic-memo-sections" id="icMemoSections"></div>
+            <div class="builder-result" id="icMemoResult" aria-live="polite"></div>
+          </section>
+
+          <section class="panel claim-trace-panel" id="claim-trace-inspector" aria-labelledby="claimTraceTitle">
+            <div class="panel-heading">
+              <h2 id="claimTraceTitle">Claim Trace Inspector</h2>
+              <span id="claimTraceStatus">Tracing</span>
+            </div>
+            <div class="claim-trace-summary" id="claimTraceSummary"></div>
+            <div class="claim-trace-toolbar">
+              <label>
+                <span>Trace scope</span>
+                <select id="claimTraceMode">
+                  <option value="answer" selected>Current answer</option>
+                  <option value="ic">IC memo packet</option>
+                  <option value="critical">Critical claims</option>
+                  <option value="weak">Weak claims only</option>
+                </select>
+              </label>
+              <div class="builder-actions claim-trace-actions">
+                <button class="primary-button" id="openWeakClaim" type="button">Open weakest claim</button>
+                <button class="secondary-button" id="copyClaimTrace" type="button">Copy trace</button>
+                <button class="secondary-button" id="exportClaimTrace" type="button">Export trace</button>
+              </div>
+            </div>
+            <div class="claim-trace-list" id="claimTraceList"></div>
+            <div class="builder-result" id="claimTraceResult" aria-live="polite"></div>
+          </section>
+
+          <section class="panel answer-quality-panel" id="answer-quality-lab" aria-labelledby="answerQualityTitle">
+            <div class="panel-heading">
+              <h2 id="answerQualityTitle">Answer Quality Lab</h2>
+              <span id="answerQualityStatus">Testing</span>
+            </div>
+            <div class="answer-quality-summary" id="answerQualitySummary"></div>
+            <div class="answer-quality-toolbar">
+              <label>
+                <span>Quality view</span>
+                <select id="answerQualityMode">
+                  <option value="release" selected>Release readiness</option>
+                  <option value="citation">Citation quality</option>
+                  <option value="committee">Committee memo</option>
+                  <option value="export">Export hygiene</option>
+                </select>
+              </label>
+              <div class="builder-actions answer-quality-actions">
+                <button class="primary-button" id="openQualityFix" type="button">Open top fix</button>
+                <button class="secondary-button" id="copyQualityReport" type="button">Copy QA report</button>
+                <button class="secondary-button" id="exportQualityReport" type="button">Export QA</button>
+              </div>
+            </div>
+            <div class="answer-quality-grid" id="answerQualityGrid"></div>
+            <div class="answer-quality-tests" id="answerQualityTests"></div>
+            <div class="builder-result" id="answerQualityResult" aria-live="polite"></div>
+          </section>
+
+          <section class="panel trust-center-panel" id="trust-center" aria-labelledby="trustCenterTitle">
+            <div class="panel-heading">
+              <h2 id="trustCenterTitle">Trust Center</h2>
+              <span id="trustCenterStatus">Checking</span>
+            </div>
+            <div class="trust-center-summary" id="trustCenterSummary"></div>
+            <div class="trust-center-grid" id="trustCenterGrid"></div>
+            <div class="trust-center-checks" id="trustCenterChecks"></div>
+            <div class="builder-actions trust-center-actions">
+              <button class="primary-button" id="openTrustAction" type="button">Open top hardening action</button>
+              <button class="secondary-button" id="copyTrustReport" type="button">Copy trust report</button>
+              <button class="secondary-button" id="exportTrustReport" type="button">Export trust report</button>
+            </div>
+            <div class="builder-result" id="trustCenterResult" aria-live="polite"></div>
+          </section>
+
+          <section class="panel launch-control-panel" id="launch-control-room" aria-labelledby="launchControlTitle">
+            <div class="panel-heading">
+              <h2 id="launchControlTitle">Launch Control Room</h2>
+              <span id="launchControlStatus">Checking</span>
+            </div>
+            <div class="launch-control-summary" id="launchControlSummary"></div>
+            <div class="launch-control-stats" id="launchControlStats"></div>
+            <div class="launch-control-grid">
+              <div class="launch-control-card">
+                <div class="launch-control-card-head">
+                  <span>Launch blockers</span>
+                  <strong id="launchBlockerCount">0 open</strong>
+                </div>
+                <div class="launch-blocker-list" id="launchBlockerList"></div>
+              </div>
+              <div class="launch-control-card">
+                <div class="launch-control-card-head">
+                  <span>Closest companies</span>
+                  <strong>Research readiness</strong>
+                </div>
+                <div class="launch-company-list" id="launchCompanyList"></div>
+              </div>
+            </div>
+            <div class="launch-test-plan" id="launchTestPlan"></div>
+            <div class="release-doctor" id="release-doctor" aria-labelledby="releaseDoctorTitle">
+              <div class="launch-control-card-head">
+                <span>Release Doctor</span>
+                <strong id="releaseDoctorStatus">Checking root manifest</strong>
+              </div>
+              <h3 id="releaseDoctorTitle">Prevent broken GitHub Pages uploads before they happen.</h3>
+              <p class="release-doctor-copy">
+                Verify the release marker, required root files, and upload shape before copying a new version into GitHub.
+              </p>
+              <div class="release-doctor-summary" id="releaseDoctorSummary"></div>
+              <div class="release-doctor-files" id="releaseDoctorFiles"></div>
+              <div class="builder-actions release-doctor-actions">
+                <button class="secondary-button" id="copyReleaseManifest" type="button">Copy root manifest</button>
+                <button class="secondary-button" id="exportReleaseManifest" type="button">Export manifest</button>
+              </div>
+            </div>
+            <div class="builder-actions launch-control-actions">
+              <button class="primary-button" id="openLaunchBlocker" type="button">Open next blocker</button>
+              <button class="secondary-button" id="exportLaunchAudit" type="button">Export audit pack</button>
+              <button class="secondary-button" id="copyLaunchChecklist" type="button">Copy upload checklist</button>
+            </div>
+            <div class="builder-result" id="launchControlResult" aria-live="polite"></div>
+          </section>
+
+          <section class="panel notebook-panel">
+            <div class="panel-heading">
+              <h2>Saved Briefs</h2>
+              <button class="text-button" id="clearNotes" type="button">Clear</button>
+            </div>
+            <div class="notebook-list" id="notebookList"></div>
+          </section>
+        </section>
+
+        <aside class="right-rail" aria-label="Evidence and valuation">
+          <section class="panel dossier-panel">
+            <div class="panel-heading">
+              <h2>Company Dossier</h2>
+              <span>Live workspace</span>
+            </div>
+            <div id="companyDossier"></div>
+          </section>
+
+          <section class="panel market-panel">
+            <div class="panel-heading">
+              <h2>Signal Map</h2>
+              <span id="signalStamp">Now</span>
+            </div>
+            <canvas id="signalCanvas" width="640" height="320" aria-label="Signal map"></canvas>
+            <div class="signal-legend">
+              <span><i class="legend-dot growth"></i> Growth</span>
+              <span><i class="legend-dot margin"></i> Margin</span>
+              <span><i class="legend-dot risk"></i> Risk</span>
+            </div>
+          </section>
+
+          <section class="panel valuation-panel">
+            <div class="panel-heading">
+              <h2>INR Valuation Lens</h2>
+              <select id="valuationTicker" aria-label="Valuation company"></select>
+            </div>
+            <div class="valuation-output">
+              <div>
+                <span>Implied value</span>
+                <strong id="valuePerShare">Rs 0</strong>
+              </div>
+              <div>
+                <span>Equity value</span>
+                <strong id="equityValue">Rs 0 cr</strong>
+              </div>
+            </div>
+            <div class="slider-grid">
+              <label>
+                <span>Revenue CAGR <b id="growthValue">0%</b></span>
+                <input id="growthSlider" type="range" min="-5" max="35" value="12" />
+              </label>
+              <label>
+                <span>FCF margin <b id="marginValue">0%</b></span>
+                <input id="marginSlider" type="range" min="0" max="35" value="16" />
+              </label>
+              <label>
+                <span>Terminal multiple <b id="multipleValue">0x</b></span>
+                <input id="multipleSlider" type="range" min="6" max="35" value="18" />
+              </label>
+              <label>
+                <span>Discount rate <b id="discountValue">0%</b></span>
+                <input id="discountSlider" type="range" min="6" max="16" value="10" />
+              </label>
+            </div>
+            <div class="valuation-footnote" id="valuationFootnote"></div>
+            <button class="secondary-button save-case-button" id="saveValuationCase" type="button">Save valuation case</button>
+            <div class="case-list" id="valuationCaseList"></div>
+          </section>
+
+          <section class="panel evidence-panel">
+            <div class="panel-heading">
+              <h2>Evidence Stack</h2>
+              <span id="evidenceCount">0</span>
+            </div>
+            <div class="evidence-list" id="evidenceList"></div>
+          </section>
+        </aside>
+      </main>
+
+      <section class="launch-section source-builder-section" aria-labelledby="sourceBuilderTitle" id="source-builder">
+        <div class="section-heading">
+          <span>Source Pack Studio</span>
+          <h2 id="sourceBuilderTitle">Build real source records without touching JSON by hand.</h2>
+          <p>
+            Create annual report, concall, results, shareholding, and NSE/BSE announcement records, add them to the live corpus, then export clean source-pack JSON for the repository.
+          </p>
+        </div>
+        <div class="real-data-workflow" aria-label="How to add real data">
+          <article>
+            <span>1</span>
+            <strong>Collect</strong>
+            <p>Open the company annual report, concall, results note, shareholding pattern, or exchange announcement.</p>
+          </article>
+          <article>
+            <span>2</span>
+            <strong>Paste</strong>
+            <p>Use the source-type template below and paste only the sections you want the desk to cite.</p>
+          </article>
+          <article>
+            <span>3</span>
+            <strong>Verify</strong>
+            <p>Mark reviewed records as REAL, add the source URL, and run a desk question against the evidence.</p>
+          </article>
+          <article>
+            <span>4</span>
+            <strong>Ship</strong>
+            <p>Export the builder pack or full documents file and upload it to the repository data folder.</p>
+          </article>
+        </div>
+        <div class="guided-source-collector" id="guided-source-collector" aria-label="Guided real source collector">
+          <div class="guided-source-head">
+            <div>
+              <span>Guided Source Collector</span>
+              <h3>One source task, one clean path to REAL evidence.</h3>
+              <p>Use this cockpit when the desk feels busy: it chooses the next missing source, explains the collection target, and loads the right fields below.</p>
+            </div>
+            <strong id="guidedSourceStatus">Checking</strong>
+          </div>
+          <div class="guided-source-summary" id="guidedSourceSummary"></div>
+          <div class="guided-source-body">
+            <div class="guided-source-task" id="guidedSourceTask"></div>
+            <div class="guided-source-checklist" id="guidedSourceChecklist"></div>
+          </div>
+          <div class="builder-actions guided-source-actions">
+            <button class="primary-button" id="loadGuidedSourceTask" type="button">Load next source task</button>
+            <button class="secondary-button" id="openGuidedSourceLinks" type="button">Open official links</button>
+            <button class="secondary-button" id="copyGuidedSourceBrief" type="button">Copy source brief</button>
+            <button class="secondary-button" id="exportGuidedSourceBrief" type="button">Export source brief</button>
+          </div>
+          <div class="builder-result" id="guidedSourceResult" aria-live="polite"></div>
+        </div>
+        <div class="source-builder-layout">
+          <form class="source-builder-form" id="sourcePackForm">
+            <div class="active-source-task" id="activeSourceTask" hidden></div>
+            <div class="source-assistant-card" aria-label="Real source paste assistant">
+              <div>
+                <span>Real Source Paste Assistant</span>
+                <strong>Paste once, then fill the source record.</strong>
+                <p>Detects source type, period, title, and useful citation sections from annual reports, concalls, results, shareholding notes, or exchange announcements.</p>
+              </div>
+              <textarea id="sourceAssistantText" rows="6" placeholder="Paste raw source text here. Example: annual report risk factors, concall prepared remarks, results commentary, shareholding extract, or exchange announcement text."></textarea>
+              <div class="source-assistant-actions">
+                <button class="primary-button" id="applySourceAssistant" type="button">Detect and fill builder</button>
+                <button class="secondary-button" id="loadSampleFiling" type="button">Load sample filing</button>
+                <button class="secondary-button" id="runSourceIntakeDoctor" type="button">Check intake</button>
+                <button class="secondary-button" id="copySourceCitationNote" type="button">Copy citation note</button>
+                <button class="secondary-button" id="clearSourceAssistant" type="button">Clear paste</button>
+              </div>
+              <div class="filing-capture-preview" id="filingCapturePreview" aria-live="polite"></div>
+              <div class="source-intake-doctor" id="source-intake-doctor" aria-live="polite"></div>
+              <div class="source-citation-extractor" id="source-citation-extractor" aria-label="Source citation extractor">
+                <div class="source-citation-head">
+                  <div>
+                    <span>Source Citation Extractor</span>
+                    <strong>Turn pasted filings into citation-ready passages.</strong>
+                    <p>Ranks the strongest snippets, maps them to builder sections, and keeps synthetic samples labelled before they reach the corpus.</p>
+                  </div>
+                  <em id="sourceCitationStatus">Paste needed</em>
+                </div>
+                <div class="builder-actions source-citation-actions">
+                  <button class="primary-button" id="refreshSourceCitations" type="button">Extract passages</button>
+                  <button class="secondary-button" id="applySourceCitations" type="button">Use best passages</button>
+                  <button class="secondary-button" id="copySourceCitations" type="button">Copy citation pack</button>
+                  <button class="secondary-button" id="exportSourceCitations" type="button">Export citation pack</button>
+                </div>
+                <div class="source-citation-summary" id="sourceCitationSummary"></div>
+                <div class="source-citation-list" id="sourceCitationList"></div>
+                <div class="builder-result" id="sourceCitationResult" aria-live="polite"></div>
+              </div>
+              <div class="source-review-gate" id="source-review-gate" aria-label="Source review gate">
+                <div class="source-review-head">
+                  <div>
+                    <span>Source Review Gate</span>
+                    <strong>Know if this source can safely enter the corpus.</strong>
+                    <p>Combines intake checks, citation extraction, URL trust, section coverage, and REAL confidence before the source is saved.</p>
+                  </div>
+                  <em id="sourceReviewStatus">Review needed</em>
+                </div>
+                <div class="source-review-summary" id="sourceReviewSummary"></div>
+                <div class="source-review-checks" id="sourceReviewChecks"></div>
+                <div class="builder-actions source-review-actions">
+                  <button class="primary-button" id="runSourceReviewGate" type="button">Run review gate</button>
+                  <button class="secondary-button" id="openSourceReviewFix" type="button">Open first fix</button>
+                  <button class="secondary-button" id="copySourceReviewSheet" type="button">Copy review sheet</button>
+                  <button class="secondary-button" id="exportSourceReviewSheet" type="button">Export review sheet</button>
+                </div>
+                <div class="builder-result" id="sourceReviewResult" aria-live="polite"></div>
+              </div>
+              <div class="source-url-helper" id="sourceAssistantLinks" aria-live="polite"></div>
+              <div class="builder-result" id="sourceAssistantResult" aria-live="polite"></div>
+            </div>
+            <div class="builder-grid">
+              <label>
+                <span>Company</span>
+                <select id="sourceBuilderTicker"></select>
+              </label>
+              <label>
+                <span>Source type</span>
+                <select id="sourceBuilderType">
+                  <option>Annual report</option>
+                  <option>Concall transcript</option>
+                  <option>Quarterly results</option>
+                  <option>Shareholding pattern</option>
+                  <option>Exchange announcement</option>
+                  <option>Credit rating note</option>
+                  <option>Valuation model</option>
+                  <option>Research note</option>
+                </select>
+              </label>
+              <label>
+                <span>Quality</span>
+                <select id="sourceBuilderStatus">
+                  <option value="real">REAL - verified source</option>
+                  <option value="imported">IMP - imported draft</option>
+                  <option value="synthetic">SYN - synthetic placeholder</option>
+                </select>
+              </label>
+              <label>
+                <span>Period</span>
+                <input id="sourceBuilderPeriod" type="text" value="FY2025" />
+              </label>
+              <label>
+                <span>Date</span>
+                <input id="sourceBuilderDate" type="date" />
+              </label>
+              <label>
+                <span>Source URL</span>
+                <input id="sourceBuilderUrl" type="url" placeholder="https://..." />
+              </label>
+            </div>
+            <label>
+              <span>Record title</span>
+              <input id="sourceBuilderTitleInput" type="text" value="Verified source record" />
+            </label>
+            <div class="builder-section-editor" id="sourceBuilderSections"></div>
+            <div class="source-confidence-checklist" id="sourceConfidenceChecklist" aria-label="REAL source confidence checklist">
+              <div>
+                <span>REAL source confidence</span>
+                <strong>Confirm before adding verified evidence.</strong>
+              </div>
+              <label><input type="checkbox" data-source-check="url" /> Official source URL verified</label>
+              <label><input type="checkbox" data-source-check="text" /> Text copied from the same document</label>
+              <label><input type="checkbox" data-source-check="period" /> Period and date checked</label>
+            </div>
+            <div class="builder-actions">
+              <button class="primary-button" id="addSourcePackDoc" type="submit">Add to live corpus</button>
+              <button class="secondary-button" id="exportSourcePack" type="button">Export source pack</button>
+              <button class="secondary-button" id="exportMergedDocuments" type="button">Export full documents.json</button>
+              <button class="secondary-button" id="returnToDossier" type="button">Return to dossier</button>
+              <label class="json-import-button">
+                <span>Import source-pack JSON</span>
+                <input id="sourcePackJsonInput" type="file" accept=".json,application/json" />
+              </label>
+              <button class="text-button danger" id="clearSourcePack" type="button">Clear builder pack</button>
+            </div>
+            <div class="builder-result" id="sourceBuilderResult" aria-live="polite"></div>
+          </form>
+          <aside class="source-pack-preview" aria-label="Source pack preview">
+            <div class="panel-heading">
+              <h2>Builder Pack</h2>
+              <span id="sourcePackCount">0 records</span>
+            </div>
+            <div class="export-readiness" id="exportReadiness"></div>
+            <div class="source-pack-list" id="sourcePackList"></div>
+          </aside>
+        </div>
+      </section>
+
+      <section class="launch-section source-matrix-section" aria-labelledby="sourceMatrixTitle" id="coverage-command">
+        <div class="section-heading">
+          <span>Coverage Command Center</span>
+          <h2 id="sourceMatrixTitle">See every evidence gap before research starts.</h2>
+          <p>
+            Scan each company against the five source types the desk needs, then open the next missing source directly in Source Pack Studio.
+          </p>
+        </div>
+        <div class="source-matrix-toolbar" aria-label="Coverage command filters">
+          <label>
+            <span>Company</span>
+            <select id="matrixTickerFilter"></select>
+          </label>
+          <label>
+            <span>View</span>
+            <select id="matrixStatusFilter">
+              <option value="priority">Only gaps</option>
+              <option value="missing">Missing only</option>
+              <option value="synthetic">SYN starter</option>
+              <option value="imported">IMP review</option>
+              <option value="real">REAL ready</option>
+              <option value="all">All coverage</option>
+            </select>
+          </label>
+          <button class="primary-button" id="matrixNextGap" type="button">Open next gap</button>
+          <button class="secondary-button" id="copyCoverageMatrix" type="button">Copy matrix CSV</button>
+          <button class="secondary-button" id="downloadCoverageMatrix" type="button">Download CSV</button>
+        </div>
+        <div class="source-matrix-summary" id="sourceMatrixSummary" aria-live="polite"></div>
+        <div class="source-matrix-wrap">
+          <table class="source-matrix" id="sourceMatrix"></table>
+        </div>
+        <div class="builder-result" id="sourceMatrixResult" aria-live="polite"></div>
+        <div class="source-matrix-export" id="sourceMatrixExport" hidden></div>
+      </section>
+
+      <section class="launch-section real-starter-section" aria-labelledby="realStarterTitle" id="real-starter">
+        <div class="section-heading">
+          <span>Real source starter pack</span>
+          <h2 id="realStarterTitle">Make the first three companies research-ready.</h2>
+          <p>The starter pack focuses the product on RELIANCE, TCS, and HDFCBANK. Each company needs annual report, concall, results, shareholding, and announcement evidence before the desk can call it investment-use ready.</p>
+        </div>
+        <div class="real-starter-summary" id="realStarterSummary" aria-label="Starter pack summary"></div>
+        <div class="real-starter-grid" id="realStarterGrid" aria-label="Priority real-source companies"></div>
+        <div class="builder-result" id="realStarterResult" aria-live="polite"></div>
+      </section>
+
+      <section class="launch-section source-queue-section" aria-labelledby="sourceQueueTitle" id="source-queue">
+        <div class="section-heading">
+          <span>Real Source Queue</span>
+          <h2 id="sourceQueueTitle">First real sources to collect.</h2>
+          <p>
+            Track which company records are real, imported, synthetic, or missing, then push the next collection task straight into Source Pack Studio.
+          </p>
+        </div>
+        <div class="source-queue-toolbar" aria-label="Real source collection filters">
+          <label>
+            <span>Company</span>
+            <select id="queueTickerFilter"></select>
+          </label>
+          <label>
+            <span>Status</span>
+            <select id="queueStatusFilter">
+              <option value="priority">Missing or SYN</option>
+              <option value="missing">Missing only</option>
+              <option value="synthetic">SYN starter</option>
+              <option value="imported">IMP review</option>
+              <option value="real">REAL ready</option>
+              <option value="all">All source types</option>
+            </select>
+          </label>
+          <button class="primary-button" id="generateSourceTasks" type="button">Generate tasks</button>
+          <button class="secondary-button" id="exportChecklistCsv" type="button">Export CSV</button>
+          <button class="secondary-button" id="copyChecklistCsv" type="button">Copy CSV</button>
+        </div>
+        <div class="source-queue-summary" id="sourceQueueSummary" aria-live="polite"></div>
+        <div class="source-queue-list" id="sourceQueueList"></div>
+        <div class="builder-result" id="sourceQueueResult" aria-live="polite"></div>
+      </section>
+
+      <section class="launch-section source-hub-section" aria-labelledby="sourceHubTitle" id="source-hub">
+        <div class="section-heading">
+          <span>Source Acquisition Hub</span>
+          <h2 id="sourceHubTitle">Open the right source, capture the right text.</h2>
+          <p>
+            Pick a ticker and document type to get official exchange links, company IR links, and a clean task brief for replacing starter evidence.
+          </p>
+        </div>
+        <div class="source-hub-layout">
+          <div class="source-hub-card">
+            <div class="builder-grid">
+              <label>
+                <span>Company</span>
+                <select id="hubTickerSelect"></select>
+              </label>
+              <label>
+                <span>Document type</span>
+                <select id="hubRequirementSelect"></select>
+              </label>
+            </div>
+            <div class="source-hub-task" id="sourceHubTask"></div>
+            <div class="builder-actions">
+              <button class="primary-button" id="loadHubTask" type="button">Open in studio</button>
+              <button class="secondary-button" id="copyHubTask" type="button">Copy task</button>
+              <button class="secondary-button" id="exportAssistantTasks" type="button">Export task list</button>
+            </div>
+            <div class="builder-result" id="sourceHubResult" aria-live="polite"></div>
+          </div>
+          <aside class="source-link-panel" id="sourceLinkPanel" aria-label="Source acquisition links"></aside>
+        </div>
+      </section>
+
+      <section class="launch-section source-workspace-section" aria-labelledby="sourceWorkspaceTitle" id="source-workspace">
+        <div class="section-heading">
+          <span>Real Data Workspace</span>
+          <h2 id="sourceWorkspaceTitle">Today&apos;s collection batch.</h2>
+          <p>
+            Run a focused source-collection session, mark each task as it moves from queued to verified, and export the progress record.
+          </p>
+        </div>
+        <div class="source-workspace-toolbar" aria-label="Source workspace controls">
+          <label>
+            <span>Task view</span>
+            <select id="workspaceFilter">
+              <option value="pending">Pending tasks</option>
+              <option value="active">Queued / collected / pasted</option>
+              <option value="verified">Verified tasks</option>
+              <option value="all">All tasks</option>
+            </select>
+          </label>
+          <label>
+            <span>Batch size</span>
+            <select id="workspaceBatchSize">
+              <option value="6">6 tasks</option>
+              <option value="9">9 tasks</option>
+              <option value="12">12 tasks</option>
+              <option value="20">20 tasks</option>
+            </select>
+          </label>
+          <button class="primary-button" id="buildWorkspaceBatch" type="button">Build batch</button>
+          <button class="secondary-button" id="exportWorkspaceProgress" type="button">Export progress</button>
+          <button class="secondary-button" id="exportWorkspacePack" type="button">Export workspace JSON</button>
+        </div>
+        <div class="source-workspace-summary" id="sourceWorkspaceSummary"></div>
+        <div class="source-workspace-list" id="sourceWorkspaceList"></div>
+        <div class="builder-result" id="sourceWorkspaceResult" aria-live="polite"></div>
+      </section>
+
+      <section class="launch-section data-section" aria-labelledby="dataTitle" id="data">
+        <div class="section-heading">
+          <span>Data Roadmap</span>
+          <h2 id="dataTitle">Built as a prototype. Designed for live Indian market data.</h2>
+          <p>
+            The current desk loads its watchlist, questions, companies, and starter evidence from JSON files. Synthetic, imported, and real documents are labelled separately so the research workflow stays honest.
+          </p>
+        </div>
+        <div class="data-grid" aria-label="NiveshScope live data roadmap">
+          <article>
+            <span>Now</span>
+            <h3>JSON source pack</h3>
+            <p>Ten Indian tickers ship with company dossiers. Annual reports, results notes, concall snippets, shareholding extracts, rating notes, and analyst model text now live in editable data files.</p>
+            <ul>
+              <li>Runs fully static on GitHub Pages</li>
+              <li>Answers cite retrieved source passages</li>
+              <li>Synthetic, imported, and real labels</li>
+            </ul>
+          </article>
+          <article>
+            <span>Next</span>
+            <h3>Disclosure connectors</h3>
+            <p>Connect corporate announcements, annual reports, quarterly results, concall notes, and shareholding patterns into one refreshable company library.</p>
+            <ul>
+              <li>NSE/BSE announcement queue</li>
+              <li>Company document timelines</li>
+              <li>Promoter pledge and shareholding watch</li>
+            </ul>
+          </article>
+          <article>
+            <span>MVP</span>
+            <h3>Market and model context</h3>
+            <p>Add price snapshots, peer multiples, historical margins, debt metrics, and saved valuation cases so answers can link narrative evidence to numbers.</p>
+            <ul>
+              <li>Watchlist-level refreshes</li>
+              <li>Peer tables and INR scenarios</li>
+              <li>Exportable research briefs</li>
+            </ul>
+          </article>
+          <article class="data-callout">
+            <span>Pilot Rule</span>
+            <h3>No black-box recommendations.</h3>
+            <p>NiveshScope should explain what changed, cite where it changed, and show which assumption matters before suggesting any conclusion.</p>
+            <a class="plan-link" href="#waitlist">Help choose live sources</a>
+          </article>
+        </div>
+      </section>
+
+      <section class="launch-section foundation-section" aria-labelledby="foundationTitle" id="foundation">
+        <div class="section-heading">
+          <span>Production foundation</span>
+          <h2 id="foundationTitle">Build it like a research product, not a demo.</h2>
+          <p>v22 turns the current desk into a clearer product system: evidence provenance, repo checks, launch docs, and a backend path for accounts, ingestion, and audit logs.</p>
+        </div>
+        <div class="foundation-grid" aria-label="NiveshScope production foundation">
+          <article>
+            <span>Architecture</span>
+            <h3>Static shell today, service layer next.</h3>
+            <p>Keep the GitHub Pages app as the product surface while moving ingestion, user data, scheduled refresh, and future AI calls behind server-side controls.</p>
+          </article>
+          <article>
+            <span>Evidence</span>
+            <h3>Every answer needs provenance.</h3>
+            <p>Source records should carry document type, period, URL, quality, citation sections, import date, and reviewer status before they become production evidence.</p>
+          </article>
+          <article>
+            <span>Quality</span>
+            <h3>Ship with checks before features.</h3>
+            <p>The repository now includes a static-check script and GitHub Actions workflow for syntax, JSON validity, CSP presence, and accidental inline handler detection.</p>
+          </article>
+          <article>
+            <span>Launch</span>
+            <h3>Security stays part of the build.</h3>
+            <p>The roadmap separates prototype controls from production requirements: auth, RBAC, file scanning, rate limits, audit logs, dependency scans, and vulnerability handling.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="launch-section pricing-section" aria-labelledby="pricingTitle" id="pricing">
+        <div class="section-heading">
+          <span>Pricing</span>
+          <h2 id="pricingTitle">Plans for the India pilot.</h2>
+          <p>Monthly access for cited disclosure answers, company comparison work, watchlists, and valuation read-throughs.</p>
+        </div>
+        <div class="pricing-grid">
+          <article class="pricing-card">
+            <span class="plan-label">Starter</span>
+            <h3>Rs 799<span>/mo</span></h3>
+            <p>For testing cited disclosure analysis.</p>
+            <ul>
+              <li>Sample research desk</li>
+              <li>Limited document imports</li>
+              <li>Saved briefs</li>
+            </ul>
+            <a class="plan-link" href="#waitlist">Join Starter</a>
+          </article>
+          <article class="pricing-card is-featured">
+            <span class="plan-label">Pro</span>
+            <h3>Rs 1999<span>/mo</span></h3>
+            <p>For company and scenario work.</p>
+            <ul>
+              <li>Expanded India coverage library</li>
+              <li>Multi-source answer stack</li>
+              <li>Valuation scenario exports</li>
+            </ul>
+            <a class="plan-link" href="#waitlist">Join Pro</a>
+          </article>
+          <article class="pricing-card">
+            <span class="plan-label">Desk</span>
+            <h3>Rs 3999<span>/mo</span></h3>
+            <p>For repeatable coverage workflows.</p>
+            <ul>
+              <li>Alerts and watchlists</li>
+              <li>Priority disclosure refresh</li>
+              <li>Portfolio research queue</li>
+            </ul>
+            <a class="plan-link" href="#waitlist">Join Desk</a>
+          </article>
+        </div>
+      </section>
+
+      <section class="launch-section waitlist-section" aria-labelledby="waitlistTitle" id="waitlist">
+        <div class="waitlist-copy">
+          <div class="section-heading">
+            <span>Waitlist</span>
+            <h2 id="waitlistTitle">Join the pilot queue.</h2>
+            <p>Tell us the tickers, disclosures, and questions you want prioritised for the first live data release.</p>
+          </div>
+          <div class="pilot-note">
+            <strong>Early pilot goal</strong>
+            <span>10 serious testers, 50 Indian market questions, one workflow worth charging for.</span>
+          </div>
+        </div>
+        <form class="waitlist-form" id="waitlistForm" action="https://formsubmit.co/ajax/dhirajnyse@gmail.com" method="POST">
+          <input type="hidden" name="_subject" value="New NiveshScope waitlist lead" />
+          <input type="hidden" name="_template" value="table" />
+          <input type="hidden" name="_captcha" value="false" />
+          <label>
+            <span>Email</span>
+            <input id="waitlistEmail" name="email" type="email" placeholder="you@example.com" required />
+          </label>
+          <label>
+            <span>Investor style</span>
+            <select id="waitlistProfile" name="profile">
+              <option>Retail investor</option>
+              <option>Active trader</option>
+              <option>Finance professional</option>
+              <option>Founder / operator</option>
+            </select>
+          </label>
+          <label>
+            <span>Plan interest</span>
+            <select id="waitlistPlan" name="plan">
+              <option>Pro - Rs 1999/month</option>
+              <option>Starter - Rs 799/month</option>
+              <option>Desk - Rs 3999/month</option>
+              <option>Not sure yet</option>
+            </select>
+          </label>
+          <label>
+            <span>Most valuable feature</span>
+            <select id="waitlistNeed" name="need">
+              <option>Cited annual report answers</option>
+              <option>Concall tone analysis</option>
+              <option>NSE/BSE announcement tracker</option>
+              <option>Shareholding and pledge monitor</option>
+              <option>Live data connectors</option>
+              <option>Valuation model export</option>
+              <option>Watchlist alerts</option>
+            </select>
+          </label>
+          <label class="wide-field">
+            <span>Top tickers you follow</span>
+            <input id="waitlistTickers" name="tickers" type="text" placeholder="Example: RELIANCE, TCS, HDFCBANK" />
+          </label>
+          <label class="wide-field">
+            <span>First ticker or question</span>
+            <input id="waitlistQuestion" name="question" type="text" placeholder="Example: TCS margin durability if US tech spend slows" />
+          </label>
+          <button class="primary-button" type="submit">Join waitlist</button>
+        </form>
+        <div class="waitlist-result" id="waitlistResult" aria-live="polite"></div>
+      </section>
+
+      <section class="launch-section roadmap-section" aria-labelledby="roadmapTitle" id="roadmap">
+        <div class="section-heading">
+          <span>Roadmap</span>
+          <h2 id="roadmapTitle">Roadmap to launch.</h2>
+          <p>A compact path from static proof of concept to paid India-market research workflow.</p>
+        </div>
+        <div class="roadmap-grid">
+          <article>
+            <span>Now</span>
+            <h3>Interactive proof of concept</h3>
+            <p>Sample disclosures, cited answer flow, valuation lens, and live waitlist capture.</p>
+          </article>
+          <article>
+            <span>Next</span>
+            <h3>Real document ingestion</h3>
+            <p>Upload annual reports, results, concalls, exchange updates, and shareholding patterns into a searchable library.</p>
+          </article>
+          <article>
+            <span>MVP</span>
+            <h3>Accounts and saved coverage</h3>
+            <p>Login, watchlists, saved briefs, peer comparisons, and exports.</p>
+          </article>
+          <article>
+            <span>Launch</span>
+            <h3>Subscription research desk</h3>
+            <p>Disclosure refresh jobs, alerts, India-market data connectors, payment plans, and richer model-backed answers.</p>
+          </article>
+        </div>
+      </section>
+
+      <footer class="disclosure">
+        Synthetic sample corpus for product prototyping. Treat every SYN citation as demo-only until replaced with a REAL annual report, concall, result, shareholding, or exchange source. NiveshScope is research software, not investment advice.
+      </footer>
+    </div>
+
+    <script src="app.js?v=20260509-22"></script>
+  </body>
+</html>

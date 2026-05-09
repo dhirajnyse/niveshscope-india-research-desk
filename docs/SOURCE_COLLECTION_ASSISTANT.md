@@ -2,6 +2,8 @@
 
 v24 makes the real-source replacement workflow beginner-friendly. The goal is to remove confusion between opening a source website, filling the source URL field, pasting source text, and adding evidence to the live corpus.
 
+v45 adds the Guided Source Collector above Source Pack Studio. Use it first when you are unsure which source to replace: it chooses the next priority task, then loads this assistant with the correct company and source type. v46 adds the Source Citation Extractor after the paste box so the pasted document can be broken into ranked, section-ready passages before you save the record. v47 adds the Source Review Gate after extraction so REAL saves are blocked when the source identity, URL, company match, citation depth, or confidence checks are not ready.
+
 ## Button Meanings
 
 - `Open source site`: opens NSE, BSE, Company IR, Screener, or a scoped web search in a new browser tab.

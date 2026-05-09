@@ -51,6 +51,13 @@ Evidence-backed Indian equity research for investors who want cited answers inst
 - Phase 38 IC Memo Builder with committee/pilot/source-review formats, gate-aware blocker routing, review and decision trail checks, valuation context, PDF export, JSON export, and Launch Control integration.
 - Phase 39 Claim Trace Inspector with answer and IC-memo claim extraction, citation-strength scoring, SYN/unsupported claim warnings, weakest-claim routing, copy/export trace packs, and Launch Control integration.
 - Phase 40 Answer Quality Lab with release, citation, committee, and export QA views; blocker scoring; top-fix routing; Markdown/JSON QA reports; and Launch Control integration.
+- Phase 41 Release Doctor with GitHub Pages root-manifest checks, runtime release-marker validation, copy/export release manifests, and upload-shape smoke tests inside Launch Control.
+- Phase 42 Operator Coach with one recommended next action, desk-state metrics, action routing, copyable operator plan, and JSON plan export.
+- Phase 43 Evidence Vault with saved citation memory, source URL reopen, saved-question reload, and Launch Control integration.
+- Phase 44 Trust Center with visible app-security scoring, source hygiene checks, trust report copy/export, and launch-readiness integration.
+- Phase 45 Guided Source Collector with one prioritized source task, official-link routing, checklist progress, and copy/export source briefs.
+- Phase 46 Source Citation Extractor with ranked passage extraction, section mapping, one-click builder fill, and copy/export citation packs before a source is added to the corpus.
+- Phase 47 Source Review Gate with pass/review/block scoring for source identity, URL trust, company discipline, citation structure, intake quality, REAL confidence, and sample-source safety before live-corpus save.
 - INR crore valuation lens with revenue CAGR, FCF margin, terminal multiple, and discount-rate sensitivities.
 - Saved valuation cases stored locally in the browser.
 - One-click research outputs for risk memos, concall tone, valuation assumptions, peer comparison, and investment committee briefs.
@@ -116,7 +123,9 @@ v7 and v8 add a repeatable collection workflow:
 - Coverage CSV export now has two paths: `Copy matrix CSV` verifies whether the clipboard copy succeeded, while `Download CSV` saves the same visible matrix as a file. If the browser blocks clipboard access, the CSV appears in a selectable text area.
 - Use the top-right `PDF` button after running a report to download a branded research memo. Use `MD` for editable Markdown. Saved briefs also include a `PDF` action in the saved brief card.
 - The Source Pack Studio now includes a `Real Source Paste Assistant`: paste raw source text, click `Detect and fill builder`, review the auto-filled source record, add the official source URL, then add it to the live corpus as REAL evidence.
+- The Guided Source Collector now sits above Source Pack Studio and chooses the next best source task automatically. Use `Load next source task` to prepare the form, `Open official links` to send the task to the Acquisition Hub, and `Copy source brief` or `Export source brief` to hand the task to a research assistant.
 - The paste assistant now shows official source links for the selected company and source type. Use `Open source site` to open NSE/BSE/company pages, `Fill URL` to populate the Source URL field, or `Open hub` to jump into the broader acquisition workspace.
+- The Source Review Gate now sits between citation extraction and save. Use `Run review gate` to get a blocker/review/ready decision, `Open first fix` to jump to the weak field, and `Copy review sheet` or `Export review sheet` for reviewer handoff.
 - REAL source records now require a valid `https://` source URL before they can be added to the live corpus. Browser imports are limited to supported text/PDF-style file types and capped by file and batch size to reduce accidental abuse.
 
 ## Security baseline
@@ -140,6 +149,9 @@ v22 adds the first durable project foundation around the working desk:
 - `docs/DATA_PROVENANCE.md`: source status rules, required source fields, and review checklist.
 - `docs/REAL_SOURCE_STARTER_PACK.md`: priority-company source workflow and readiness levels.
 - `docs/SOURCE_COLLECTION_ASSISTANT.md`: beginner workflow for collecting and pasting official source evidence.
+- `docs/GUIDED_SOURCE_COLLECTOR.md`: prioritized source-task routing, official links, and source-brief handoff.
+- `docs/SOURCE_CITATION_EXTRACTOR.md`: citation passage extraction, section mapping, and reviewer citation-pack workflow.
+- `docs/SOURCE_REVIEW_GATE.md`: source review scoring, save-block rules, review-sheet export, and production reviewer workflow.
 - `docs/REAL_FILING_CAPTURE_MODE.md`: filing capture preview, readiness impact, confidence gate, and training sample workflow.
 - `docs/BRIEF_WORKBENCH.md`: memo readiness scoring, evidence-to-gap mapping, and packet export rules.
 - `docs/MEMO_REVIEW_ROOM.md`: human review workflow, decision log fields, and launch audit direction.
@@ -156,6 +168,10 @@ v22 adds the first durable project foundation around the working desk:
 - `docs/IC_MEMO_BUILDER.md`: committee memo packet assembly, blocker routing, export behavior, and production investment-committee direction.
 - `docs/CLAIM_TRACE_INSPECTOR.md`: claim-level citation tracing, weak-claim routing, exports, and launch-control blocker rules.
 - `docs/ANSWER_QUALITY_LAB.md`: answer-level QA scoring, quality dimensions, top-fix routing, exports, and launch-control blocker rules.
+- `docs/TRUST_CENTER.md`: browser-side trust checks, source hygiene scoring, storage footprint, export controls, and production security direction.
+- `docs/OPERATOR_COACH.md`: next-action synthesis, routing rules, metrics, and production assistant direction.
+- `docs/EVIDENCE_VAULT.md`: saved citation memory, Markdown/JSON vault exports, source URL reopening, and production audit direction.
+- `docs/RELEASE_DOCTOR.md`: root upload manifest, runtime release checks, copy/export manifest workflow, and production CI direction.
 - `docs/LAUNCH_ROADMAP.md`: phased path from static proof to source library, accounts, automation, and launch hardening.
 - `docs/REPO_OPERATIONS.md`: upload workflow, versioning rules, quality checks, and future branch strategy.
 - `scripts/static-check.mjs`: local repository checks for CSP presence, version marker, data JSON validity, and accidental inline handlers.
@@ -354,6 +370,69 @@ v40 adds a release-grade QA console for the current answer:
 - Switches between release readiness, citation quality, committee memo, and export hygiene views.
 - Opens the top fix into the right workflow instead of leaving the user to guess.
 - Copies a Markdown QA report, exports structured QA JSON, and feeds Launch Control with answer-quality score and blockers.
+
+## Release Doctor
+
+v41 adds a release-shape guard for manual GitHub Pages uploads:
+
+- Confirms the visible release marker, app script, CSS links, CSP, and data-root configuration after the app loads.
+- Shows the exact root files and folders that must be uploaded from the release package.
+- Copies a Markdown root manifest and exports a JSON manifest for release records.
+- Feeds Launch Control with a Release Doctor score and upload-shape smoke tests.
+
+## Operator Coach
+
+v42 adds a next-action layer above the deeper operating panels:
+
+- Reads the current answer, Investment Readiness Gate, Answer Quality Lab, source coverage, review trail, and Release Doctor state.
+- Shows one primary next move with a compact queue of follow-up actions.
+- Routes directly to starter analysis, Source Studio, Answer Quality Lab, Memo Review Room, Decision Journal, Release Doctor, or Launch Control.
+- Copies a Markdown operator plan and exports a JSON plan for handoff.
+
+## Evidence Vault
+
+v43 adds a local citation memory below the active answer:
+
+- Saves the current answer citations with ticker, source type, section, status, source URL, question text, confidence, and evidence-quality metadata.
+- Shows a compact REAL/SYN mix so the operator can see whether the saved trail is still demo evidence or review-ready evidence.
+- Copies a Markdown vault, exports JSON for handoff, opens saved source URLs, and reloads a saved question into the desk.
+- Feeds Launch Control and Operator Coach with a saved-evidence signal so research memory becomes part of release readiness.
+
+## Trust Center
+
+v44 adds an in-product security and trust cockpit:
+
+- Scores CSP shape, inline-handler absence, source URL trust, import limits, REAL source coverage, current answer citation safety, Evidence Vault traceability, local storage footprint, export controls, and Release Doctor shape.
+- Routes the top hardening action into the workflow that can fix it instead of leaving security as a separate checklist.
+- Copies a Markdown trust report and exports JSON for launch records.
+- Feeds Launch Control and Operator Coach with a trust score so security posture becomes part of release readiness.
+
+## Guided Source Collector
+
+v45 adds a guided cockpit above Source Pack Studio:
+
+- Chooses the next highest-priority missing, synthetic, or imported source slot, with starter-pack companies prioritized.
+- Shows why the selected source matters, what evidence currently exists, and which official links should be opened.
+- Tracks the collection path from task load to URL, pasted text, intake score, and REAL confirmation checks.
+- Copies or exports a concise source brief so the work can be delegated without losing the required citation sections.
+
+## Source Citation Extractor
+
+v46 adds a citation extractor inside Source Pack Studio:
+
+- Reads pasted annual report, concall, results, shareholding, or announcement text and ranks the strongest citation passages.
+- Maps each passage to the most likely builder section so source records become structured instead of a single pasted blob.
+- Lets the operator use one passage at a time or fill the best passages into the builder in one click.
+- Copies or exports a citation pack for reviewer handoff while keeping synthetic samples clearly labelled before any REAL save.
+
+## Source Review Gate
+
+v47 adds a final source-review gate inside Source Pack Studio:
+
+- Scores source identity, official URL trust, company match, citation section depth, extractor output, Intake Doctor results, REAL confidence checks, and training-sample safety.
+- Blocks REAL source saves when high-priority issues remain, including wrong-company evidence, unsafe or missing URLs, weak section depth, incomplete confidence checks, or sample text marked as REAL.
+- Opens the first fix directly so the operator can move from diagnosis to repair without hunting through the page.
+- Copies or exports a reviewer-ready Markdown sheet with source fields, gate score, check results, and extracted citation passages.
 
 ## Waitlist capture
 
