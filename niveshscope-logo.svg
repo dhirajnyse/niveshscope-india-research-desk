@@ -1,7 +1,18 @@
-<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect width="64" height="64" rx="14" fill="#111815"/>
-  <circle cx="29" cy="29" r="18" fill="#44B883"/>
-  <circle cx="29" cy="29" r="12" fill="#EAF8F1"/>
-  <path d="M23 36V21L36 36V21" stroke="#105B4A" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M39 40L52 53" stroke="#E69132" stroke-width="6" stroke-linecap="round"/>
-</svg>
+name: NiveshScope Static Checks
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  static-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Check JavaScript syntax
+        run: node --check app.js
+
+      - name: Run repository static checks
+        run: node scripts/static-check.mjs
