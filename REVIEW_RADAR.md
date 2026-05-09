@@ -1,41 +1,42 @@
-# Portfolio Watchtower
+# Real Filing Capture Mode
 
-NiveshScope v33 adds a portfolio-level operating board. The earlier workflow made it possible to capture sources, generate a memo, review the memo, save a research decision, and track follow-up dates. The Portfolio Watchtower turns those pieces into a daily command screen.
+v25 makes the last mile of source collection safer and easier to learn.
 
-The watchtower is intentionally action-first. It does not ask the user to inspect every panel manually. It scores each company, identifies the most important open action, and routes the user into the right workflow.
+## What It Adds
 
-## What It Reads
+- `Load sample filing`: fills the paste box with training text for the active company and source type.
+- Filing preview: shows detected company, source type, period, and section count before the user commits evidence.
+- Readiness impact: shows how the selected source would change the company source status.
+- Confidence gate: requires three checks before a source can be added as `REAL`.
 
-The watchtower combines:
+## REAL Source Checklist
 
-- REAL source coverage across annual report, concall, results, shareholding, and announcement slots.
-- Review Radar due dates, overdue reviews, and open evidence tasks.
-- Decision Journal entries and thesis status.
-- Memo Review Room decisions.
-- Company risk index and sector context.
+Before adding verified evidence, the user must confirm:
 
-## Company Score
+- Official source URL verified.
+- Text copied from the same document.
+- Period and date checked.
 
-Each company receives a watchtower score. The score rewards REAL source coverage, saved review decisions, saved research decisions, and source completeness. It penalizes overdue reviews, due reviews, open evidence tasks, and elevated company risk.
+These checks are deliberately simple. They help prevent accidental promotion of a sample, wrong period, or unrelated source into verified research evidence.
 
-The score is a workflow readiness indicator, not an investment rating. A high score means the research process is cleaner and easier to audit. It does not mean the stock is attractive.
+## Sample Text Policy
 
-## Next-Action Routing
+Sample filings are for training only:
 
-Each company card shows one action:
+- They are labelled as imported review evidence.
+- They are not official filings.
+- They should not be exported as production `REAL` evidence.
 
-- Open a due or overdue review.
-- Replace the next missing, synthetic, or imported source.
-- Create a decision by loading a desk question.
-- Refresh a high-risk memo.
-- Refresh a monitoring memo.
+## Readiness Impact
 
-The `Open next action` button works from the top-priority company across the entire watchtower. This is the daily operating loop: open the watchtower, work the top action, then export the board if needed.
+The preview shows a before/after signal such as:
 
-## Exports
+- `Results: Needed -> REAL ready`
+- `Annual report: SYN starter -> IMP review`
+- `3/5 REAL now, 4/5 REAL after add`
 
-The watchtower can be copied as Markdown or exported as JSON. The JSON includes score, status, risk, REAL coverage, decision state, review state, and next action for every company. Launch Control also includes the watchtower in its audit pack so release checks can show whether the product has an operating cadence, not just isolated features.
+This lets the operator understand whether the action will actually improve investment-use readiness.
 
-## Production Direction
+## Product Rule
 
-In production, Portfolio Watchtower should become a server-backed workspace with assigned owners, due-date reminders, ingestion health, source freshness checks, review approvals, and company-level audit history. The static version proves the workflow logic while keeping all data local to the browser.
+NiveshScope should make it harder to accidentally overstate trust. A source becomes REAL only when the URL, text, period, and date have all been checked.

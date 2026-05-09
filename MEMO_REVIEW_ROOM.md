@@ -1,45 +1,51 @@
-# Desk Task Board
+# Guided Source Collector
 
-NiveshScope v36 turns Daily Briefing actions into a persistent research execution board. Daily Briefing answers what should be worked first. Desk Task Board records that work, tracks its status, and keeps the route back to the underlying workflow.
+NiveshScope v45 adds a Guided Source Collector above Source Pack Studio. The purpose is to remove operator confusion when the source workflow has many panels: the collector picks one source task, shows the official collection route, and keeps the user focused until the record is ready for the live corpus. In v46, the selected task can flow into the Source Citation Extractor so pasted filing text becomes ranked, section-ready passages before it reaches the builder. In v47, the same task then flows through the Source Review Gate before REAL evidence can be saved.
 
-The static version stores tasks in local browser storage. It does not sync between devices and does not create server-side assignments yet. This is intentional for the GitHub Pages prototype.
+## What It Does
 
-## Task Capture
+- Reads the same company/source coverage matrix used by the Source Queue and Coverage Command Center.
+- Prioritizes missing, synthetic, and imported evidence before REAL evidence.
+- Gives the starter pack priority so RELIANCE, TCS, and HDFCBANK move toward launch-quality coverage first.
+- Shows one active task with current evidence, official source links, and a checklist tied to the builder form.
+- Copies or exports a Markdown source brief that can be handed to a research assistant.
 
-Tasks can be captured from:
+## Priority Logic
 
-- The first action in the current Daily Briefing mode.
-- Any individual action card inside Daily Briefing.
+The collector ranks source work in this order:
 
-When a task is captured, the board stores the ticker, company, title, detail, route type, source route id, due label, priority, owner, created timestamp, and current status. Duplicate open tasks from the same briefing signal are blocked so the board stays clean.
+1. Missing source slots.
+2. Synthetic starter records that should be replaced before investment-use pilots.
+3. Imported review records that should be upgraded to REAL.
+4. REAL records, only when nothing else is open.
 
-## Status Workflow
+Within the same status bucket, starter-pack companies are ranked before the broader watchlist. Results, annual reports, concalls, shareholding patterns, and announcements then follow the product's current collection priority.
 
-Each task moves through:
+## Operator Flow
 
-- `Queued`: captured but not started.
-- `In progress`: opened or advanced by the analyst.
-- `Done`: completed locally and available in the task history until cleared.
+1. Open `Source guide` from the hero or scroll to Source Pack Studio.
+2. Read the chosen source task and current evidence state.
+3. Click `Load next source task` to set the company, source type, period, title, and REAL quality in the builder.
+4. Click `Open official links` to view the same task in the Source Acquisition Hub.
+5. Open NSE, BSE, Company IR, Screener, or scoped search from the link list.
+6. Paste useful source text into the Real Source Paste Assistant.
+7. Click `Detect and fill builder`.
+8. Run the Source Intake Doctor and confirm the three REAL source checks.
+9. Click `Add to live corpus`.
 
-The board can filter open tasks, all tasks, high-priority tasks, source tasks, review tasks, and done tasks.
+## Checklist Signals
 
-## Routing
+The collector checklist is intentionally simple:
 
-Each task keeps its original route:
+- Task loaded.
+- Official URL filled.
+- Source text pasted.
+- Builder sections detected.
+- Source Intake Doctor has no high-priority blockers.
+- REAL save checks are confirmed.
 
-- Calendar tasks open the Catalyst Calendar action.
-- Portfolio tasks open the Portfolio Watchtower action.
-- Review tasks open the Review Radar item.
-- Fallback tasks load a desk question for the ticker.
-
-Opening a queued task automatically moves it to `In progress`, which gives the user a simple execution trail.
-
-## Exports
-
-The board can be copied as Markdown or exported as JSON. The JSON contains product version, generated timestamp, execution score, open count, high-priority count, in-progress count, done count, next task, and the full task list.
-
-Research Sprint Planner reads open Desk Task Board items first, then fills any unused capacity from Daily Briefing. Launch Control includes the Desk Task Board in its audit pack and adds a medium blocker when high-priority tasks pile up. This makes launch readiness sensitive to work that has already been accepted by the analyst.
+The checklist does not replace human review. It is a browser-side operator aid that makes the desired workflow visible.
 
 ## Production Direction
 
-In production, this should become a multi-user workflow service with authenticated owners, task comments, due dates, reminders, completion evidence, immutable audit history, and team-level queues. The static version proves the operating model before adding a backend.
+In production, this should become an assigned source-work queue backed by server-side records. Each task should store owner, reviewer, source URL, document fingerprint, source-provider metadata, source status, extracted citation spans, Source Review Gate score, and immutable transition history. The static v45-v47 collector proves the workflow shape before adding backend enforcement.

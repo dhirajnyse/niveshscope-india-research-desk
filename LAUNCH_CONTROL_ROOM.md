@@ -1,50 +1,45 @@
-# Data Provenance Rules
+# Desk Task Board
 
-NiveshScope should earn trust by showing where every answer came from. These rules define the minimum source record needed before a document can be used as production evidence.
+NiveshScope v36 turns Daily Briefing actions into a persistent research execution board. Daily Briefing answers what should be worked first. Desk Task Board records that work, tracks its status, and keeps the route back to the underlying workflow.
 
-## Source Status
+The static version stores tasks in local browser storage. It does not sync between devices and does not create server-side assignments yet. This is intentional for the GitHub Pages prototype.
 
-- `real`: reviewed source from an official company, exchange, regulator, or approved vendor URL.
-- `imported`: user-provided source not yet reviewed for public production use.
-- `synthetic`: demo-only starter source for product testing.
-- `rejected`: source should not be used because provenance, quality, or rights are unclear.
-- `expired`: source was valid but is no longer the latest relevant record.
+## Task Capture
 
-## Required Fields
+Tasks can be captured from:
 
-Every production source record should include:
+- The first action in the current Daily Briefing mode.
+- Any individual action card inside Daily Briefing.
 
-- Company ticker and legal company name.
-- Source type: annual report, concall, results, shareholding, announcement, credit note, model note, or other approved type.
-- Period and source date.
-- Official source URL.
-- Document title.
-- Source status and reviewer status.
-- Citation-ready sections with concise section titles.
-- Capture timestamp and reviewer timestamp.
-- Document hash once server-side ingestion exists.
-- Rights/licensing note for paid or vendor-provided data.
+When a task is captured, the board stores the ticker, company, title, detail, route type, source route id, due label, priority, owner, created timestamp, and current status. Duplicate open tasks from the same briefing signal are blocked so the board stays clean.
 
-## Review Checklist
+## Status Workflow
 
-- Does the URL resolve to an official or approved source?
-- Is the source relevant to the selected ticker and period?
-- Is the document the latest required record for its source type?
-- Are the pasted/extracted sections faithful to the document?
-- Are management quotes, numbers, and risk language preserved accurately?
-- Are synthetic or imported records still clearly labelled?
-- Is the answer blocked from using off-ticker sources unless the question is comparative?
+Each task moves through:
 
-## Production Evidence Policy
+- `Queued`: captured but not started.
+- `In progress`: opened or advanced by the analyst.
+- `Done`: completed locally and available in the task history until cleared.
 
-Do not let a record become `real` only because a user clicked a button. The backend should enforce:
+The board can filter open tasks, all tasks, high-priority tasks, source tasks, review tasks, and done tasks.
 
-- URL allowlist or approved-source classification.
-- File scan and content-type validation.
-- Hashing and immutable source storage.
-- Reviewer identity and timestamp.
-- Audit trail for any source replacement.
+## Routing
 
-## Investor Trust Rule
+Each task keeps its original route:
 
-If NiveshScope cannot show the source, period, citation section, and quality label, it should not present the output as investment-grade research.
+- Calendar tasks open the Catalyst Calendar action.
+- Portfolio tasks open the Portfolio Watchtower action.
+- Review tasks open the Review Radar item.
+- Fallback tasks load a desk question for the ticker.
+
+Opening a queued task automatically moves it to `In progress`, which gives the user a simple execution trail.
+
+## Exports
+
+The board can be copied as Markdown or exported as JSON. The JSON contains product version, generated timestamp, execution score, open count, high-priority count, in-progress count, done count, next task, and the full task list.
+
+Research Sprint Planner reads open Desk Task Board items first, then fills any unused capacity from Daily Briefing. Launch Control includes the Desk Task Board in its audit pack and adds a medium blocker when high-priority tasks pile up. This makes launch readiness sensitive to work that has already been accepted by the analyst.
+
+## Production Direction
+
+In production, this should become a multi-user workflow service with authenticated owners, task comments, due dates, reminders, completion evidence, immutable audit history, and team-level queues. The static version proves the operating model before adding a backend.

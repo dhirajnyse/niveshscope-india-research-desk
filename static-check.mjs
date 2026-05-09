@@ -1,42 +1,28 @@
-# Repository Operations
+# Source Citation Extractor
 
-Use this repository as the public GitHub Pages shell until the product needs a backend repository split.
+NiveshScope v46 adds the Source Citation Extractor inside Source Pack Studio. Its job is to reduce the manual work between "I pasted an official filing" and "I have structured source sections that the desk can cite." It reads the pasted source text, ranks candidate passages, maps them to builder sections, and helps the operator fill the source record without turning the original document into an unreviewed blob. In v47, those extracted passages feed the Source Review Gate so the operator can see whether the source is blocked, review-ready, or safe for reviewer handoff.
 
-## Upload Rule
+## What It Checks
 
-When uploading a new release ZIP to GitHub Pages:
+The extractor looks for company mentions, numeric evidence, source-type keywords, and section cues. Annual report text is scored for business overview, risk, liquidity, capital, margin, and management discussion language. Concall text is scored for prepared remarks, analyst Q&A, guidance, demand, and margin commentary. Results text is scored for revenue, segment performance, profit, margin, balance-sheet movement, and management commentary. Shareholding and announcement text use their own promoter, pledge, institutional ownership, regulatory, transaction, order, capex, and governance cues.
 
-- Upload the ZIP contents into the repository root, not inside a nested folder.
-- Keep `.nojekyll` in the root so GitHub Pages serves static assets normally.
-- Keep `data/`, `assets/`, `app.js`, `index.html`, `styles.css`, and `launch.css` together.
-- Keep `SECURITY.md`, `README.md`, and `docs/` in the repository for reviewers and future contributors.
+## Operator Workflow
 
-## Version Rule
+1. Open Source Pack Studio from the hero or from a source gap.
+2. Paste the official source text into the paste assistant.
+3. Click `Extract passages`.
+4. Review the ranked passages and their target sections.
+5. Use `Use passage` for a single citation or `Use best passages` to fill matching builder sections.
+6. Run Source Intake Doctor, confirm the source URL and date, then decide whether the record is REAL, imported, or synthetic.
 
-Each visible release should update:
+## Export Workflow
 
-- Top status pill in `index.html`.
-- Cache-busting query strings in `index.html`.
-- `DATA_VERSION` in `app.js`.
-- README phase notes.
+`Copy citation pack` and `Export citation pack` create a reviewer-friendly Markdown note with the selected ticker, source type, extraction mode, section coverage, ranked passages, scores, and selection reasons. This is useful when a research assistant, reviewer, or future backend process needs to understand exactly why a passage was selected before it becomes corpus evidence.
 
-## Quality Rule
+## Guardrails
 
-Before uploading:
+The extractor does not certify that a passage is official. It is a structuring assistant, not a source-verification engine. Source Intake Doctor still checks URL validity, section depth, period/date completeness, REAL confidence checks, and sample-source warnings. Synthetic samples remain labelled as IMP or SYN workflow inputs until a human verifies the document URL, document identity, source date, and relevant citation sections.
 
-- Run `node --check app.js`.
-- Run `node scripts/static-check.mjs`.
-- Confirm the app loads on GitHub Pages after a hard refresh.
-- Confirm the top status pill shows the latest version.
-- Run one research answer and export PDF/Markdown.
-- Open Source Studio and confirm helper links still work.
+## Production Direction
 
-## Branching Rule
-
-For serious development, use branches:
-
-- `main`: deployed GitHub Pages branch.
-- `codex/vXX-feature-name`: implementation branch for each release.
-- Pull request: review, static checks, screenshot, and release notes.
-
-The current manual ZIP workflow is acceptable for early prototyping, but pull requests will become safer once the project has more users.
+In production, the same workflow should be backed by server-side text extraction, document fingerprinting, OCR confidence, source-provider metadata, reviewer identity, immutable audit logs, a stored citation-span model, and server-enforced Source Review Gate outcomes. The static v46-v47 extractor proves the operator workflow shape first: paste once, extract useful passages, fill structured sections, run the review gate, then save only when the source is ready.

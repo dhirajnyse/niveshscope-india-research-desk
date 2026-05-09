@@ -1,44 +1,47 @@
-# Real Source Starter Pack
+# Repository Operations
 
-v23 focuses NiveshScope on a smaller, more trustworthy MVP: make three companies research-ready before expanding coverage.
+Use this repository as the public GitHub Pages shell until the product needs a backend repository split.
 
-## Priority Companies
+## Upload Rule
 
-- `RELIANCE` - Reliance Industries
-- `TCS` - Tata Consultancy Services
-- `HDFCBANK` - HDFC Bank
+When uploading a new release ZIP to GitHub Pages:
 
-These companies are broad enough to test diversified source workflows: conglomerate/energy/retail/telecom, IT services, and private-sector banking.
+- Upload the ZIP contents into the repository root, not inside a nested folder.
+- Keep `.nojekyll` in the root so GitHub Pages serves static assets normally.
+- Keep `data/`, `assets/`, `app.js`, `index.html`, `styles.css`, and `launch.css` together.
+- Keep `.github/`, `scripts/`, `site.webmanifest`, `robots.txt`, and all docs in the root upload batch.
+- Keep `SECURITY.md`, `README.md`, and `docs/` in the repository for reviewers and future contributors.
+- Use Launch Control's `Release Doctor` before each manual upload. Copy the root manifest and compare it with the GitHub upload screen before committing.
 
-## Required Source Types
+## Version Rule
 
-Each company needs five verified source types:
+Each visible release should update:
 
-- Annual report
-- Concall transcript
-- Quarterly results
-- Shareholding pattern
-- Material exchange announcement
+- Top status pill in `index.html`.
+- Cache-busting query strings in `index.html`.
+- `DATA_VERSION` in `app.js`.
+- README phase notes.
+- Release Doctor package name, manifest text, and static checks when a shipping guard changes.
 
-The app should show `Investment-use ready` only when all five source types are marked `REAL`.
+## Quality Rule
 
-## Readiness Levels
+Before uploading:
 
-- `Prototype evidence only`: fewer than three REAL source types, or missing annual report and management/results coverage.
-- `Pilot review ready`: at least three REAL source types, including annual report and concall or results.
-- `Investment-use ready`: all five required source types are REAL.
+- Run `node --check app.js`.
+- Run `node scripts/static-check.mjs`.
+- Confirm the app loads on GitHub Pages after a hard refresh.
+- Confirm the top status pill shows the latest version.
+- Open Launch Control and confirm Release Doctor says `Root manifest ready`.
+- Copy or export the Release Doctor manifest for the release notes.
+- Run one research answer and export PDF/Markdown.
+- Open Source Studio and confirm helper links still work.
 
-## Workflow
+## Branching Rule
 
-1. Open the `Starter pack` section.
-2. Pick the first company with the weakest readiness score.
-3. Click the missing or synthetic source slot.
-4. Source Studio opens with the exact company and source type.
-5. Use the official URL helper to find the document.
-6. Paste citation-ready text into the source sections.
-7. Keep quality as `REAL - verified source` only when the URL and text are checked.
-8. Add to live corpus and re-check the readiness score.
+For serious development, use branches:
 
-## Product Rule
+- `main`: deployed GitHub Pages branch.
+- `codex/vXX-feature-name`: implementation branch for each release.
+- Pull request: review, static checks, screenshot, and release notes.
 
-Reports can be exported before a company is ready, but the answer must show `Prototype evidence only` until the required source pack is complete. This is deliberate: trust is the product.
+The current manual ZIP workflow is acceptable for early prototyping, but pull requests will become safer once the project has more users.

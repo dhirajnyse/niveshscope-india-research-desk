@@ -1,59 +1,41 @@
-# Memo Review Room
+# Portfolio Watchtower
 
-NiveshScope v27 adds a human review workflow after the Evidence-to-Brief Workbench creates a memo packet. The feature is designed to separate machine-assisted drafting from human judgement.
+NiveshScope v33 adds a portfolio-level operating board. The earlier workflow made it possible to capture sources, generate a memo, review the memo, save a research decision, and track follow-up dates. The Portfolio Watchtower turns those pieces into a daily command screen.
 
-## Why This Exists
+The watchtower is intentionally action-first. It does not ask the user to inspect every panel manually. It scores each company, identifies the most important open action, and routes the user into the right workflow.
 
-An investment research product needs more than a generated answer. It needs a record of who reviewed it, what decision was made, which evidence was trusted, and which gaps remain open.
+## What It Reads
 
-The Memo Review Room lets a user save that judgement locally in the browser while the product is still static.
+The watchtower combines:
 
-## Review Decisions
+- REAL source coverage across annual report, concall, results, shareholding, and announcement slots.
+- Review Radar due dates, overdue reviews, and open evidence tasks.
+- Decision Journal entries and thesis status.
+- Memo Review Room decisions.
+- Company risk index and sector context.
 
-The current prototype supports five decisions:
+## Company Score
 
-- `Needs source work`: useful answer, but the evidence is not strong enough.
-- `Pilot memo ready`: acceptable for product testing and internal review.
-- `Committee review ready`: ready for deeper human review.
-- `Watchlist only`: interesting but not actionable.
-- `Reject thesis`: the answer should not move forward.
+Each company receives a watchtower score. The score rewards REAL source coverage, saved review decisions, saved research decisions, and source completeness. It penalizes overdue reviews, due reviews, open evidence tasks, and elevated company risk.
 
-Each review also captures conviction, owner, review note, and open risk or next action.
+The score is a workflow readiness indicator, not an investment rating. A high score means the research process is cleaner and easier to audit. It does not mean the stock is attractive.
 
-## Stored Review Fields
+## Next-Action Routing
 
-Each saved review stores:
+Each company card shows one action:
 
-- Timestamp.
-- Ticker and company.
-- Memo status and memo score.
-- Confidence and evidence quality.
-- REAL source coverage count.
-- Question and memo headline.
-- Human review note.
-- Open risk or next action.
-- Readiness checks.
-- Open source gaps.
-- Citation metadata.
+- Open a due or overdue review.
+- Replace the next missing, synthetic, or imported source.
+- Create a decision by loading a desk question.
+- Refresh a high-risk memo.
+- Refresh a monitoring memo.
 
-The current version stores this in browser local storage. It is useful for prototyping and personal workflow testing, but it is not an enterprise audit log yet.
+The `Open next action` button works from the top-priority company across the entire watchtower. This is the daily operating loop: open the watchtower, work the top action, then export the board if needed.
 
 ## Exports
 
-`Export review log` downloads the review log as JSON. This is the best format for future backend import.
-
-`Copy review log` creates a Markdown version for sharing in notes, emails, or a manual investment committee packet.
+The watchtower can be copied as Markdown or exported as JSON. The JSON includes score, status, risk, REAL coverage, decision state, review state, and next action for every company. Launch Control also includes the watchtower in its audit pack so release checks can show whether the product has an operating cadence, not just isolated features.
 
 ## Production Direction
 
-The production version should move review logs to the backend with:
-
-- Authenticated reviewer identity.
-- Immutable source record IDs.
-- Server timestamps.
-- Role-based edit/delete permissions.
-- Append-only audit events.
-- Review status transitions.
-- Links back to source files, memo packets, and exported PDFs.
-
-The static v27 feature is the product shape. The launch version should add stronger data integrity and user-level accountability.
+In production, Portfolio Watchtower should become a server-backed workspace with assigned owners, due-date reminders, ingestion health, source freshness checks, review approvals, and company-level audit history. The static version proves the workflow logic while keeping all data local to the browser.

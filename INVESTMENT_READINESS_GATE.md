@@ -1,57 +1,46 @@
-# Daily Briefing
+# Decision Journal
 
-NiveshScope v35 adds a morning command layer for the research desk. Earlier workflow panels showed source gaps, saved decisions, portfolio actions, and catalyst dates separately. Daily Briefing combines those signals into one ranked list so the analyst can start with the highest-value action.
+NiveshScope v31 adds a local research-decision ledger. The Decision Journal is designed to capture the human decision that follows a memo, a readiness gate result, and a source review.
 
-The feature is still local and browser-only. It does not call an external market-data feed or recommendation service. It reads the current evidence state, local saved reviews, local decision journal, and generated workflow signals.
+The journal deliberately avoids presenting itself as a buy/sell engine. It records workflow decisions such as needs source work, watchlist candidate, committee candidate, monitor only, or reject thesis.
 
-## Inputs
+## What Each Entry Stores
 
-Daily Briefing builds its action list from:
+Each saved entry includes:
 
-- Catalyst Calendar events, including overdue reviews, source tasks, risk refreshes, and pilot-candidate check-ins.
-- Portfolio Watchtower company actions, including source gaps, missing decisions, review follow-ups, and high-risk names.
-- Review Radar overdue or due decisions, including saved evidence tasks.
+- Research decision.
+- Thesis strength.
+- Review horizon.
+- Next review date.
+- Owner.
+- Decision note.
+- Trigger or kill criteria.
+- Next evidence task.
+- Current memo score.
+- Investment Readiness Gate status and score.
+- Confidence and evidence-quality scores.
+- REAL source coverage.
+- Current valuation-lens snapshot.
+- Citation metadata.
 
-Actions are deduplicated by type, ticker, and title so the analyst sees one clear next step instead of the same problem repeated across panels.
+Entries are stored locally in the browser and can be exported as JSON or copied as Markdown.
 
-## Modes
+## Workflow
 
-The briefing mode changes what the user sees:
+1. Run a desk question.
+2. Review the Investment Readiness Gate.
+3. Save a Memo Review Room decision if a human review has been completed.
+4. Open the Decision Journal.
+5. Record whether the memo needs more source work, should be monitored, should enter the watchlist, should move to committee review, or should be rejected.
+6. Add the next evidence task and review trigger.
+7. Export or copy the journal when preparing a launch or research file.
 
-- `Morning desk`: the full prioritized briefing across source work, reviews, portfolio actions, and catalysts.
-- `Source sprint`: only source-replacement and evidence-collection work.
-- `Review sprint`: only overdue or due review work.
-- `Launch prep`: actions most likely to affect launch readiness.
+## Launch Control Integration
 
-Each mode keeps the same routing model. The top action can still open Source Studio, Review Radar, Portfolio Watchtower, or Catalyst Calendar depending on the action type.
+Launch Control now tracks saved decision entries as a separate workflow metric. If no decision exists, it adds a medium-priority blocker because a product launch should show a clear trail from evidence to memo to human decision.
 
-## Scoring
-
-The focus score is a simple operating score:
-
-- It starts from 100.
-- Urgent actions reduce the score.
-- Source-work pressure reduces the score modestly.
-- Portfolio Watchtower strength improves the score modestly.
-
-This is not an investment score. It is a desk-operations score that answers: how noisy is the research queue right now?
-
-## Routing
-
-`Start first action` routes the highest-ranked briefing item:
-
-- Calendar actions call the Catalyst Calendar routing logic.
-- Portfolio actions call the Portfolio Watchtower routing logic.
-- Review actions call the Review Radar routing logic.
-
-Each card also has its own action button, so the user can skip the first item and open a specific action directly. v36 adds `Add to tasks`, which captures the same action into Desk Task Board for status tracking before or after opening the source workflow.
-
-## Exports
-
-Daily Briefing can be copied as Markdown or exported as JSON. The JSON includes product version, generated timestamp, mode, focus score, headline, urgent/source/review counts, launch label, and the full action list.
-
-Launch Control includes the Daily Briefing in its audit pack. It also adds a medium blocker when the briefing has multiple urgent actions, because a launch-ready desk should not hide stale reviews, source gaps, or overdue catalysts.
+v32 also feeds these entries into Review Radar. The radar uses each decision's next review date and evidence task to surface overdue reviews, upcoming reviews, and unresolved source follow-up work.
 
 ## Production Direction
 
-In production, Daily Briefing should become a user-specific morning workflow with assignments, completed-action history, saved daily snapshots, notification preferences, and server-side audit logs. It should also include source freshness from live NSE/BSE/company feeds once the ingestion layer exists.
+The static version keeps entries in browser storage. A production implementation should store the journal in a backend table with user identity, timestamps, immutable gate snapshots, source-pack references, role-based approvals, and audit-log export.

@@ -1,55 +1,58 @@
-# NiveshScope Launch Roadmap
+# Operator Coach
 
-## Phase 1: Static Proof
+NiveshScope v42 adds an Operator Coach directly above the Investment Readiness Gate. The goal is to make the growing research desk easier to operate: instead of asking the user to remember which panel should be used next, the Coach reads the current desk state and recommends one next move. In v43, the Coach also watches the Evidence Vault so saved citations become part of the operating picture. In v44, it also reads the Trust Center score so security hardening can become the next action when the desk needs it. In v45, source-work routing can hand the operator into Guided Source Collector before deeper source tools. In v46, pasted source work can then move through the Source Citation Extractor for section-ready evidence. In v47, source work also gains a Source Review Gate before it is trusted as live-corpus evidence.
 
-Goal: prove that cited Indian-market answers are useful.
+## Inputs
 
-- Keep the GitHub Pages desk fast and visible.
-- Collect pilot users and target tickers.
-- Replace synthetic records for the first watchlist with verified annual reports and concall notes.
-- Keep PDF/Markdown exports clean enough for investor review.
+The Coach uses existing local product signals:
 
-## Phase 2: Real Source Library
+- Current Brief Workbench packet status and packet score.
+- Investment Readiness Gate score, required blockers, and next evidence gap.
+- Answer Quality Lab score, top fix, and blocking or review dimensions.
+- Selected-company real-source completeness.
+- Evidence Vault saved-citation count and source-status mix.
+- Trust Center score and top hardening action.
+- Latest Memo Review Room decision for the focused ticker.
+- Latest Decision Journal entry for the focused ticker.
+- Launch Control next blocker and overall release state.
+- Release Doctor runtime/root-manifest score.
 
-Goal: make the evidence base repeatable.
+No external service is called. The Coach is a browser-side routing layer over the same local state already used by the desk.
 
-- Add backend ingestion for annual reports, results, concalls, shareholding patterns, and announcements.
-- Store source records with provenance, hash, status, and reviewer metadata.
-- Add collection queues for NSE, BSE, SEBI, and company IR pages.
-- Add source freshness checks by ticker and source type.
+## Recommendation Logic
 
-## Phase 3: User Accounts
+The Coach prioritizes work in a practical order:
 
-Goal: make saved research useful across sessions and devices.
+1. If no answer is loaded, run a starter risk question for the selected ticker.
+2. If the gate has a required evidence blocker and a source gap, open that exact Source Studio task.
+3. If Answer Quality has a top fix below pass level, open the QA fix workflow.
+4. If the answer has not been reviewed by a human, open Memo Review Room.
+5. If a review exists but no decision is logged, open Decision Journal.
+6. If Release Doctor sees a release marker or root-manifest issue, open Release Doctor.
+7. If Launch Control has another blocker, route through Launch Control.
+8. If no obvious blocker remains, export the launch audit pack.
 
-- Add login, organizations, workspace roles, and billing plan limits.
-- Move saved briefs, source packs, valuation cases, and watchlists out of local browser storage.
-- Add audit logs and per-user export history.
-- Add limits for uploads, reports, watchlists, and AI usage.
+This keeps the desk action-oriented while still leaving deeper scoring and evidence review in the specialized panels.
 
-## Phase 4: Research Automation
+## Actions
 
-Goal: create the paid workflow.
+`Do next action` performs the primary route:
 
-- Schedule disclosure refresh jobs.
-- Add watchlist alerts for new filings, results, pledge changes, and material announcements.
-- Add peer comparison tables and valuation bridge exports.
-- Add admin review tools for source quality and answer quality.
+- Starter question: loads and runs a selected-ticker risk question.
+- Source gap: opens Source Pack Studio for the exact ticker and source type.
+- Answer quality: opens the highest-priority QA fix.
+- Review: scrolls to Memo Review Room.
+- Decision: scrolls to Decision Journal.
+- Release: scrolls to Release Doctor.
+- Launch: delegates to Launch Control blocker routing.
+- Audit: downloads the launch audit JSON.
 
-## Phase 5: Launch Hardening
+The Coach also shows a short queue so the user can see the next few likely tasks without reading every panel.
 
-Goal: launch without avoidable operational risk.
+## Copy And Export
 
-- Run dependency scanning, secret scanning, static checks, and dynamic testing.
-- Add file scanning, server-side URL validation, rate limits, and abuse monitoring.
-- Add backup, restore, retention, and deletion policies.
-- Create support, incident response, and vulnerability disclosure process.
-- Run an external security review before paid customer onboarding.
+`Copy plan` produces a Markdown operating note with focus ticker, stage, score, metrics, and queue. `Export plan` produces JSON with the same structure. These outputs are designed for handoff to a research assistant, review note, or future backend task scheduler.
 
-## First Paid MVP
+## Production Direction
 
-The first paid version should focus on one narrow promise:
-
-> Ask a question about a covered Indian company and receive a cited answer with source sections, management tone, risk flags, and valuation read-through.
-
-Avoid broad market predictions until the evidence engine, source provenance, and real-data refresh loop are reliable.
+The production version should turn the Coach into a role-aware assistant that respects permissions, assigned owners, source-review status, Source Review Gate outcomes, saved-evidence provenance, trust posture, citation extraction status, and calendar due dates. It should persist action outcomes server-side, record who accepted or completed a recommendation, and connect to workflow systems such as GitHub, Linear, or an internal task queue. The static v42-v47 Coach proves the routing shape before those backend commitments are made.
