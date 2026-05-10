@@ -1,4 +1,4 @@
-import { readFileSync, readdirSync, statSync } from "node:fs";
+﻿import { readFileSync, readdirSync, statSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -25,10 +25,38 @@ const index = read("index.html");
 const app = read("app.js");
 
 assert(index.includes("Content-Security-Policy"), "index.html is missing the CSP meta tag.");
-assert(index.includes("Source review v47"), "index.html does not show the v47 status marker.");
+assert(index.includes("Pilot feedback v61"), "index.html does not show the v61 status marker.");
+assert(index.includes("scrollTopButton"), "index.html is missing the back-to-top button.");
+assert(index.includes("quickNavToggle") && index.includes("quickNavPanel"), "index.html is missing the quick navigator shell.");
+assert(index.includes("commandPaletteOpen") && index.includes("commandPaletteSearch"), "index.html is missing the command palette shell.");
+assert(index.includes("productTourOpen") && index.includes("productTourNext"), "index.html is missing the guided product tour shell.");
+assert(index.includes("session-coach") && index.includes("sessionCoachChecklist"), "index.html is missing the first-session coach shell.");
+assert(index.includes("research-handoff") && index.includes("researchHandoffSummary"), "index.html is missing the research handoff shell.");
+assert(index.includes("session-timeline") && index.includes("sessionTimelineList"), "index.html is missing the session timeline shell.");
+assert(index.includes("workspace-snapshot") && index.includes("workspaceSnapshotSummary"), "index.html is missing the workspace snapshot shell.");
+assert(index.includes("recovery-vault") && index.includes("recoveryVaultSummary"), "index.html is missing the recovery vault shell.");
+assert(index.includes("pages-upload-wizard") && index.includes("pagesUploadWizardSummary"), "index.html is missing the Pages upload wizard shell.");
+assert(index.includes("live-site-doctor") && index.includes("liveSiteDoctorSummary"), "index.html is missing the Live Site Doctor shell.");
+assert(index.includes("github-release-handoff") && index.includes("githubReleaseSummary"), "index.html is missing the GitHub Release Handoff shell.");
+assert(index.includes("pilot-demo-room") && index.includes("pilotDemoSummary"), "index.html is missing the Pilot Demo Room shell.");
+assert(index.includes("pilot-feedback-room") && index.includes("pilotFeedbackSummary"), "index.html is missing the Pilot Feedback Room shell.");
 assert(!/\son[a-z]+\s*=/i.test(index), "index.html contains an inline event handler.");
-assert(app.includes('const DATA_VERSION = "20260509-22";'), "app.js DATA_VERSION is not aligned with v47.");
-assert(app.includes('const RELEASE_LABEL = "v47 Source Review Gate";'), "app.js is missing the v47 release label.");
+assert(app.includes('const DATA_VERSION = "20260510-14";'), "app.js DATA_VERSION is not aligned with v61.");
+assert(app.includes('const RELEASE_LABEL = "v61 Pilot Feedback Room";'), "app.js is missing the v61 release label.");
+assert(app.includes("bindScrollTopButton") && app.includes("scrollTopButton"), "app.js is missing back-to-top button behavior.");
+assert(app.includes("QUICK_NAV_SECTIONS") && app.includes("bindQuickNavigator"), "app.js is missing quick navigator behavior.");
+assert(app.includes("COMMAND_ACTIONS") && app.includes("bindCommandPalette"), "app.js is missing command palette behavior.");
+assert(app.includes("PRODUCT_TOUR_STEPS") && app.includes("bindProductTour"), "app.js is missing guided product tour behavior.");
+assert(app.includes("renderSessionCoach") && app.includes("bindSessionCoach"), "app.js is missing first-session coach behavior.");
+assert(app.includes("renderResearchHandoff") && app.includes("makeResearchHandoffMarkdown"), "app.js is missing research handoff behavior.");
+assert(app.includes("renderSessionTimeline") && app.includes("addSessionTimelineEvent"), "app.js is missing session timeline behavior.");
+assert(app.includes("renderWorkspaceSnapshot") && app.includes("exportWorkspaceSnapshot") && app.includes("importWorkspaceSnapshotFile"), "app.js is missing workspace snapshot behavior.");
+assert(app.includes("renderRecoveryVault") && app.includes("createRecoveryPoint") && app.includes("restoreRecoveryPoint"), "app.js is missing recovery vault behavior.");
+assert(app.includes("renderPagesUploadWizard") && app.includes("makePagesUploadWizardAudit") && app.includes("copyPagesUploadSteps"), "app.js is missing Pages upload wizard behavior.");
+assert(app.includes("renderLiveSiteDoctor") && app.includes("makeLiveSiteDoctorAudit") && app.includes("copyLiveSiteVerification"), "app.js is missing Live Site Doctor behavior.");
+assert(app.includes("renderGithubReleaseHandoff") && app.includes("makeGithubReleaseHandoffAudit") && app.includes("copyGithubCommitMessage"), "app.js is missing GitHub Release Handoff behavior.");
+assert(app.includes("renderPilotDemoRoom") && app.includes("makePilotDemoRoomAudit") && app.includes("copyPilotDemoScript"), "app.js is missing Pilot Demo Room behavior.");
+assert(app.includes("renderPilotFeedbackRoom") && app.includes("makePilotFeedbackAudit") && app.includes("copyPilotFeedbackReport"), "app.js is missing Pilot Feedback Room behavior.");
 assert(app.includes("normalizeExternalUrl"), "app.js is missing source URL normalization.");
 assert(app.includes("MAX_IMPORT_FILE_BYTES"), "app.js is missing import size limits.");
 assert(app.includes("STARTER_PACK_TICKERS"), "app.js is missing the real-source starter pack list.");
@@ -102,6 +130,19 @@ for (const required of [
   "docs/GUIDED_SOURCE_COLLECTOR.md",
   "docs/SOURCE_CITATION_EXTRACTOR.md",
   "docs/SOURCE_REVIEW_GATE.md",
+  "docs/QUICK_NAVIGATOR.md",
+  "docs/COMMAND_PALETTE.md",
+  "docs/GUIDED_PRODUCT_TOUR.md",
+  "docs/FIRST_RESEARCH_SESSION_COACH.md",
+  "docs/RESEARCH_HANDOFF_ROOM.md",
+  "docs/SESSION_TIMELINE.md",
+  "docs/WORKSPACE_SNAPSHOT.md",
+  "docs/WORKSPACE_RECOVERY_VAULT.md",
+  "docs/PAGES_UPLOAD_WIZARD.md",
+  "docs/LIVE_SITE_DOCTOR.md",
+  "docs/GITHUB_RELEASE_HANDOFF.md",
+  "docs/PILOT_DEMO_ROOM.md",
+  "docs/PILOT_FEEDBACK_ROOM.md",
   "docs/REAL_FILING_CAPTURE_MODE.md",
   "docs/BRIEF_WORKBENCH.md",
   "docs/MEMO_REVIEW_ROOM.md",
@@ -135,3 +176,5 @@ if (failures.length) {
 }
 
 console.log("NiveshScope static checks passed.");
+
+

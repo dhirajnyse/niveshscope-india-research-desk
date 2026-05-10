@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
@@ -18,7 +18,7 @@
     <link rel="canonical" href="https://dhirajnyse.github.io/niveshscope-india-research-desk/" />
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="assets/niveshscope-logo.svg" />
-    <link rel="manifest" href="site.webmanifest?v=20260509-22" />
+    <link rel="manifest" href="site.webmanifest?v=20260510-14" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="NiveshScope" />
     <meta property="og:title" content="NiveshScope | Ask Indian disclosures. See the evidence." />
@@ -35,8 +35,8 @@
       content="Evidence-backed Indian equity research across filings, concalls, exchange announcements, shareholding, and valuation."
     />
     <meta name="twitter:image" content="https://dhirajnyse.github.io/niveshscope-india-research-desk/assets/niveshscope-social-card.svg" />
-    <link rel="stylesheet" href="styles.css?v=20260509-22" />
-    <link rel="stylesheet" href="launch.css?v=20260509-22" />
+    <link rel="stylesheet" href="styles.css?v=20260510-14" />
+    <link rel="stylesheet" href="launch.css?v=20260510-14" />
   </head>
   <body>
     <div class="app-shell">
@@ -53,9 +53,45 @@
           <span class="status-pill">NSE/BSE</span>
           <span class="status-pill">Concall tone</span>
           <span class="status-pill">INR valuation</span>
-          <span class="status-pill">Source review v47</span>
+          <span class="status-pill">Pilot feedback v61</span>
         </div>
         <div class="top-actions">
+          <button class="icon-button" id="commandPaletteOpen" type="button" title="Open command palette (Ctrl+K)" aria-label="Open command palette">
+            <span aria-hidden="true">Find</span>
+          </button>
+          <button class="icon-button" id="productTourOpen" type="button" title="Start guided tour" aria-label="Start guided tour">
+            <span aria-hidden="true">Tour</span>
+          </button>
+          <button class="icon-button" id="sessionCoachOpen" type="button" title="Open session coach" aria-label="Open session coach">
+            <span aria-hidden="true">Coach</span>
+          </button>
+          <button class="icon-button" id="handoffRoomOpen" type="button" title="Open research handoff" aria-label="Open research handoff">
+            <span aria-hidden="true">Handoff</span>
+          </button>
+          <button class="icon-button" id="sessionTimelineOpen" type="button" title="Open session timeline" aria-label="Open session timeline">
+            <span aria-hidden="true">Timeline</span>
+          </button>
+          <button class="icon-button" id="workspaceSnapshotOpen" type="button" title="Open workspace snapshot" aria-label="Open workspace snapshot">
+            <span aria-hidden="true">Snapshot</span>
+          </button>
+          <button class="icon-button" id="recoveryVaultOpen" type="button" title="Open recovery vault" aria-label="Open recovery vault">
+            <span aria-hidden="true">Recovery</span>
+          </button>
+          <button class="icon-button" id="pagesUploadWizardOpen" type="button" title="Open upload wizard" aria-label="Open upload wizard">
+            <span aria-hidden="true">Upload</span>
+          </button>
+          <button class="icon-button" id="liveSiteDoctorOpen" type="button" title="Open live site doctor" aria-label="Open live site doctor">
+            <span aria-hidden="true">Live</span>
+          </button>
+          <button class="icon-button" id="githubReleaseHandoffOpen" type="button" title="Open GitHub release handoff" aria-label="Open GitHub release handoff">
+            <span aria-hidden="true">Release</span>
+          </button>
+          <button class="icon-button" id="pilotDemoRoomOpen" type="button" title="Open pilot demo room" aria-label="Open pilot demo room">
+            <span aria-hidden="true">Demo</span>
+          </button>
+          <button class="icon-button" id="pilotFeedbackRoomOpen" type="button" title="Open pilot feedback room" aria-label="Open pilot feedback room">
+            <span aria-hidden="true">Feedback</span>
+          </button>
           <button class="icon-button" id="copyBrief" type="button" title="Copy current brief" aria-label="Copy current brief">
             <span aria-hidden="true">Copy</span>
           </button>
@@ -84,6 +120,12 @@
           </p>
           <div class="launch-actions">
             <a class="primary-link" href="#desk">Open the desk</a>
+            <button class="secondary-link launch-tour-button" id="launchTourButton" type="button">Start tour</button>
+            <a class="secondary-link" href="#session-coach">First session</a>
+            <a class="secondary-link" href="#research-handoff">Handoff</a>
+            <a class="secondary-link" href="#session-timeline">Timeline</a>
+            <a class="secondary-link" href="#workspace-snapshot">Snapshot</a>
+            <a class="secondary-link" href="#recovery-vault">Recovery vault</a>
             <a class="secondary-link" href="#brief-workbench">Brief workbench</a>
             <a class="secondary-link" href="#investment-gate">Readiness gate</a>
             <a class="secondary-link" href="#memo-review-room">Review room</a>
@@ -102,6 +144,11 @@
             <a class="secondary-link" href="#evidence-vault">Evidence vault</a>
             <a class="secondary-link" href="#launch-control-room">Launch control</a>
             <a class="secondary-link" href="#release-doctor">Release doctor</a>
+            <a class="secondary-link" href="#pages-upload-wizard">Upload wizard</a>
+            <a class="secondary-link" href="#live-site-doctor">Live doctor</a>
+            <a class="secondary-link" href="#github-release-handoff">Release handoff</a>
+            <a class="secondary-link" href="#pilot-demo-room">Pilot demo</a>
+            <a class="secondary-link" href="#pilot-feedback-room">Pilot feedback</a>
             <a class="secondary-link" href="#source-builder">Source studio</a>
             <a class="secondary-link" href="#guided-source-collector">Source guide</a>
             <a class="secondary-link" href="#source-citation-extractor">Citation extractor</a>
@@ -278,6 +325,97 @@
                 </div>
               </div>
             </form>
+          </section>
+
+          <section class="session-coach-panel" id="session-coach" aria-labelledby="sessionCoachTitle">
+            <div class="session-coach-head">
+              <div>
+                <span>First Research Session Coach</span>
+                <h2 id="sessionCoachTitle">A clean path from first question to first saved brief.</h2>
+              </div>
+              <strong id="sessionCoachScore">0%</strong>
+            </div>
+            <div class="session-coach-summary" id="sessionCoachSummary"></div>
+            <div class="session-coach-checklist" id="sessionCoachChecklist"></div>
+            <div class="builder-actions session-coach-actions" id="sessionCoachActions"></div>
+          </section>
+
+          <section class="research-handoff-panel" id="research-handoff" aria-labelledby="researchHandoffTitle">
+            <div class="research-handoff-head">
+              <div>
+                <span>Research Handoff Room</span>
+                <h2 id="researchHandoffTitle">Leave a clean trail before you pause.</h2>
+              </div>
+              <strong id="researchHandoffStatus">Live</strong>
+            </div>
+            <div class="research-handoff-summary" id="researchHandoffSummary"></div>
+            <div class="research-handoff-note" id="researchHandoffNote"></div>
+            <div class="research-handoff-next" id="researchHandoffNext"></div>
+            <div class="builder-actions research-handoff-actions">
+              <button class="primary-button" id="openHandoffNextAction" type="button">Open next action</button>
+              <button class="secondary-button" id="copyResearchHandoff" type="button">Copy handoff</button>
+              <button class="secondary-button" id="exportResearchHandoff" type="button">Export handoff</button>
+              <button class="secondary-button" id="refreshResearchHandoff" type="button">Refresh</button>
+            </div>
+            <div class="builder-result" id="researchHandoffResult" aria-live="polite"></div>
+          </section>
+
+          <section class="session-timeline-panel" id="session-timeline" aria-labelledby="sessionTimelineTitle">
+            <div class="session-timeline-head">
+              <div>
+                <span>Session Timeline</span>
+                <h2 id="sessionTimelineTitle">See what happened in this research session.</h2>
+              </div>
+              <strong id="sessionTimelineStatus">0 events</strong>
+            </div>
+            <div class="session-timeline-summary" id="sessionTimelineSummary"></div>
+            <div class="session-timeline-list" id="sessionTimelineList"></div>
+            <div class="builder-actions session-timeline-actions">
+              <button class="primary-button" id="addTimelineCheckpoint" type="button">Add checkpoint</button>
+              <button class="secondary-button" id="copySessionTimeline" type="button">Copy timeline</button>
+              <button class="secondary-button" id="exportSessionTimeline" type="button">Export timeline</button>
+              <button class="secondary-button danger-button" id="clearSessionTimeline" type="button">Clear timeline</button>
+            </div>
+            <div class="builder-result" id="sessionTimelineResult" aria-live="polite"></div>
+          </section>
+
+          <section class="workspace-snapshot-panel" id="workspace-snapshot" aria-labelledby="workspaceSnapshotTitle">
+            <div class="workspace-snapshot-head">
+              <div>
+                <span>Workspace Snapshot</span>
+                <h2 id="workspaceSnapshotTitle">Back up the whole browser workspace.</h2>
+              </div>
+              <strong id="workspaceSnapshotStatus">Reading workspace</strong>
+            </div>
+            <div class="workspace-snapshot-summary" id="workspaceSnapshotSummary"></div>
+            <div class="workspace-snapshot-list" id="workspaceSnapshotList"></div>
+            <div class="builder-actions workspace-snapshot-actions">
+              <button class="primary-button" id="exportWorkspaceSnapshot" type="button">Export snapshot</button>
+              <button class="secondary-button" id="importWorkspaceSnapshot" type="button">Import snapshot</button>
+              <button class="secondary-button" id="copyWorkspaceSnapshotManifest" type="button">Copy manifest</button>
+              <button class="secondary-button" id="refreshWorkspaceSnapshot" type="button">Refresh</button>
+              <input id="workspaceSnapshotInput" type="file" accept="application/json,.json" hidden />
+            </div>
+            <div class="builder-result" id="workspaceSnapshotResult" aria-live="polite"></div>
+          </section>
+
+          <section class="recovery-vault-panel" id="recovery-vault" aria-labelledby="recoveryVaultTitle">
+            <div class="recovery-vault-head">
+              <div>
+                <span>Recovery Vault</span>
+                <h2 id="recoveryVaultTitle">Create local restore points before the next experiment.</h2>
+              </div>
+              <strong id="recoveryVaultStatus">No restore points</strong>
+            </div>
+            <div class="recovery-vault-summary" id="recoveryVaultSummary"></div>
+            <div class="recovery-vault-list" id="recoveryVaultList"></div>
+            <div class="builder-actions recovery-vault-actions">
+              <button class="primary-button" id="createRecoveryPoint" type="button">Create restore point</button>
+              <button class="secondary-button" id="exportLatestRecoveryPoint" type="button">Export latest</button>
+              <button class="secondary-button" id="copyRecoveryVaultReport" type="button">Copy vault report</button>
+              <button class="secondary-button danger-button" id="clearRecoveryVault" type="button">Clear vault</button>
+            </div>
+            <div class="builder-result" id="recoveryVaultResult" aria-live="polite"></div>
           </section>
 
           <section class="operator-coach-panel" id="operator-coach" aria-labelledby="operatorCoachTitle">
@@ -803,6 +941,153 @@
                 <button class="secondary-button" id="copyReleaseManifest" type="button">Copy root manifest</button>
                 <button class="secondary-button" id="exportReleaseManifest" type="button">Export manifest</button>
               </div>
+            </div>
+            <div class="pages-upload-wizard" id="pages-upload-wizard" aria-labelledby="pagesUploadWizardTitle">
+              <div class="launch-control-card-head">
+                <span>GitHub Pages Upload Wizard</span>
+                <strong id="pagesUploadWizardStatus">Reading release</strong>
+              </div>
+              <h3 id="pagesUploadWizardTitle">Upload the right files to the right place.</h3>
+              <p class="pages-upload-copy">
+                Use this when you are updating GitHub Pages: it turns the release package, root manifest, backup step, and live-site verification into one clear path.
+              </p>
+              <div class="pages-upload-summary" id="pagesUploadWizardSummary"></div>
+              <div class="pages-upload-steps" id="pagesUploadWizardSteps"></div>
+              <div class="pages-upload-files" id="pagesUploadWizardFiles"></div>
+              <div class="pages-upload-actions">
+                <button class="primary-button" id="copyPagesUploadSteps" data-pages-upload-action="copy-steps" type="button">Copy upload steps</button>
+                <button class="secondary-button" id="copyPagesUploadChecklist" data-pages-upload-action="copy-checklist" type="button">Copy root checklist</button>
+                <button class="secondary-button" id="exportPagesUploadPlan" data-pages-upload-action="export-plan" type="button">Export upload plan</button>
+                <button class="secondary-button" id="openPagesLiveUrl" data-pages-upload-action="open-live" type="button">Open live URL</button>
+              </div>
+              <div class="builder-result" id="pagesUploadWizardResult" aria-live="polite"></div>
+            </div>
+            <div class="live-site-doctor" id="live-site-doctor" aria-labelledby="liveSiteDoctorTitle">
+              <div class="launch-control-card-head">
+                <span>Live Site Doctor</span>
+                <strong id="liveSiteDoctorStatus">Reading page</strong>
+              </div>
+              <h3 id="liveSiteDoctorTitle">Know whether GitHub Pages is serving the right release.</h3>
+              <p class="live-site-copy">
+                Run this after upload to check the release marker, live path, cache-busting URL, root assets, and loaded data before sharing the public link.
+              </p>
+              <div class="live-site-summary" id="liveSiteDoctorSummary"></div>
+              <div class="live-site-checks" id="liveSiteDoctorChecks"></div>
+              <div class="live-site-actions">
+                <button class="primary-button" id="refreshLiveSiteDoctor" type="button">Run live check</button>
+                <button class="secondary-button" id="copyLiveSiteVerification" type="button">Copy verification</button>
+                <button class="secondary-button" id="exportLiveSiteVerification" type="button">Export verification</button>
+                <button class="secondary-button" id="openCacheBustedLive" type="button">Open live v61</button>
+              </div>
+              <div class="builder-result" id="liveSiteDoctorResult" aria-live="polite"></div>
+            </div>
+            <div class="github-release-handoff" id="github-release-handoff" aria-labelledby="githubReleaseHandoffTitle">
+              <div class="launch-control-card-head">
+                <span>GitHub Release Handoff</span>
+                <strong id="githubReleaseStatus">Preparing notes</strong>
+              </div>
+              <h3 id="githubReleaseHandoffTitle">Commit, upload, verify, and archive the release in one clean handoff.</h3>
+              <p class="github-release-copy">
+                Use this before or after GitHub upload to copy the commit message, release notes, smoke-test checklist, and verification pack for the current version.
+              </p>
+              <div class="github-release-summary" id="githubReleaseSummary"></div>
+              <div class="github-release-artifacts" id="githubReleaseArtifacts"></div>
+              <div class="github-release-preview" id="githubReleasePreview"></div>
+              <div class="github-release-actions">
+                <button class="primary-button" id="copyGithubCommitMessage" type="button">Copy commit message</button>
+                <button class="secondary-button" id="copyGithubReleaseNotes" type="button">Copy release notes</button>
+                <button class="secondary-button" id="exportGithubReleaseHandoff" type="button">Export handoff</button>
+                <button class="secondary-button" id="openGithubRepository" type="button">Open GitHub repo</button>
+                <button class="secondary-button" id="openGithubReleaseLive" type="button">Open live v61</button>
+              </div>
+              <div class="builder-result" id="githubReleaseResult" aria-live="polite"></div>
+            </div>
+            <div class="pilot-demo-room" id="pilot-demo-room" aria-labelledby="pilotDemoRoomTitle">
+              <div class="launch-control-card-head">
+                <span>Pilot Demo Room</span>
+                <strong id="pilotDemoStatus">Preparing demo</strong>
+              </div>
+              <h3 id="pilotDemoRoomTitle">Show NiveshScope clearly in five minutes.</h3>
+              <p class="pilot-demo-copy">
+                Use this founder-led demo room to load a sample question, explain source safety, copy the talk track, and export a small pilot demo pack.
+              </p>
+              <div class="pilot-demo-summary" id="pilotDemoSummary"></div>
+              <div class="pilot-demo-script" id="pilotDemoScript"></div>
+              <div class="pilot-demo-questions" id="pilotDemoQuestions"></div>
+              <div class="pilot-demo-actions">
+                <button class="primary-button" id="loadPilotDemoQuestion" type="button">Load demo question</button>
+                <button class="secondary-button" id="copyPilotDemoScript" type="button">Copy demo script</button>
+                <button class="secondary-button" id="copyPilotFollowup" type="button">Copy follow-up</button>
+                <button class="secondary-button" id="exportPilotDemoPack" type="button">Export demo pack</button>
+              </div>
+              <div class="builder-result" id="pilotDemoResult" aria-live="polite"></div>
+            </div>
+            <div class="pilot-feedback-room" id="pilot-feedback-room" aria-labelledby="pilotFeedbackRoomTitle">
+              <div class="launch-control-card-head">
+                <span>Pilot Feedback Room</span>
+                <strong id="pilotFeedbackStatus">No feedback yet</strong>
+              </div>
+              <h3 id="pilotFeedbackRoomTitle">Turn demo reactions into the next product move.</h3>
+              <p class="pilot-feedback-copy">
+                Capture who saw the demo, what they cared about, what blocked them, and which product task should move next.
+              </p>
+              <div class="pilot-feedback-summary" id="pilotFeedbackSummary"></div>
+              <form class="pilot-feedback-form" id="pilotFeedbackForm">
+                <label>
+                  <span>Pilot / account</span>
+                  <input id="pilotFeedbackName" type="text" placeholder="Example: HNI advisor demo" />
+                </label>
+                <label>
+                  <span>Profile</span>
+                  <select id="pilotFeedbackProfile">
+                    <option value="Investor">Investor</option>
+                    <option value="Advisor">Advisor</option>
+                    <option value="Analyst">Analyst</option>
+                    <option value="Fund">Fund</option>
+                    <option value="Founder">Founder</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </label>
+                <label>
+                  <span>Focus company</span>
+                  <select id="pilotFeedbackCompany"></select>
+                </label>
+                <label>
+                  <span>Outcome</span>
+                  <select id="pilotFeedbackOutcome">
+                    <option value="hot">Hot - wants pilot</option>
+                    <option value="source-proof">Needs real source proof</option>
+                    <option value="security">Security / compliance question</option>
+                    <option value="pricing">Pricing / package question</option>
+                    <option value="later">Later / not urgent</option>
+                  </select>
+                </label>
+                <label>
+                  <span>Date</span>
+                  <input id="pilotFeedbackDate" type="date" />
+                </label>
+                <label class="is-wide">
+                  <span>Strongest signal</span>
+                  <textarea id="pilotFeedbackSignal" rows="3" placeholder="What made them lean in?"></textarea>
+                </label>
+                <label class="is-wide">
+                  <span>Objection or concern</span>
+                  <textarea id="pilotFeedbackObjection" rows="3" placeholder="What made them hesitate?"></textarea>
+                </label>
+                <label class="is-wide">
+                  <span>Next follow-up</span>
+                  <textarea id="pilotFeedbackNextStep" rows="3" placeholder="Example: Replace RELIANCE results with NSE PDF and send a fresh brief."></textarea>
+                </label>
+                <div class="pilot-feedback-actions">
+                  <button class="primary-button" id="savePilotFeedback" type="submit">Save feedback</button>
+                  <button class="secondary-button" id="openPilotFeedbackFollowup" type="button">Open next follow-up</button>
+                  <button class="secondary-button" id="copyPilotFeedbackReport" type="button">Copy feedback report</button>
+                  <button class="secondary-button" id="exportPilotFeedbackReport" type="button">Export feedback</button>
+                  <button class="secondary-button danger-action" id="clearPilotFeedbackForm" type="button">Clear form</button>
+                </div>
+              </form>
+              <div class="pilot-feedback-list" id="pilotFeedbackList"></div>
+              <div class="builder-result" id="pilotFeedbackResult" aria-live="polite"></div>
             </div>
             <div class="builder-actions launch-control-actions">
               <button class="primary-button" id="openLaunchBlocker" type="button">Open next blocker</button>
@@ -1447,6 +1732,68 @@
       </footer>
     </div>
 
-    <script src="app.js?v=20260509-22"></script>
+    <div class="quick-nav" id="quickNav">
+      <button class="quick-nav-toggle" id="quickNavToggle" type="button" title="Open quick navigation" aria-label="Open quick navigation" aria-expanded="false" aria-controls="quickNavPanel">
+        Nav
+      </button>
+      <section class="quick-nav-panel" id="quickNavPanel" aria-label="Quick navigation" hidden>
+        <div class="quick-nav-head">
+          <strong>Quick Nav</strong>
+          <button class="quick-nav-close" id="quickNavClose" type="button" aria-label="Close quick navigation">Close</button>
+        </div>
+        <input id="quickNavSearch" type="search" placeholder="Find a section" autocomplete="off" />
+        <div class="quick-nav-list" id="quickNavList"></div>
+      </section>
+    </div>
+
+    <div class="command-palette" id="commandPalette" aria-hidden="true">
+      <div class="command-palette-backdrop" data-command-palette-close></div>
+      <section class="command-palette-panel" role="dialog" aria-modal="true" aria-labelledby="commandPaletteTitle">
+        <div class="command-palette-head">
+          <div>
+            <span>Research command</span>
+            <h2 id="commandPaletteTitle">Command palette</h2>
+          </div>
+          <button class="command-palette-close" id="commandPaletteClose" type="button">Close</button>
+        </div>
+        <label class="command-palette-search">
+          <span>Search rooms, reports, source work, or exports</span>
+          <input id="commandPaletteSearch" type="search" placeholder="Try: source, PDF, trust, run, Reliance" autocomplete="off" />
+        </label>
+        <div class="command-palette-list" id="commandPaletteList"></div>
+      </section>
+    </div>
+
+    <div class="product-tour" id="productTour" aria-hidden="true">
+      <div class="product-tour-backdrop" data-product-tour-close></div>
+      <section class="product-tour-panel" role="dialog" aria-modal="true" aria-labelledby="productTourTitle">
+        <div class="product-tour-head">
+          <div>
+            <span id="productTourStepCount">Step 1 of 6</span>
+            <h2 id="productTourTitle">Start with a question</h2>
+          </div>
+          <button class="product-tour-close" id="productTourClose" type="button">Close</button>
+        </div>
+        <p id="productTourBody"></p>
+        <div class="product-tour-focus">
+          <span>Current room</span>
+          <strong id="productTourFocus">Research desk</strong>
+        </div>
+        <div class="product-tour-progress" id="productTourProgress" aria-label="Tour progress"></div>
+        <div class="product-tour-actions">
+          <button class="secondary-button" id="productTourPrev" type="button">Back</button>
+          <button class="secondary-button" id="productTourJump" type="button">Jump here</button>
+          <button class="primary-button" id="productTourNext" type="button">Next</button>
+        </div>
+      </section>
+    </div>
+
+    <button class="scroll-top-button" id="scrollTopButton" type="button" title="Back to top" aria-label="Back to top">
+      <span aria-hidden="true">&#8593;</span>
+    </button>
+
+    <script src="app.js?v=20260510-14"></script>
   </body>
 </html>
+
+

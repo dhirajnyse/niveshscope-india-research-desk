@@ -1,4 +1,4 @@
-"use strict";
+﻿"use strict";
 
 const STORAGE_KEYS = {
   uploads: "niveshscope-uploads-v1",
@@ -10,13 +10,19 @@ const STORAGE_KEYS = {
   evidenceVault: "niveshscope-evidence-vault-v1",
   memoReviews: "niveshscope-memo-reviews-v1",
   decisionJournal: "niveshscope-decision-journal-v1",
-  deskTasks: "niveshscope-desk-tasks-v1"
+  deskTasks: "niveshscope-desk-tasks-v1",
+  sessionTimeline: "niveshscope-session-timeline-v1",
+  recoveryVault: "niveshscope-recovery-vault-v1",
+  pilotFeedback: "niveshscope-pilot-feedback-v1",
+  tourSeen: "niveshscope-product-tour-seen-v1"
 };
 
 const WAITLIST_ENDPOINT = "https://formsubmit.co/ajax/dhirajnyse@gmail.com";
-const DATA_VERSION = "20260509-22";
-const RELEASE_LABEL = "v47 Source Review Gate";
-const RELEASE_PACKAGE_NAME = "niveshscope-github-pages-v47-source-review-gate.zip";
+const DATA_VERSION = "20260510-14";
+const RELEASE_LABEL = "v61 Pilot Feedback Room";
+const RELEASE_PACKAGE_NAME = "niveshscope-github-pages-v61-pilot-feedback-room.zip";
+const LIVE_SITE_URL = "https://dhirajnyse.github.io/niveshscope-india-research-desk/";
+const REPOSITORY_URL = "https://github.com/dhirajnyse/niveshscope-india-research-desk";
 const RELEASE_ROOT_MANIFEST = [
   { path: "index.html", kind: "file", role: "App entrypoint" },
   { path: "app.js", kind: "file", role: "Application logic" },
@@ -37,6 +43,7 @@ const MAX_IMPORT_FILE_BYTES = 2 * 1024 * 1024;
 const MAX_IMPORT_TOTAL_BYTES = 8 * 1024 * 1024;
 const MAX_SOURCE_TEXT_CHARS = 120000;
 const MAX_SOURCE_URL_LENGTH = 2048;
+const MAX_RECOVERY_POINTS = 5;
 const STARTER_PACK_TICKERS = ["RELIANCE", "TCS", "HDFCBANK"];
 const TRUSTED_SOURCE_DOMAINS = [
   "rilofficial.com",
@@ -61,6 +68,125 @@ const DATA_FILES = {
   questions: "data/questions.json",
   watchlists: "data/watchlists.json"
 };
+
+const QUICK_NAV_SECTIONS = [
+  { group: "Desk", label: "Research desk", href: "#desk", detail: "Ask and run analysis" },
+  { group: "Desk", label: "Session coach", href: "#session-coach", detail: "First research session path" },
+  { group: "Desk", label: "Handoff room", href: "#research-handoff", detail: "Pause and resume memo" },
+  { group: "Desk", label: "Session timeline", href: "#session-timeline", detail: "Activity trail and checkpoints" },
+  { group: "Desk", label: "Workspace snapshot", href: "#workspace-snapshot", detail: "Backup and restore browser workspace" },
+  { group: "Desk", label: "Recovery vault", href: "#recovery-vault", detail: "Local restore points and recovery" },
+  { group: "Desk", label: "Brief workbench", href: "#brief-workbench", detail: "Memo packet and gaps" },
+  { group: "Desk", label: "Readiness gate", href: "#investment-gate", detail: "Demo, review, committee posture" },
+  { group: "Review", label: "Review room", href: "#memo-review-room", detail: "Human memo decisions" },
+  { group: "Review", label: "Decision journal", href: "#decision-journal", detail: "Thesis and follow-up log" },
+  { group: "Review", label: "Review radar", href: "#review-radar", detail: "Due and overdue decisions" },
+  { group: "Portfolio", label: "Watchtower", href: "#portfolio-watchtower", detail: "Company readiness board" },
+  { group: "Portfolio", label: "Catalyst calendar", href: "#catalyst-calendar", detail: "Events and next actions" },
+  { group: "Portfolio", label: "Daily briefing", href: "#daily-briefing", detail: "Morning and source tasks" },
+  { group: "Portfolio", label: "Task board", href: "#desk-task-board", detail: "Persistent desk tasks" },
+  { group: "Portfolio", label: "Sprint planner", href: "#research-sprint-planner", detail: "Batch work and capacity" },
+  { group: "Output", label: "IC memo", href: "#ic-memo-builder", detail: "Committee pack builder" },
+  { group: "Output", label: "Claim trace", href: "#claim-trace-inspector", detail: "Answer support checks" },
+  { group: "Output", label: "Answer quality", href: "#answer-quality-lab", detail: "QA and export hygiene" },
+  { group: "Trust", label: "Trust center", href: "#trust-center", detail: "Security posture" },
+  { group: "Trust", label: "Operator coach", href: "#operator-coach", detail: "Recommended next move" },
+  { group: "Trust", label: "Evidence vault", href: "#evidence-vault", detail: "Saved citation memory" },
+  { group: "Trust", label: "Launch control", href: "#launch-control-room", detail: "Release readiness" },
+  { group: "Trust", label: "Release doctor", href: "#release-doctor", detail: "Upload-shape guard" },
+  { group: "Launch", label: "Upload wizard", href: "#pages-upload-wizard", detail: "GitHub Pages upload path" },
+  { group: "Launch", label: "Live doctor", href: "#live-site-doctor", detail: "Post-upload verification" },
+  { group: "Launch", label: "Release handoff", href: "#github-release-handoff", detail: "Commit and share notes" },
+  { group: "Launch", label: "Pilot demo", href: "#pilot-demo-room", detail: "5-minute pilot talk track" },
+  { group: "Launch", label: "Pilot feedback", href: "#pilot-feedback-room", detail: "Demo outcome and objections" },
+  { group: "Sources", label: "Source studio", href: "#source-builder", detail: "Build real records" },
+  { group: "Sources", label: "Source guide", href: "#guided-source-collector", detail: "One source task" },
+  { group: "Sources", label: "Citation extractor", href: "#source-citation-extractor", detail: "Passage mapping" },
+  { group: "Sources", label: "Review gate", href: "#source-review-gate", detail: "REAL source blocker check" },
+  { group: "Sources", label: "Intake doctor", href: "#source-intake-doctor", detail: "Source quality score" },
+  { group: "Sources", label: "Starter pack", href: "#real-starter", detail: "First three companies" },
+  { group: "Sources", label: "Coverage map", href: "#coverage-command", detail: "Evidence gap matrix" },
+  { group: "Sources", label: "Source queue", href: "#source-queue", detail: "Collection queue" },
+  { group: "Sources", label: "Acquisition hub", href: "#source-hub", detail: "Official source links" },
+  { group: "Sources", label: "Workspace", href: "#source-workspace", detail: "Collection batch" },
+  { group: "Launch", label: "Launch plan", href: "#foundation", detail: "Production foundation" },
+  { group: "Launch", label: "Pricing", href: "#pricing", detail: "Pilot packages" },
+  { group: "Launch", label: "Waitlist", href: "#waitlist", detail: "Pilot lead capture" }
+];
+
+const COMMAND_ACTIONS = [
+  { group: "Help", label: "Start guided tour", detail: "Walk through the core research workflow.", selector: "#productTourOpen", keywords: "tour guide help onboarding start walkthrough" },
+  { group: "Help", label: "Open session coach", detail: "See first-session progress and the next best action.", selector: "#sessionCoachOpen", keywords: "session coach first research checklist onboarding next action" },
+  { group: "Help", label: "Open research handoff", detail: "Create a pause/resume memo from the live desk state.", selector: "#handoffRoomOpen", keywords: "handoff resume pause checkpoint status note memory" },
+  { group: "Help", label: "Open session timeline", detail: "Review the research activity trail and checkpoints.", selector: "#sessionTimelineOpen", keywords: "timeline audit trail activity log checkpoint history" },
+  { group: "Help", label: "Open workspace snapshot", detail: "Export or restore the browser workspace.", selector: "#workspaceSnapshotOpen", keywords: "snapshot backup restore import export workspace local storage" },
+  { group: "Help", label: "Open recovery vault", detail: "Create or restore a local workspace checkpoint.", selector: "#recoveryVaultOpen", keywords: "recovery vault restore point backup local snapshot checkpoint" },
+  { group: "Desk action", label: "Run analysis", detail: "Run the current research question.", selector: "#runAnalysisButton", keywords: "ask answer research run analysis question" },
+  { group: "Desk action", label: "Scan disclosure", detail: "Scan the current question for source clues.", selector: "#scanFilingButton", keywords: "scan disclosure filing source" },
+  { group: "Report", label: "Export PDF", detail: "Download the current brief as a branded PDF.", selector: "#exportPdfBrief", keywords: "pdf report export download memo" },
+  { group: "Report", label: "Export Markdown", detail: "Download the current brief as editable Markdown.", selector: "#exportBrief", keywords: "md markdown export brief note" },
+  { group: "Report", label: "Save brief", detail: "Save the current answer in the browser.", selector: "#saveBrief", keywords: "save brief answer memory" },
+  { group: "Report", label: "Copy brief", detail: "Copy the current answer to clipboard.", selector: "#copyBrief", keywords: "copy brief answer clipboard" },
+  { group: "Source action", label: "Load next source task", detail: "Prepare the next missing REAL source in Source Studio.", selector: "#loadGuidedSourceTask", keywords: "source task real missing next collector" },
+  { group: "Source action", label: "Open next coverage gap", detail: "Jump to the next missing source slot.", selector: "#matrixNextGap", keywords: "coverage gap missing matrix source" },
+  { group: "Source action", label: "Generate source queue", detail: "Build the source collection task list.", selector: "#generateSourceTasks", keywords: "queue checklist generate source tasks" },
+  { group: "Source action", label: "Run source review gate", detail: "Check whether a REAL source is safe to save.", selector: "#runSourceReviewGate", keywords: "review gate blocker real source quality" },
+  { group: "Source action", label: "Check intake doctor", detail: "Score the current source identity, URL, and section depth.", selector: "#runSourceIntakeDoctor", keywords: "intake doctor source score quality" },
+  { group: "Source action", label: "Export source pack", detail: "Download the verified source-pack records.", selector: "#exportSourcePack", keywords: "source pack export json documents" },
+  { group: "Committee", label: "Copy IC memo", detail: "Copy the investment committee memo.", selector: "#copyIcMemo", keywords: "committee ic memo copy" },
+  { group: "Committee", label: "Export IC PDF", detail: "Download the committee memo PDF.", selector: "#exportIcMemoPdf", keywords: "committee ic memo pdf export" },
+  { group: "Trust", label: "Copy trust report", detail: "Copy the current Trust Center report.", selector: "#copyTrustReport", keywords: "trust security report copy" },
+  { group: "Trust", label: "Export trust report", detail: "Download the current Trust Center JSON.", selector: "#exportTrustReport", keywords: "trust security report export json" },
+  { group: "Launch", label: "Open upload wizard", detail: "Show GitHub Pages upload steps and live-site checks.", selector: "#pagesUploadWizardOpen", keywords: "github pages upload deploy root folder zip live url" },
+  { group: "Launch", label: "Open live site doctor", detail: "Verify the deployed GitHub Pages build after upload.", selector: "#liveSiteDoctorOpen", keywords: "live doctor verify deployment github pages cache release marker" },
+  { group: "Launch", label: "Open release handoff", detail: "Prepare the commit message, release notes, and verification handoff.", selector: "#githubReleaseHandoffOpen", keywords: "github release handoff commit notes upload share archive" },
+  { group: "Launch", label: "Open pilot demo room", detail: "Use the founder demo script and load a sample question.", selector: "#pilotDemoRoomOpen", keywords: "pilot demo room script talk track founder sample question" },
+  { group: "Launch", label: "Open pilot feedback room", detail: "Capture pilot outcome, objections, and follow-up tasks.", selector: "#pilotFeedbackRoomOpen", keywords: "pilot feedback outcome objection follow up demo crm" },
+  { group: "Launch", label: "Copy upload steps", detail: "Copy the GitHub Pages upload instructions.", selector: "#copyPagesUploadSteps", keywords: "copy upload instructions github pages root" },
+  { group: "Launch", label: "Copy live verification", detail: "Copy the post-upload verification report.", selector: "#copyLiveSiteVerification", keywords: "copy live verification deploy report github pages" },
+  { group: "Launch", label: "Copy release commit", detail: "Copy the suggested GitHub commit title and body.", selector: "#copyGithubCommitMessage", keywords: "copy commit message github release handoff" },
+  { group: "Launch", label: "Copy demo script", detail: "Copy the five-minute pilot demo talk track.", selector: "#copyPilotDemoScript", keywords: "copy demo script pilot talk track founder" },
+  { group: "Launch", label: "Copy feedback report", detail: "Copy the current pilot feedback summary.", selector: "#copyPilotFeedbackReport", keywords: "copy pilot feedback report objections follow up" }
+];
+
+const PRODUCT_TOUR_STEPS = [
+  {
+    title: "Start with a focused question",
+    room: "Research desk",
+    target: "#desk",
+    body: "Type or choose a research question, keep the selected ticker guard on for single-company work, then run analysis to create the first cited answer."
+  },
+  {
+    title: "Replace SYN evidence with REAL sources",
+    room: "Guided Source Collector",
+    target: "#guided-source-collector",
+    body: "Use the source guide to pick the next missing annual report, concall, results, shareholding, or announcement source. This keeps the work practical instead of hunting through the whole page."
+  },
+  {
+    title: "Paste, extract, and review source text",
+    room: "Source Studio",
+    target: "#source-builder",
+    body: "Paste official source text, let the assistant detect useful sections, run the Intake Doctor and Review Gate, then save only source records that pass the REAL-source checks."
+  },
+  {
+    title: "Check investment readiness",
+    room: "Readiness and answer quality",
+    target: "#investment-gate",
+    body: "Use the readiness gate and Answer Quality Lab to see whether the answer is still demo-only, review-ready, or strong enough for committee-style work."
+  },
+  {
+    title: "Package the research output",
+    room: "IC Memo and exports",
+    target: "#ic-memo-builder",
+    body: "Turn the answer into a committee memo, PDF, Markdown, or saved brief. The export tools keep the evidence posture visible instead of hiding the source quality."
+  },
+  {
+    title: "Move fast with Find and Nav",
+    room: "Command palette",
+    target: "#top",
+    body: "Use Find or Ctrl+K to search rooms, exports, source tasks, trust checks, and companies. Use the floating Nav button when you want a compact map of the desk."
+  }
+];
 
 const REAL_SOURCE_REQUIREMENTS = [
   {
@@ -306,6 +432,9 @@ const state = {
   memoReviews: [],
   decisionJournal: [],
   deskTasks: [],
+  sessionTimeline: [],
+  recoveryVault: [],
+  pilotFeedback: [],
   waitlistLeads: [],
   valuationCases: [],
   importReport: null,
@@ -326,6 +455,7 @@ const state = {
   icMemoMode: "committee",
   claimTraceMode: "answer",
   answerQualityMode: "release",
+  productTourIndex: 0,
   isRunning: false
 };
 
@@ -360,6 +490,9 @@ async function init() {
   state.memoReviews = loadJson(STORAGE_KEYS.memoReviews, []).map(normalizeMemoReview);
   state.decisionJournal = loadJson(STORAGE_KEYS.decisionJournal, []).map(normalizeDecisionEntry);
   state.deskTasks = loadJson(STORAGE_KEYS.deskTasks, []).map(normalizeDeskTask);
+  state.sessionTimeline = loadJson(STORAGE_KEYS.sessionTimeline, []).map(normalizeTimelineEvent).filter(Boolean);
+  state.recoveryVault = loadJson(STORAGE_KEYS.recoveryVault, []).map(normalizeRecoveryPoint).filter(Boolean).slice(0, MAX_RECOVERY_POINTS);
+  state.pilotFeedback = loadJson(STORAGE_KEYS.pilotFeedback, []).map(normalizePilotFeedbackEntry).filter(Boolean);
   state.waitlistLeads = loadJson(STORAGE_KEYS.waitlist, []);
   state.valuationCases = loadJson(STORAGE_KEYS.valuationCases, []);
   state.activeTickers = new Set(getDefaultWatchlistTickers());
@@ -394,6 +527,11 @@ async function init() {
   renderLibrary();
   renderImportSummary();
   renderContextBand();
+  renderSessionCoach();
+  renderResearchHandoff();
+  renderSessionTimeline();
+  renderWorkspaceSnapshot();
+  renderRecoveryVault();
   renderValuationOptions();
   renderCompanyDossier();
   renderValuationCases();
@@ -414,6 +552,12 @@ async function init() {
   renderAnswerQualityLab();
   renderTrustCenter();
   renderLaunchControlRoom();
+  renderPagesUploadWizard();
+  renderLiveSiteDoctor();
+  renderGithubReleaseHandoff();
+  renderPilotDemoRoom();
+  renderPilotFeedbackCompanyOptions();
+  renderPilotFeedbackRoom();
   bindEvents();
   updateValuationFromCompany();
   updateValuation();
@@ -675,6 +819,132 @@ function cacheElements() {
   els.saveBrief = document.querySelector("#saveBrief");
   els.exportBrief = document.querySelector("#exportBrief");
   els.exportPdfBrief = document.querySelector("#exportPdfBrief");
+  els.commandPaletteOpen = document.querySelector("#commandPaletteOpen");
+  els.commandPalette = document.querySelector("#commandPalette");
+  els.commandPaletteClose = document.querySelector("#commandPaletteClose");
+  els.commandPaletteSearch = document.querySelector("#commandPaletteSearch");
+  els.commandPaletteList = document.querySelector("#commandPaletteList");
+  els.productTourOpen = document.querySelector("#productTourOpen");
+  els.launchTourButton = document.querySelector("#launchTourButton");
+  els.sessionCoachOpen = document.querySelector("#sessionCoachOpen");
+  els.sessionCoachScore = document.querySelector("#sessionCoachScore");
+  els.sessionCoachSummary = document.querySelector("#sessionCoachSummary");
+  els.sessionCoachChecklist = document.querySelector("#sessionCoachChecklist");
+  els.sessionCoachActions = document.querySelector("#sessionCoachActions");
+  els.handoffRoomOpen = document.querySelector("#handoffRoomOpen");
+  els.researchHandoffStatus = document.querySelector("#researchHandoffStatus");
+  els.researchHandoffSummary = document.querySelector("#researchHandoffSummary");
+  els.researchHandoffNote = document.querySelector("#researchHandoffNote");
+  els.researchHandoffNext = document.querySelector("#researchHandoffNext");
+  els.openHandoffNextAction = document.querySelector("#openHandoffNextAction");
+  els.copyResearchHandoff = document.querySelector("#copyResearchHandoff");
+  els.exportResearchHandoff = document.querySelector("#exportResearchHandoff");
+  els.refreshResearchHandoff = document.querySelector("#refreshResearchHandoff");
+  els.researchHandoffResult = document.querySelector("#researchHandoffResult");
+  els.sessionTimelineOpen = document.querySelector("#sessionTimelineOpen");
+  els.sessionTimelineStatus = document.querySelector("#sessionTimelineStatus");
+  els.sessionTimelineSummary = document.querySelector("#sessionTimelineSummary");
+  els.sessionTimelineList = document.querySelector("#sessionTimelineList");
+  els.addTimelineCheckpoint = document.querySelector("#addTimelineCheckpoint");
+  els.copySessionTimeline = document.querySelector("#copySessionTimeline");
+  els.exportSessionTimeline = document.querySelector("#exportSessionTimeline");
+  els.clearSessionTimeline = document.querySelector("#clearSessionTimeline");
+  els.sessionTimelineResult = document.querySelector("#sessionTimelineResult");
+  els.workspaceSnapshotOpen = document.querySelector("#workspaceSnapshotOpen");
+  els.workspaceSnapshotStatus = document.querySelector("#workspaceSnapshotStatus");
+  els.workspaceSnapshotSummary = document.querySelector("#workspaceSnapshotSummary");
+  els.workspaceSnapshotList = document.querySelector("#workspaceSnapshotList");
+  els.exportWorkspaceSnapshot = document.querySelector("#exportWorkspaceSnapshot");
+  els.importWorkspaceSnapshot = document.querySelector("#importWorkspaceSnapshot");
+  els.workspaceSnapshotInput = document.querySelector("#workspaceSnapshotInput");
+  els.copyWorkspaceSnapshotManifest = document.querySelector("#copyWorkspaceSnapshotManifest");
+  els.refreshWorkspaceSnapshot = document.querySelector("#refreshWorkspaceSnapshot");
+  els.workspaceSnapshotResult = document.querySelector("#workspaceSnapshotResult");
+  els.recoveryVaultOpen = document.querySelector("#recoveryVaultOpen");
+  els.recoveryVaultStatus = document.querySelector("#recoveryVaultStatus");
+  els.recoveryVaultSummary = document.querySelector("#recoveryVaultSummary");
+  els.recoveryVaultList = document.querySelector("#recoveryVaultList");
+  els.createRecoveryPoint = document.querySelector("#createRecoveryPoint");
+  els.exportLatestRecoveryPoint = document.querySelector("#exportLatestRecoveryPoint");
+  els.copyRecoveryVaultReport = document.querySelector("#copyRecoveryVaultReport");
+  els.clearRecoveryVault = document.querySelector("#clearRecoveryVault");
+  els.recoveryVaultResult = document.querySelector("#recoveryVaultResult");
+  els.pagesUploadWizardOpen = document.querySelector("#pagesUploadWizardOpen");
+  els.pagesUploadWizardStatus = document.querySelector("#pagesUploadWizardStatus");
+  els.pagesUploadWizardSummary = document.querySelector("#pagesUploadWizardSummary");
+  els.pagesUploadWizardSteps = document.querySelector("#pagesUploadWizardSteps");
+  els.pagesUploadWizardFiles = document.querySelector("#pagesUploadWizardFiles");
+  els.copyPagesUploadSteps = document.querySelector("#copyPagesUploadSteps");
+  els.copyPagesUploadChecklist = document.querySelector("#copyPagesUploadChecklist");
+  els.exportPagesUploadPlan = document.querySelector("#exportPagesUploadPlan");
+  els.openPagesLiveUrl = document.querySelector("#openPagesLiveUrl");
+  els.pagesUploadWizardResult = document.querySelector("#pagesUploadWizardResult");
+  els.liveSiteDoctorOpen = document.querySelector("#liveSiteDoctorOpen");
+  els.liveSiteDoctorStatus = document.querySelector("#liveSiteDoctorStatus");
+  els.liveSiteDoctorSummary = document.querySelector("#liveSiteDoctorSummary");
+  els.liveSiteDoctorChecks = document.querySelector("#liveSiteDoctorChecks");
+  els.refreshLiveSiteDoctor = document.querySelector("#refreshLiveSiteDoctor");
+  els.copyLiveSiteVerification = document.querySelector("#copyLiveSiteVerification");
+  els.exportLiveSiteVerification = document.querySelector("#exportLiveSiteVerification");
+  els.openCacheBustedLive = document.querySelector("#openCacheBustedLive");
+  els.liveSiteDoctorResult = document.querySelector("#liveSiteDoctorResult");
+  els.githubReleaseHandoffOpen = document.querySelector("#githubReleaseHandoffOpen");
+  els.githubReleaseStatus = document.querySelector("#githubReleaseStatus");
+  els.githubReleaseSummary = document.querySelector("#githubReleaseSummary");
+  els.githubReleaseArtifacts = document.querySelector("#githubReleaseArtifacts");
+  els.githubReleasePreview = document.querySelector("#githubReleasePreview");
+  els.copyGithubCommitMessage = document.querySelector("#copyGithubCommitMessage");
+  els.copyGithubReleaseNotes = document.querySelector("#copyGithubReleaseNotes");
+  els.exportGithubReleaseHandoff = document.querySelector("#exportGithubReleaseHandoff");
+  els.openGithubRepository = document.querySelector("#openGithubRepository");
+  els.openGithubReleaseLive = document.querySelector("#openGithubReleaseLive");
+  els.githubReleaseResult = document.querySelector("#githubReleaseResult");
+  els.pilotDemoRoomOpen = document.querySelector("#pilotDemoRoomOpen");
+  els.pilotDemoStatus = document.querySelector("#pilotDemoStatus");
+  els.pilotDemoSummary = document.querySelector("#pilotDemoSummary");
+  els.pilotDemoScript = document.querySelector("#pilotDemoScript");
+  els.pilotDemoQuestions = document.querySelector("#pilotDemoQuestions");
+  els.loadPilotDemoQuestion = document.querySelector("#loadPilotDemoQuestion");
+  els.copyPilotDemoScript = document.querySelector("#copyPilotDemoScript");
+  els.copyPilotFollowup = document.querySelector("#copyPilotFollowup");
+  els.exportPilotDemoPack = document.querySelector("#exportPilotDemoPack");
+  els.pilotDemoResult = document.querySelector("#pilotDemoResult");
+  els.pilotFeedbackRoomOpen = document.querySelector("#pilotFeedbackRoomOpen");
+  els.pilotFeedbackStatus = document.querySelector("#pilotFeedbackStatus");
+  els.pilotFeedbackSummary = document.querySelector("#pilotFeedbackSummary");
+  els.pilotFeedbackForm = document.querySelector("#pilotFeedbackForm");
+  els.pilotFeedbackName = document.querySelector("#pilotFeedbackName");
+  els.pilotFeedbackProfile = document.querySelector("#pilotFeedbackProfile");
+  els.pilotFeedbackCompany = document.querySelector("#pilotFeedbackCompany");
+  els.pilotFeedbackOutcome = document.querySelector("#pilotFeedbackOutcome");
+  els.pilotFeedbackDate = document.querySelector("#pilotFeedbackDate");
+  els.pilotFeedbackSignal = document.querySelector("#pilotFeedbackSignal");
+  els.pilotFeedbackObjection = document.querySelector("#pilotFeedbackObjection");
+  els.pilotFeedbackNextStep = document.querySelector("#pilotFeedbackNextStep");
+  els.savePilotFeedback = document.querySelector("#savePilotFeedback");
+  els.openPilotFeedbackFollowup = document.querySelector("#openPilotFeedbackFollowup");
+  els.copyPilotFeedbackReport = document.querySelector("#copyPilotFeedbackReport");
+  els.exportPilotFeedbackReport = document.querySelector("#exportPilotFeedbackReport");
+  els.clearPilotFeedbackForm = document.querySelector("#clearPilotFeedbackForm");
+  els.pilotFeedbackList = document.querySelector("#pilotFeedbackList");
+  els.pilotFeedbackResult = document.querySelector("#pilotFeedbackResult");
+  els.productTour = document.querySelector("#productTour");
+  els.productTourClose = document.querySelector("#productTourClose");
+  els.productTourStepCount = document.querySelector("#productTourStepCount");
+  els.productTourTitle = document.querySelector("#productTourTitle");
+  els.productTourBody = document.querySelector("#productTourBody");
+  els.productTourFocus = document.querySelector("#productTourFocus");
+  els.productTourProgress = document.querySelector("#productTourProgress");
+  els.productTourPrev = document.querySelector("#productTourPrev");
+  els.productTourJump = document.querySelector("#productTourJump");
+  els.productTourNext = document.querySelector("#productTourNext");
+  els.quickNav = document.querySelector("#quickNav");
+  els.quickNavToggle = document.querySelector("#quickNavToggle");
+  els.quickNavPanel = document.querySelector("#quickNavPanel");
+  els.quickNavClose = document.querySelector("#quickNavClose");
+  els.quickNavSearch = document.querySelector("#quickNavSearch");
+  els.quickNavList = document.querySelector("#quickNavList");
+  els.scrollTopButton = document.querySelector("#scrollTopButton");
   els.notebookList = document.querySelector("#notebookList");
   els.clearNotes = document.querySelector("#clearNotes");
   els.waitlistForm = document.querySelector("#waitlistForm");
@@ -804,7 +1074,1596 @@ function getDefaultWatchlistTickers() {
   return tickers.filter((ticker) => SAMPLE_COMPANIES.some((company) => company.ticker === ticker));
 }
 
+function bindProductTour() {
+  if (!els.productTour) return;
+  const openTour = () => openProductTour(0);
+  els.productTourOpen?.addEventListener("click", openTour);
+  els.launchTourButton?.addEventListener("click", openTour);
+  els.productTourClose?.addEventListener("click", () => closeProductTour());
+  els.productTour.addEventListener("click", (event) => {
+    if (event.target.closest("[data-product-tour-close]")) closeProductTour();
+  });
+  els.productTourPrev?.addEventListener("click", () => setProductTourStep(state.productTourIndex - 1));
+  els.productTourNext?.addEventListener("click", () => {
+    if (state.productTourIndex >= PRODUCT_TOUR_STEPS.length - 1) {
+      closeProductTour();
+      return;
+    }
+    setProductTourStep(state.productTourIndex + 1);
+  });
+  els.productTourJump?.addEventListener("click", () => {
+    const step = PRODUCT_TOUR_STEPS[state.productTourIndex];
+    closeProductTour(false);
+    jumpToProductTourTarget(step.target);
+  });
+  els.productTourProgress?.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-tour-step]");
+    if (!button) return;
+    setProductTourStep(Number(button.dataset.tourStep));
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && els.productTour.getAttribute("aria-hidden") === "false") {
+      event.preventDefault();
+      closeProductTour();
+    }
+  });
+}
+
+function openProductTour(index = 0) {
+  if (!els.productTour) return;
+  els.productTour.setAttribute("aria-hidden", "false");
+  els.productTour.classList.add("is-open");
+  document.body.classList.add("product-tour-open");
+  setProductTourStep(index);
+  window.setTimeout(() => els.productTourNext?.focus(), 20);
+}
+
+function closeProductTour(markSeen = true) {
+  if (!els.productTour) return;
+  els.productTour.setAttribute("aria-hidden", "true");
+  els.productTour.classList.remove("is-open");
+  document.body.classList.remove("product-tour-open");
+  if (markSeen) saveJson(STORAGE_KEYS.tourSeen, { seenAt: new Date().toISOString(), release: RELEASE_LABEL });
+  renderSessionCoach();
+  els.productTourOpen?.focus();
+}
+
+function setProductTourStep(index) {
+  const lastIndex = PRODUCT_TOUR_STEPS.length - 1;
+  state.productTourIndex = Math.max(0, Math.min(lastIndex, Number(index) || 0));
+  renderProductTour();
+  jumpToProductTourTarget(PRODUCT_TOUR_STEPS[state.productTourIndex].target, true);
+}
+
+function renderProductTour() {
+  const step = PRODUCT_TOUR_STEPS[state.productTourIndex];
+  if (!step) return;
+  if (els.productTourStepCount) els.productTourStepCount.textContent = `Step ${state.productTourIndex + 1} of ${PRODUCT_TOUR_STEPS.length}`;
+  if (els.productTourTitle) els.productTourTitle.textContent = step.title;
+  if (els.productTourBody) els.productTourBody.textContent = step.body;
+  if (els.productTourFocus) els.productTourFocus.textContent = step.room;
+  if (els.productTourPrev) els.productTourPrev.disabled = state.productTourIndex === 0;
+  if (els.productTourNext) els.productTourNext.textContent = state.productTourIndex === PRODUCT_TOUR_STEPS.length - 1 ? "Finish" : "Next";
+  if (els.productTourProgress) {
+    els.productTourProgress.innerHTML = PRODUCT_TOUR_STEPS.map((candidate, index) => `
+      <button class="${index === state.productTourIndex ? "is-active" : ""}" type="button" data-tour-step="${index}" aria-label="Open tour step ${index + 1}">
+        <span>${index + 1}</span>
+        <strong>${escapeHtml(candidate.room)}</strong>
+      </button>
+    `).join("");
+  }
+}
+
+function jumpToProductTourTarget(target, quiet = false) {
+  if (target === "#top") {
+    window.history.replaceState(null, "", window.location.pathname + window.location.search);
+    window.scrollTo({ top: 0, behavior: quiet ? "auto" : "smooth" });
+    return;
+  }
+  const id = String(target || "").replace(/^#/, "");
+  const element = document.getElementById(id);
+  if (!element) return;
+  window.history.replaceState(null, "", `#${id}`);
+  element.scrollIntoView({ behavior: quiet ? "auto" : "smooth", block: "start" });
+}
+
+function bindSessionCoach() {
+  if (els.sessionCoachOpen) {
+    els.sessionCoachOpen.addEventListener("click", openSessionCoach);
+  }
+  if (!els.sessionCoachActions) return;
+  els.sessionCoachActions.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-session-action]");
+    if (!button) return;
+    runSessionCoachAction(button.dataset.sessionAction);
+  });
+}
+
+function openSessionCoach() {
+  renderSessionCoach();
+  const panel = document.querySelector("#session-coach");
+  if (!panel) return;
+  window.history.replaceState(null, "", "#session-coach");
+  panel.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function makeSessionCoachQuestion() {
+  const ticker = state.selectedTicker || STARTER_PACK_TICKERS[0] || "RELIANCE";
+  return `What are the risks for $${ticker}?`;
+}
+
+function prepareSessionCoachQuestion() {
+  if (!els.queryInput) return "";
+  const prompt = makeSessionCoachQuestion();
+  els.queryInput.value = prompt;
+  syncTickerFocus(prompt);
+  renderSessionCoach();
+  document.querySelector("#desk")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  return prompt;
+}
+
+function getSessionCoachSnapshot() {
+  const query = (els.queryInput?.value || "").trim();
+  const citations = state.currentCitations || [];
+  const sourceItems = buildSourceQueueItems();
+  const sourceCounts = countSourceQueueStatuses(sourceItems);
+  const realSlots = Number(sourceCounts.real || 0);
+  const totalSlots = sourceItems.length || getCompanies().length * REAL_SOURCE_REQUIREMENTS.length || 1;
+  const sourceTask = getGuidedSourceTask(sourceItems);
+  const meta = state.lastAnswerMeta || null;
+  const confidence = Number(meta?.confidence || 0);
+  const evidenceQuality = Number(meta?.evidenceQuality || 0);
+  const savedBriefs = Array.isArray(state.notes) ? state.notes.length : 0;
+  const tourSeen = Boolean(loadJson(STORAGE_KEYS.tourSeen, null));
+  const hasAnswer = Boolean(state.lastBrief && citations.length);
+  const hasReadiness = Boolean(meta && citations.length >= 3);
+  const hasRealEvidence = realSlots > 0 || (state.sourcePackDocs || []).some((doc) => normalizeSourceStatus(doc.sourceStatus) === "real");
+  const items = [
+    {
+      key: "question",
+      label: "Load the first question",
+      done: Boolean(query || state.lastBrief),
+      detail: query ? `Current prompt: ${query.slice(0, 90)}${query.length > 90 ? "..." : ""}` : `Suggested: ${makeSessionCoachQuestion()}`
+    },
+    {
+      key: "answer",
+      label: "Run a cited answer",
+      done: hasAnswer,
+      detail: hasAnswer ? `${citations.length} citations are attached to the current answer.` : "Create the first answer before judging readiness."
+    },
+    {
+      key: "readiness",
+      label: "Check answer readiness",
+      done: hasReadiness,
+      detail: hasReadiness ? `${confidence || 0}% confidence and ${evidenceQuality || 0}% evidence quality.` : "Target at least three cited passages before committee review."
+    },
+    {
+      key: "real",
+      label: "Replace one source with REAL evidence",
+      done: hasRealEvidence,
+      detail: hasRealEvidence ? `${realSlots}/${totalSlots} required source slots are REAL.` : sourceTask ? `Next source: ${sourceTask.company.ticker} ${sourceTask.requirement.label}.` : "Open Source Studio and collect the first official document."
+    },
+    {
+      key: "save",
+      label: "Save or export the first brief",
+      done: savedBriefs > 0,
+      detail: savedBriefs ? `${savedBriefs} saved brief${savedBriefs === 1 ? "" : "s"} in this browser.` : "Save the brief after the answer has a useful source trail."
+    },
+    {
+      key: "tour",
+      label: "Learn the map",
+      done: tourSeen,
+      detail: tourSeen ? "The guided tour has been completed in this browser." : "Use the tour once so the rooms stop feeling like a maze."
+    }
+  ];
+  const completed = items.filter((item) => item.done).length;
+  const next = items.find((item) => !item.done) || items[items.length - 1];
+  return {
+    items,
+    next,
+    sourceTask,
+    score: Math.round((completed / items.length) * 100),
+    completed,
+    total: items.length,
+    hasAnswer,
+    hasRealEvidence,
+    savedBriefs
+  };
+}
+
+function renderSessionCoach() {
+  if (!els.sessionCoachChecklist || !els.sessionCoachSummary || !els.sessionCoachActions) return;
+  const snapshot = getSessionCoachSnapshot();
+  if (els.sessionCoachScore) {
+    els.sessionCoachScore.textContent = `${snapshot.score}%`;
+  }
+  const nextDetail = snapshot.next ? snapshot.next.detail : "You have a clean first-session path.";
+  els.sessionCoachSummary.innerHTML = `
+    <article class="${snapshot.score >= 80 ? "is-ready" : "is-active"}">
+      <span>${snapshot.score >= 80 ? "Session almost ready" : "Next best move"}</span>
+      <strong>${escapeHtml(snapshot.next ? snapshot.next.label : "Keep building")}</strong>
+      <p>${escapeHtml(nextDetail)}</p>
+    </article>
+    <article>
+      <span>Progress</span>
+      <strong>${snapshot.completed}/${snapshot.total}</strong>
+      <p>Question, answer, readiness, REAL source, saved output, and navigation habit.</p>
+    </article>
+  `;
+  els.sessionCoachChecklist.innerHTML = snapshot.items.map((item) => `
+    <article class="${item.done ? "is-done" : item === snapshot.next ? "is-next" : "is-waiting"}">
+      <span>${item.done ? "Done" : item === snapshot.next ? "Next" : "Queued"}</span>
+      <strong>${escapeHtml(item.label)}</strong>
+      <p>${escapeHtml(item.detail)}</p>
+    </article>
+  `).join("");
+  const primaryAction = snapshot.next?.key === "question"
+    ? { label: "Load sample question", action: "question", style: "primary-button" }
+    : snapshot.next?.key === "answer"
+      ? { label: "Run first answer", action: "run", style: "primary-button" }
+      : snapshot.next?.key === "readiness"
+        ? { label: "Open readiness gate", action: "readiness", style: "primary-button" }
+        : snapshot.next?.key === "real"
+          ? { label: "Open source task", action: "source", style: "primary-button" }
+          : snapshot.next?.key === "save"
+            ? { label: "Save brief", action: "save", style: "primary-button" }
+            : { label: "Start tour", action: "tour", style: "primary-button" };
+  const actions = [
+    primaryAction,
+    { label: "Start tour", action: "tour", style: "secondary-button" },
+    { label: "Open source task", action: "source", style: "secondary-button" },
+    { label: "Export PDF", action: "pdf", style: "secondary-button" },
+    { label: "Find command", action: "palette", style: "secondary-button" }
+  ];
+  els.sessionCoachActions.innerHTML = actions.map((action) => `
+    <button class="${escapeAttr(action.style)} small" type="button" data-session-action="${escapeAttr(action.action)}">${escapeHtml(action.label)}</button>
+  `).join("");
+  renderResearchHandoff();
+}
+
+function runSessionCoachAction(action) {
+  if (action === "question") {
+    prepareSessionCoachQuestion();
+    return;
+  }
+  if (action === "run") {
+    const prompt = (els.queryInput?.value || "").trim() || prepareSessionCoachQuestion();
+    if (prompt) runAnalysis(prompt);
+    renderSessionCoach();
+    return;
+  }
+  if (action === "tour") {
+    openProductTour(0);
+    return;
+  }
+  if (action === "source") {
+    loadGuidedSourceTask();
+    renderSessionCoach();
+    return;
+  }
+  if (action === "readiness") {
+    document.querySelector("#investment-gate")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    renderInvestmentGate({ focus: true });
+    return;
+  }
+  if (action === "save") {
+    saveCurrentBrief();
+    renderSessionCoach();
+    return;
+  }
+  if (action === "pdf") {
+    exportPdfBrief();
+    renderSessionCoach();
+    return;
+  }
+  if (action === "palette") {
+    openCommandPalette();
+  }
+}
+
+function bindResearchHandoff() {
+  els.handoffRoomOpen?.addEventListener("click", openResearchHandoff);
+  els.openHandoffNextAction?.addEventListener("click", openResearchHandoffNextAction);
+  els.copyResearchHandoff?.addEventListener("click", copyResearchHandoff);
+  els.exportResearchHandoff?.addEventListener("click", exportResearchHandoff);
+  els.refreshResearchHandoff?.addEventListener("click", () => {
+    renderResearchHandoff();
+    flashResearchHandoffResult("Handoff refreshed from the live desk state.", "success");
+  });
+}
+
+function openResearchHandoff() {
+  renderResearchHandoff();
+  const panel = document.querySelector("#research-handoff");
+  if (!panel) return;
+  window.history.replaceState(null, "", "#research-handoff");
+  panel.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function makeResearchHandoffSnapshot() {
+  const session = getSessionCoachSnapshot();
+  const audit = makeLaunchAudit();
+  const coach = makeOperatorCoach(audit);
+  const packet = audit.packet || makeBriefPacket();
+  const gate = makeInvestmentGateAudit();
+  const quality = audit.answerQuality || makeAnswerQualityAudit("release");
+  const sourceItems = buildSourceQueueItems();
+  const sourceCounts = countSourceQueueStatuses(sourceItems);
+  const task = session.sourceTask || getGuidedSourceTask(sourceItems);
+  const focusTicker = normalizeTicker(packet.meta?.ticker || state.selectedTicker || STARTER_PACK_TICKERS[0] || "RELIANCE");
+  const focusCompany = getCompany(focusTicker);
+  const question = (els.queryInput?.value || "").trim();
+  const citations = state.currentCitations || [];
+  const savedBriefs = Array.isArray(state.notes) ? state.notes.length : 0;
+  const latestNote = savedBriefs ? state.notes[0] : null;
+  const nextAction = coach.primaryAction || {
+    action: session.next?.key || "desk",
+    title: session.next?.label || "Open the desk",
+    detail: session.next?.detail || "Continue the first research session.",
+    buttonLabel: "Open next action"
+  };
+  const statusClass = coach.score >= 72
+    ? "is-ready"
+    : coach.score >= 35
+      ? "is-review"
+      : "is-blocked";
+  const statusLabel = packet.hasBrief
+    ? coach.stageLabel
+    : question
+      ? "Question loaded"
+      : "No live question";
+  const summary = packet.hasBrief
+    ? `${focusTicker} has a live answer with ${citations.length} citations. ${coach.headline}`
+    : question
+      ? `A question is loaded for ${focusTicker}; run the answer to create a handoff with citations.`
+      : `Start with ${focusTicker} by loading or running a risk question.`;
+  const nextSteps = [
+    {
+      label: nextAction.title || "Open next action",
+      detail: nextAction.detail || "Use the operator action to keep the work moving."
+    },
+    {
+      label: task ? `Replace ${task.company.ticker} ${task.requirement.label}` : "Check source gaps",
+      detail: task ? task.requirement.instruction : "The coverage map will show the next missing official source."
+    },
+    {
+      label: savedBriefs ? "Review saved brief trail" : "Save the first useful brief",
+      detail: savedBriefs ? `${savedBriefs} saved brief${savedBriefs === 1 ? "" : "s"} are available in this browser.` : "Save or export once the answer has enough source support."
+    }
+  ];
+  return {
+    generatedAt: new Date().toISOString(),
+    releaseLabel: RELEASE_LABEL,
+    focus: {
+      ticker: focusTicker,
+      company: focusCompany ? focusCompany.name : focusTicker
+    },
+    question: question || "No live question loaded",
+    statusLabel,
+    statusClass,
+    summary,
+    session,
+    coach,
+    packet,
+    gate,
+    quality,
+    sourceCounts,
+    task,
+    nextAction,
+    nextSteps,
+    metrics: [
+      { label: "Session", value: `${session.score}%`, detail: `${session.completed}/${session.total} first-session steps` },
+      { label: "Answer", value: packet.hasBrief ? `${citations.length} citations` : "None", detail: packet.hasBrief ? packet.statusLabel : "Run analysis first" },
+      { label: "Gate", value: `${gate.score}%`, detail: gate.statusLabel },
+      { label: "REAL coverage", value: `${sourceCounts.real || 0}/${sourceItems.length || 0}`, detail: `${sourceCounts.synthetic || 0} SYN starter, ${sourceCounts.missing || 0} missing` },
+      { label: "QA", value: quality.hasBrief ? `${quality.score}%` : "None", detail: quality.statusLabel },
+      { label: "Saved", value: savedBriefs, detail: latestNote ? latestNote.title : "No saved brief yet" }
+    ]
+  };
+}
+
+function renderResearchHandoff() {
+  if (!els.researchHandoffSummary || !els.researchHandoffNote || !els.researchHandoffNext) return;
+  const handoff = makeResearchHandoffSnapshot();
+  if (els.researchHandoffStatus) els.researchHandoffStatus.textContent = handoff.statusLabel;
+  if (els.openHandoffNextAction) {
+    els.openHandoffNextAction.disabled = !handoff.nextAction;
+    els.openHandoffNextAction.textContent = handoff.nextAction?.buttonLabel || "Open next action";
+  }
+  els.researchHandoffSummary.innerHTML = `
+    <div class="research-handoff-hero ${escapeAttr(handoff.statusClass)}">
+      <div>
+        <span>${escapeHtml(handoff.statusLabel)}</span>
+        <strong>${escapeHtml(handoff.focus.ticker)} - ${escapeHtml(handoff.focus.company)}</strong>
+        <p>${escapeHtml(handoff.summary)}</p>
+      </div>
+      <div class="research-handoff-score">
+        <span>Resume score</span>
+        <strong>${escapeHtml(Math.max(handoff.session.score, handoff.coach.score))}%</strong>
+      </div>
+    </div>
+    <div class="research-handoff-metrics">
+      ${handoff.metrics.map((metric) => `
+        <article>
+          <span>${escapeHtml(metric.label)}</span>
+          <strong>${escapeHtml(metric.value)}</strong>
+          <em>${escapeHtml(metric.detail)}</em>
+        </article>
+      `).join("")}
+    </div>
+  `;
+  els.researchHandoffNote.innerHTML = `
+    <article>
+      <span>Pause memo</span>
+      <strong>${escapeHtml(handoff.question)}</strong>
+      <p>${escapeHtml(makeResearchHandoffPlainSummary(handoff))}</p>
+    </article>
+  `;
+  els.researchHandoffNext.innerHTML = handoff.nextSteps.map((step, index) => `
+    <article class="${index === 0 ? "is-next" : ""}">
+      <span>${index === 0 ? "Next" : "Then"}</span>
+      <strong>${escapeHtml(step.label)}</strong>
+      <p>${escapeHtml(step.detail)}</p>
+    </article>
+  `).join("");
+}
+
+function makeResearchHandoffPlainSummary(handoff) {
+  const sourceTask = handoff.task
+    ? `${handoff.task.company.ticker} ${handoff.task.requirement.label}`
+    : "coverage map";
+  return [
+    `Current focus is ${handoff.focus.ticker}.`,
+    `Question: ${handoff.question}.`,
+    `Answer status: ${handoff.packet.hasBrief ? `${handoff.packet.statusLabel} with ${handoff.packet.citations?.length || state.currentCitations.length} citations` : "no live answer yet"}.`,
+    `Readiness gate: ${handoff.gate.score}% (${handoff.gate.statusLabel}).`,
+    `Next source task: ${sourceTask}.`,
+    `Next operator move: ${handoff.nextAction?.title || "Open the desk"}.`
+  ].join(" ");
+}
+
+function makeResearchHandoffJson(handoff = makeResearchHandoffSnapshot()) {
+  return {
+    product: "NiveshScope",
+    release: handoff.releaseLabel,
+    generatedAt: handoff.generatedAt,
+    focus: handoff.focus,
+    question: handoff.question,
+    status: handoff.statusLabel,
+    summary: handoff.summary,
+    session: {
+      score: handoff.session.score,
+      completed: handoff.session.completed,
+      total: handoff.session.total,
+      next: handoff.session.next
+    },
+    answer: {
+      hasBrief: handoff.packet.hasBrief,
+      status: handoff.packet.statusLabel,
+      citationCount: state.currentCitations.length
+    },
+    gate: {
+      score: handoff.gate.score,
+      status: handoff.gate.statusLabel
+    },
+    quality: {
+      score: handoff.quality.score,
+      status: handoff.quality.statusLabel
+    },
+    sources: handoff.sourceCounts,
+    nextAction: handoff.nextAction,
+    nextSteps: handoff.nextSteps
+  };
+}
+
+function makeResearchHandoffMarkdown(handoff = makeResearchHandoffSnapshot()) {
+  const metrics = handoff.metrics.map((metric) => `- ${metric.label}: ${metric.value} - ${metric.detail}`).join("\n");
+  const nextSteps = handoff.nextSteps.map((step, index) => `${index + 1}. ${step.label} - ${step.detail}`).join("\n");
+  return [
+    `# NiveshScope ${handoff.releaseLabel} Research Handoff`,
+    "",
+    `Generated: ${new Date().toLocaleString()}`,
+    `Focus: ${handoff.focus.ticker} - ${handoff.focus.company}`,
+    `Question: ${handoff.question}`,
+    `Status: ${handoff.statusLabel}`,
+    "",
+    "## Pause Memo",
+    "",
+    makeResearchHandoffPlainSummary(handoff),
+    "",
+    "## Metrics",
+    "",
+    metrics,
+    "",
+    "## Next Steps",
+    "",
+    nextSteps,
+    "",
+    "_This handoff is generated from the current browser state. Verify REAL source records before investment use._"
+  ].join("\n");
+}
+
+function openResearchHandoffNextAction() {
+  openOperatorCoachAction();
+  renderResearchHandoff();
+  addSessionTimelineEvent({
+    type: "checkpoint",
+    title: "Handoff next action opened",
+    detail: "The handoff resumed work through Operator Coach.",
+    ticker: state.selectedTicker
+  }, { quiet: true });
+  flashResearchHandoffResult("Next operator action opened from the handoff.", "success");
+}
+
+async function copyResearchHandoff() {
+  const copied = await copyTextToClipboard(makeResearchHandoffMarkdown());
+  if (copied) {
+    addSessionTimelineEvent({
+      type: "copy",
+      title: "Research handoff copied",
+      detail: "Markdown handoff was copied from the live desk state.",
+      ticker: state.selectedTicker
+    }, { quiet: true });
+  }
+  flashResearchHandoffResult(copied ? "Research handoff copied." : "Clipboard blocked. Use Export handoff instead.", copied ? "success" : "error");
+}
+
+function exportResearchHandoff() {
+  const date = new Date().toISOString().slice(0, 10);
+  downloadTextFile(`niveshscope-research-handoff-v61-${date}.json`, JSON.stringify(makeResearchHandoffJson(), null, 2), "application/json;charset=utf-8");
+  addSessionTimelineEvent({
+    type: "export",
+    title: "Research handoff exported",
+    detail: "JSON handoff was downloaded for pause/resume records.",
+    ticker: state.selectedTicker
+  }, { quiet: true });
+  flashResearchHandoffResult("Research handoff exported.", "success");
+}
+
+function flashResearchHandoffResult(message, tone = "neutral") {
+  if (!els.researchHandoffResult) return;
+  els.researchHandoffResult.className = `builder-result is-${tone}`;
+  els.researchHandoffResult.textContent = message;
+}
+
+function bindSessionTimeline() {
+  els.sessionTimelineOpen?.addEventListener("click", openSessionTimeline);
+  els.addTimelineCheckpoint?.addEventListener("click", addManualTimelineCheckpoint);
+  els.copySessionTimeline?.addEventListener("click", copySessionTimeline);
+  els.exportSessionTimeline?.addEventListener("click", exportSessionTimeline);
+  els.clearSessionTimeline?.addEventListener("click", clearSessionTimeline);
+}
+
+function openSessionTimeline() {
+  renderSessionTimeline();
+  const panel = document.querySelector("#session-timeline");
+  if (!panel) return;
+  window.history.replaceState(null, "", "#session-timeline");
+  panel.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function normalizeTimelineEvent(event) {
+  if (!event || typeof event !== "object") return null;
+  const at = event.at || new Date().toISOString();
+  const title = String(event.title || "Research event").trim().slice(0, 140);
+  const detail = String(event.detail || "").trim().slice(0, 320);
+  return {
+    id: event.id || `event-${Date.now()}-${Math.random().toString(16).slice(2, 8)}`,
+    at,
+    type: String(event.type || "checkpoint").trim().slice(0, 40),
+    title,
+    detail,
+    ticker: normalizeTicker(event.ticker || state.selectedTicker || ""),
+    question: String(event.question || els.queryInput?.value || "").trim().slice(0, 220),
+    release: event.release || RELEASE_LABEL,
+    metrics: {
+      citations: Number(event.metrics?.citations || state.currentCitations.length || 0),
+      savedBriefs: Number(event.metrics?.savedBriefs || state.notes.length || 0),
+      realSources: Number(event.metrics?.realSources || countSourceQueueStatuses(buildSourceQueueItems()).real || 0)
+    }
+  };
+}
+
+function addSessionTimelineEvent(event, { quiet = false } = {}) {
+  const normalized = normalizeTimelineEvent(event);
+  if (!normalized) return null;
+  state.sessionTimeline = [normalized, ...(state.sessionTimeline || [])].slice(0, 60);
+  saveJson(STORAGE_KEYS.sessionTimeline, state.sessionTimeline);
+  renderSessionTimeline();
+  if (!quiet) flashSessionTimelineResult("Timeline updated.", "success");
+  return normalized;
+}
+
+function addManualTimelineCheckpoint() {
+  const handoff = makeResearchHandoffSnapshot();
+  addSessionTimelineEvent({
+    type: "checkpoint",
+    title: `Checkpoint: ${handoff.focus.ticker} ${handoff.statusLabel}`,
+    detail: makeResearchHandoffPlainSummary(handoff),
+    ticker: handoff.focus.ticker,
+    question: handoff.question,
+    metrics: {
+      citations: state.currentCitations.length,
+      savedBriefs: state.notes.length,
+      realSources: handoff.sourceCounts.real || 0
+    }
+  });
+}
+
+function renderSessionTimeline() {
+  if (!els.sessionTimelineSummary || !els.sessionTimelineList) return;
+  const events = (state.sessionTimeline || []).map(normalizeTimelineEvent).filter(Boolean);
+  const latest = events[0] || null;
+  const sourceEvents = events.filter((event) => /source/i.test(event.type)).length;
+  const answerEvents = events.filter((event) => /answer|analysis/i.test(event.type)).length;
+  const exportEvents = events.filter((event) => /export|copy|save/i.test(event.type)).length;
+  if (els.sessionTimelineStatus) {
+    els.sessionTimelineStatus.textContent = `${events.length} event${events.length === 1 ? "" : "s"}`;
+  }
+  els.sessionTimelineSummary.innerHTML = `
+    <article class="${latest ? "is-live" : "is-empty"}">
+      <span>${latest ? "Latest event" : "Waiting"}</span>
+      <strong>${escapeHtml(latest ? latest.title : "No events logged yet")}</strong>
+      <p>${escapeHtml(latest ? latest.detail || formatTimelineDate(latest.at) : "Run an analysis, save a brief, add a source, export a handoff, or add a manual checkpoint.")}</p>
+    </article>
+    <article>
+      <span>Answer events</span>
+      <strong>${escapeHtml(answerEvents)}</strong>
+      <p>Questions and analysis runs captured in this browser.</p>
+    </article>
+    <article>
+      <span>Source events</span>
+      <strong>${escapeHtml(sourceEvents)}</strong>
+      <p>Source tasks and live-corpus saves.</p>
+    </article>
+    <article>
+      <span>Output events</span>
+      <strong>${escapeHtml(exportEvents)}</strong>
+      <p>Saved, copied, or exported research artifacts.</p>
+    </article>
+  `;
+  els.sessionTimelineList.innerHTML = events.length
+    ? events.map((event) => `
+      <article class="timeline-event is-${escapeAttr(timelineEventClass(event.type))}">
+        <div>
+          <span>${escapeHtml(formatTimelineDate(event.at))}</span>
+          <strong>${escapeHtml(event.title)}</strong>
+          <p>${escapeHtml(event.detail || "No extra detail captured.")}</p>
+        </div>
+        <dl>
+          <div><dt>Ticker</dt><dd>${escapeHtml(event.ticker || "Desk")}</dd></div>
+          <div><dt>Citations</dt><dd>${escapeHtml(event.metrics.citations)}</dd></div>
+          <div><dt>REAL</dt><dd>${escapeHtml(event.metrics.realSources)}</dd></div>
+        </dl>
+      </article>
+    `).join("")
+    : `<div class="empty-list">Session events will appear here as the desk runs answers, saves briefs, adds sources, or exports handoffs.</div>`;
+  renderWorkspaceSnapshot();
+  renderRecoveryVault();
+}
+
+function timelineEventClass(type) {
+  if (/source/i.test(type)) return "source";
+  if (/answer|analysis/i.test(type)) return "answer";
+  if (/save|export|copy/i.test(type)) return "output";
+  return "checkpoint";
+}
+
+function formatTimelineDate(value) {
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? "Just now" : date.toLocaleString();
+}
+
+function makeSessionTimelineMarkdown(events = state.sessionTimeline || []) {
+  const rows = events.map(normalizeTimelineEvent).filter(Boolean).map((event, index) => [
+    `${index + 1}. ${event.title}`,
+    `   Time: ${formatTimelineDate(event.at)}`,
+    `   Type: ${event.type}`,
+    `   Ticker: ${event.ticker || "Desk"}`,
+    `   Detail: ${event.detail || "No detail captured."}`
+  ].join("\n"));
+  return [
+    `# NiveshScope ${RELEASE_LABEL} Session Timeline`,
+    "",
+    `Generated: ${new Date().toLocaleString()}`,
+    `Events: ${events.length}`,
+    "",
+    "## Activity",
+    "",
+    rows.join("\n\n") || "No timeline events logged yet.",
+    "",
+    "_Timeline entries are browser-local until exported or copied._"
+  ].join("\n");
+}
+
+async function copySessionTimeline() {
+  const copied = await copyTextToClipboard(makeSessionTimelineMarkdown());
+  flashSessionTimelineResult(copied ? "Timeline copied." : "Clipboard blocked. Use Export timeline instead.", copied ? "success" : "error");
+}
+
+function exportSessionTimeline() {
+  const date = new Date().toISOString().slice(0, 10);
+  downloadTextFile(`niveshscope-session-timeline-v61-${date}.json`, JSON.stringify(state.sessionTimeline || [], null, 2), "application/json;charset=utf-8");
+  addSessionTimelineEvent({
+    type: "export",
+    title: "Session timeline exported",
+    detail: "Timeline JSON was downloaded for local records."
+  }, { quiet: true });
+  flashSessionTimelineResult("Timeline exported.", "success");
+}
+
+function clearSessionTimeline() {
+  state.sessionTimeline = [];
+  saveJson(STORAGE_KEYS.sessionTimeline, []);
+  renderSessionTimeline();
+  flashSessionTimelineResult("Timeline cleared in this browser.", "neutral");
+}
+
+function flashSessionTimelineResult(message, tone = "neutral") {
+  if (!els.sessionTimelineResult) return;
+  els.sessionTimelineResult.className = `builder-result is-${tone}`;
+  els.sessionTimelineResult.textContent = message;
+}
+
+function bindWorkspaceSnapshot() {
+  els.workspaceSnapshotOpen?.addEventListener("click", openWorkspaceSnapshot);
+  els.exportWorkspaceSnapshot?.addEventListener("click", exportWorkspaceSnapshot);
+  els.importWorkspaceSnapshot?.addEventListener("click", () => els.workspaceSnapshotInput?.click());
+  els.copyWorkspaceSnapshotManifest?.addEventListener("click", copyWorkspaceSnapshotManifest);
+  els.refreshWorkspaceSnapshot?.addEventListener("click", () => {
+    renderWorkspaceSnapshot();
+    flashWorkspaceSnapshotResult("Workspace snapshot refreshed.", "success");
+  });
+  els.workspaceSnapshotInput?.addEventListener("change", async () => {
+    const file = els.workspaceSnapshotInput.files && els.workspaceSnapshotInput.files[0];
+    if (file) await importWorkspaceSnapshotFile(file);
+    els.workspaceSnapshotInput.value = "";
+  });
+}
+
+function openWorkspaceSnapshot() {
+  renderWorkspaceSnapshot();
+  const panel = document.querySelector("#workspace-snapshot");
+  if (!panel) return;
+  window.history.replaceState(null, "", "#workspace-snapshot");
+  panel.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function makeWorkspaceSnapshotAudit() {
+  const storageItems = getWorkspaceStorageItems();
+  const counts = {
+    savedBriefs: state.notes.length,
+    sourceRecords: state.sourcePackDocs.length,
+    uploadedDocs: state.uploadedDocs.length,
+    evidenceVault: state.evidenceVault.length,
+    reviews: state.memoReviews.length,
+    decisions: state.decisionJournal.length,
+    deskTasks: state.deskTasks.length,
+    timeline: state.sessionTimeline.length,
+    pilotFeedback: state.pilotFeedback.length,
+    valuationCases: state.valuationCases.length
+  };
+  const totalArtifacts = Object.values(counts).reduce((sum, value) => sum + Number(value || 0), 0);
+  const storedItems = storageItems.filter((item) => item.stored).length;
+  const bytes = storageItems.reduce((sum, item) => sum + item.bytes, 0);
+  const sourceCounts = countSourceQueueStatuses(buildSourceQueueItems());
+  const statusLabel = totalArtifacts ? "Backup recommended" : "Fresh workspace";
+  const statusClass = totalArtifacts ? "is-live" : "is-empty";
+  const summary = totalArtifacts
+    ? `${totalArtifacts} browser-local artifact${totalArtifacts === 1 ? "" : "s"} can be exported into one restore file.`
+    : "No browser-local research artifacts yet. Run analysis, save a brief, or add a source to create workspace state.";
+  return {
+    generatedAt: new Date().toISOString(),
+    statusLabel,
+    statusClass,
+    summary,
+    counts,
+    totalArtifacts,
+    storedItems,
+    bytes,
+    storageItems,
+    realSources: sourceCounts.real || 0,
+    openSourceGaps: (sourceCounts.missing || 0) + (sourceCounts.synthetic || 0),
+    activeDesk: {
+      selectedTicker: state.selectedTicker || "",
+      question: els.queryInput?.value || "",
+      answerDepth: state.answerDepth,
+      onlySelectedTicker: Boolean(state.onlySelectedTicker),
+      currentCitations: state.currentCitations.length,
+      lastAnswerTicker: state.lastAnswerMeta?.ticker || "",
+      lastAnswerConfidence: state.lastAnswerMeta?.confidence || 0
+    }
+  };
+}
+
+function getWorkspaceStorageItems() {
+  return getWorkspaceSnapshotStorageEntries().map(([name, key]) => {
+    const raw = localStorage.getItem(key);
+    const parsed = parseJsonSafe(raw);
+    return {
+      name,
+      key,
+      label: workspaceStorageLabel(name),
+      stored: raw !== null,
+      bytes: raw ? raw.length : 0,
+      records: workspaceStorageRecordCount(parsed, raw)
+    };
+  });
+}
+
+function getWorkspaceSnapshotStorageEntries() {
+  return Object.entries(STORAGE_KEYS).filter(([name]) => name !== "recoveryVault");
+}
+
+function workspaceStorageLabel(name) {
+  return ({
+    uploads: "Uploaded docs",
+    notes: "Saved briefs",
+    waitlist: "Waitlist leads",
+    valuationCases: "Valuation cases",
+    sourcePack: "Source-pack records",
+    sourceProgress: "Source progress",
+    evidenceVault: "Evidence vault",
+    memoReviews: "Memo reviews",
+    decisionJournal: "Decision journal",
+    deskTasks: "Desk tasks",
+    sessionTimeline: "Session timeline",
+    pilotFeedback: "Pilot feedback",
+    recoveryVault: "Recovery vault",
+    tourSeen: "Tour state"
+  })[name] || name;
+}
+
+function workspaceStorageRecordCount(parsed, raw) {
+  if (Array.isArray(parsed)) return parsed.length;
+  if (parsed && typeof parsed === "object") return Object.keys(parsed).length;
+  return raw ? 1 : 0;
+}
+
+function renderWorkspaceSnapshot() {
+  if (!els.workspaceSnapshotSummary || !els.workspaceSnapshotList) return;
+  const audit = makeWorkspaceSnapshotAudit();
+  if (els.workspaceSnapshotStatus) {
+    els.workspaceSnapshotStatus.textContent = audit.statusLabel;
+  }
+  els.workspaceSnapshotSummary.innerHTML = `
+    <article class="${escapeAttr(audit.statusClass)}">
+      <span>Workspace posture</span>
+      <strong>${escapeHtml(audit.totalArtifacts)} artifacts</strong>
+      <p>${escapeHtml(audit.summary)}</p>
+    </article>
+    <article>
+      <span>Saved briefs</span>
+      <strong>${escapeHtml(audit.counts.savedBriefs)}</strong>
+      <p>Browser-local answers and notes.</p>
+    </article>
+    <article>
+      <span>Source records</span>
+      <strong>${escapeHtml(audit.counts.sourceRecords)}</strong>
+      <p>${escapeHtml(audit.realSources)} REAL slots visible across coverage.</p>
+    </article>
+    <article>
+      <span>Snapshot size</span>
+      <strong>${escapeHtml(formatBytes(audit.bytes))}</strong>
+      <p>${escapeHtml(audit.storedItems)} local stores included.</p>
+    </article>
+  `;
+  els.workspaceSnapshotList.innerHTML = `
+    <article class="workspace-snapshot-active">
+      <span>Active desk</span>
+      <strong>${escapeHtml(audit.activeDesk.selectedTicker || "Desk")} ${audit.activeDesk.currentCitations ? `| ${audit.activeDesk.currentCitations} citations` : "| no live answer"}</strong>
+      <p>${escapeHtml(audit.activeDesk.question || "No current question in the ask box. Snapshot still preserves saved browser workspace state.")}</p>
+    </article>
+    <div class="workspace-snapshot-grid">
+      ${audit.storageItems.map((item) => `
+        <article class="${item.stored ? "is-stored" : "is-empty"}">
+          <span>${escapeHtml(item.label)}</span>
+          <strong>${escapeHtml(item.records)} records</strong>
+          <p>${escapeHtml(item.stored ? `${formatBytes(item.bytes)} stored in ${item.key}.` : "No local state yet.")}</p>
+        </article>
+      `).join("")}
+    </div>
+  `;
+}
+
+function makeWorkspaceSnapshot() {
+  const audit = makeWorkspaceSnapshotAudit();
+  const storage = {};
+  for (const [, key] of getWorkspaceSnapshotStorageEntries()) {
+    const raw = localStorage.getItem(key);
+    if (raw !== null) storage[key] = raw;
+  }
+  const payload = {
+    schema: "niveshscope.workspaceSnapshot.v1",
+    releaseLabel: RELEASE_LABEL,
+    dataVersion: DATA_VERSION,
+    generatedAt: audit.generatedAt,
+    activeDesk: audit.activeDesk,
+    counts: audit.counts,
+    storage
+  };
+  return {
+    ...payload,
+    checksum: simpleHashString(JSON.stringify(payload))
+  };
+}
+
+function makeWorkspaceSnapshotMarkdown(snapshot = makeWorkspaceSnapshot()) {
+  const storageRows = getWorkspaceSnapshotStorageEntries().map(([name, key]) => {
+    const raw = snapshot.storage?.[key] || "";
+    const parsed = parseJsonSafe(raw);
+    return `- ${workspaceStorageLabel(name)}: ${workspaceStorageRecordCount(parsed, raw)} records (${formatBytes(raw.length)})`;
+  }).join("\n");
+  return [
+    `# NiveshScope ${RELEASE_LABEL} Workspace Snapshot`,
+    "",
+    `Generated: ${new Date(snapshot.generatedAt).toLocaleString()}`,
+    `Data version: ${snapshot.dataVersion}`,
+    `Checksum: ${snapshot.checksum}`,
+    `Focus: ${snapshot.activeDesk?.selectedTicker || "Desk"}`,
+    `Question: ${snapshot.activeDesk?.question || "No current question"}`,
+    "",
+    "## Included Stores",
+    storageRows,
+    "",
+    "_This snapshot is a browser-local backup. Production should store audited workspace versions server-side._"
+  ].join("\n");
+}
+
+function exportWorkspaceSnapshot() {
+  addSessionTimelineEvent({
+    type: "export",
+    title: "Workspace snapshot exported",
+    detail: "Full browser workspace backup was downloaded.",
+    ticker: state.selectedTicker
+  }, { quiet: true });
+  const snapshot = makeWorkspaceSnapshot();
+  const date = new Date().toISOString().slice(0, 10);
+  downloadTextFile(`niveshscope-workspace-snapshot-v61-${date}.json`, JSON.stringify(snapshot, null, 2), "application/json;charset=utf-8");
+  flashWorkspaceSnapshotResult("Workspace snapshot exported.", "success");
+}
+
+async function copyWorkspaceSnapshotManifest() {
+  const copied = await copyTextToClipboard(makeWorkspaceSnapshotMarkdown());
+  if (copied) {
+    addSessionTimelineEvent({
+      type: "copy",
+      title: "Workspace snapshot manifest copied",
+      detail: "Snapshot manifest copied for backup or handoff review.",
+      ticker: state.selectedTicker
+    }, { quiet: true });
+  }
+  flashWorkspaceSnapshotResult(copied ? "Snapshot manifest copied." : "Clipboard blocked. Use Export snapshot instead.", copied ? "success" : "error");
+}
+
+async function importWorkspaceSnapshotFile(file) {
+  try {
+    if (Number(file.size || 0) > MAX_IMPORT_TOTAL_BYTES) {
+      flashWorkspaceSnapshotResult(`Snapshot exceeds ${formatBytes(MAX_IMPORT_TOTAL_BYTES)} import limit.`, "error");
+      return;
+    }
+    const snapshot = JSON.parse(await file.text());
+    const storage = normalizeWorkspaceSnapshotStorage(snapshot);
+    const allowed = new Set(getWorkspaceSnapshotStorageEntries().map(([, key]) => key));
+    const entries = Object.entries(storage).filter(([key]) => allowed.has(key));
+    if (!entries.length) {
+      flashWorkspaceSnapshotResult("No valid NiveshScope workspace stores found in that file.", "error");
+      return;
+    }
+    for (const [key, rawValue] of entries) {
+      if (rawValue === null || rawValue === undefined || rawValue === "") {
+        localStorage.removeItem(key);
+        continue;
+      }
+      const raw = typeof rawValue === "string" ? rawValue : JSON.stringify(rawValue);
+      JSON.parse(raw);
+      localStorage.setItem(key, raw);
+    }
+    const timeline = loadJson(STORAGE_KEYS.sessionTimeline, []);
+    timeline.unshift(normalizeTimelineEvent({
+      type: "import",
+      title: "Workspace snapshot imported",
+      detail: `${entries.length} local stores restored from ${file.name}. The desk reloaded to apply the backup.`,
+      ticker: snapshot.activeDesk?.selectedTicker || state.selectedTicker
+    }));
+    saveJson(STORAGE_KEYS.sessionTimeline, timeline.filter(Boolean).slice(0, 60));
+    flashWorkspaceSnapshotResult("Snapshot imported. Reloading workspace...", "success");
+    window.setTimeout(() => window.location.reload(), 650);
+  } catch (error) {
+    flashWorkspaceSnapshotResult(`Could not import snapshot: ${error.message}`, "error");
+  }
+}
+
+function normalizeWorkspaceSnapshotStorage(snapshot) {
+  if (!snapshot || typeof snapshot !== "object") return {};
+  if (snapshot.storage && typeof snapshot.storage === "object" && !Array.isArray(snapshot.storage)) return snapshot.storage;
+  if (Array.isArray(snapshot.storageItems)) {
+    return Object.fromEntries(snapshot.storageItems
+      .filter((item) => item && item.key)
+      .map((item) => [item.key, item.value ?? item.raw ?? null]));
+  }
+  return {};
+}
+
+function parseJsonSafe(raw) {
+  if (!raw) return null;
+  try {
+    return JSON.parse(raw);
+  } catch (error) {
+    return null;
+  }
+}
+
+function simpleHashString(value) {
+  let hash = 2166136261;
+  const text = String(value || "");
+  for (let index = 0; index < text.length; index += 1) {
+    hash ^= text.charCodeAt(index);
+    hash += (hash << 1) + (hash << 4) + (hash << 7) + (hash << 8) + (hash << 24);
+  }
+  return `NS-${(hash >>> 0).toString(16).toUpperCase().padStart(8, "0")}`;
+}
+
+function flashWorkspaceSnapshotResult(message, tone = "neutral") {
+  if (!els.workspaceSnapshotResult) return;
+  els.workspaceSnapshotResult.className = `builder-result is-${tone}`;
+  els.workspaceSnapshotResult.textContent = message;
+}
+
+function bindRecoveryVault() {
+  els.recoveryVaultOpen?.addEventListener("click", openRecoveryVault);
+  els.createRecoveryPoint?.addEventListener("click", createRecoveryPoint);
+  els.exportLatestRecoveryPoint?.addEventListener("click", exportLatestRecoveryPoint);
+  els.copyRecoveryVaultReport?.addEventListener("click", copyRecoveryVaultReport);
+  els.clearRecoveryVault?.addEventListener("click", clearRecoveryVault);
+}
+
+function openRecoveryVault() {
+  renderRecoveryVault();
+  const panel = document.querySelector("#recovery-vault");
+  if (!panel) return;
+  window.history.replaceState(null, "", "#recovery-vault");
+  panel.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function normalizeRecoveryPoint(point) {
+  if (!point || typeof point !== "object") return null;
+  const snapshot = point.snapshot && typeof point.snapshot === "object" ? point.snapshot : null;
+  if (!snapshot || !snapshot.storage || typeof snapshot.storage !== "object") return null;
+  const createdAt = point.createdAt || snapshot.generatedAt || new Date().toISOString();
+  const fallbackId = `recovery-${new Date(createdAt).getTime() || Date.now()}-${snapshot.checksum || "snapshot"}`;
+  const bytes = Number(point.bytes || JSON.stringify(snapshot).length || 0);
+  return {
+    id: String(point.id || fallbackId),
+    label: String(point.label || `${snapshot.activeDesk?.selectedTicker || "Desk"} restore point`),
+    createdAt,
+    releaseLabel: String(point.releaseLabel || snapshot.releaseLabel || RELEASE_LABEL),
+    dataVersion: String(point.dataVersion || snapshot.dataVersion || DATA_VERSION),
+    checksum: String(point.checksum || snapshot.checksum || simpleHashString(JSON.stringify(snapshot))),
+    bytes,
+    artifactCount: Number(point.artifactCount ?? Object.values(snapshot.counts || {}).reduce((sum, value) => sum + Number(value || 0), 0)),
+    sourceRecords: Number(point.sourceRecords ?? snapshot.counts?.sourceRecords ?? 0),
+    savedBriefs: Number(point.savedBriefs ?? snapshot.counts?.savedBriefs ?? 0),
+    selectedTicker: String(point.selectedTicker || snapshot.activeDesk?.selectedTicker || ""),
+    question: String(point.question || snapshot.activeDesk?.question || ""),
+    snapshot
+  };
+}
+
+function saveRecoveryVault() {
+  state.recoveryVault = (state.recoveryVault || []).map(normalizeRecoveryPoint).filter(Boolean).slice(0, MAX_RECOVERY_POINTS);
+  saveJson(STORAGE_KEYS.recoveryVault, state.recoveryVault);
+}
+
+function renderRecoveryVault() {
+  if (!els.recoveryVaultSummary || !els.recoveryVaultList) return;
+  state.recoveryVault = loadJson(STORAGE_KEYS.recoveryVault, []).map(normalizeRecoveryPoint).filter(Boolean).slice(0, MAX_RECOVERY_POINTS);
+  const current = makeWorkspaceSnapshotAudit();
+  const latest = state.recoveryVault[0] || null;
+  const latestAge = latest ? formatTimelineDate(latest.createdAt) : "No local backup yet";
+  if (els.recoveryVaultStatus) {
+    els.recoveryVaultStatus.textContent = latest
+      ? `${state.recoveryVault.length} restore point${state.recoveryVault.length === 1 ? "" : "s"}`
+      : "No restore points";
+  }
+  els.recoveryVaultSummary.innerHTML = `
+    <article class="${latest ? "is-live" : "is-empty"}">
+      <span>Vault posture</span>
+      <strong>${escapeHtml(latest ? "Protected" : "Create first point")}</strong>
+      <p>${escapeHtml(latest ? `Latest restore point was created ${latestAge}.` : "Create a restore point before importing, clearing, or uploading new site files.")}</p>
+    </article>
+    <article>
+      <span>Current artifacts</span>
+      <strong>${escapeHtml(current.totalArtifacts)}</strong>
+      <p>${escapeHtml(formatBytes(current.bytes))} of browser-local state can be checkpointed.</p>
+    </article>
+    <article>
+      <span>Restore points</span>
+      <strong>${escapeHtml(state.recoveryVault.length)} / ${escapeHtml(MAX_RECOVERY_POINTS)}</strong>
+      <p>Oldest checkpoints rotate out automatically.</p>
+    </article>
+    <article>
+      <span>Latest checksum</span>
+      <strong>${escapeHtml(latest?.checksum || "None")}</strong>
+      <p>${escapeHtml(latest ? `${formatBytes(latest.bytes)} backup file.` : "No restore checksum available yet.")}</p>
+    </article>
+  `;
+  els.recoveryVaultList.innerHTML = state.recoveryVault.length
+    ? state.recoveryVault.map((point, index) => `
+      <article class="recovery-point-card ${index === 0 ? "is-latest" : ""}">
+        <div>
+          <span>${index === 0 ? "Latest restore point" : "Restore point"}</span>
+          <strong>${escapeHtml(point.label)}</strong>
+          <p>${escapeHtml(formatTimelineDate(point.createdAt))} | ${escapeHtml(point.artifactCount)} artifacts | ${escapeHtml(point.checksum)}</p>
+        </div>
+        <dl>
+          <div><dt>Focus</dt><dd>${escapeHtml(point.selectedTicker || "Desk")}</dd></div>
+          <div><dt>Sources</dt><dd>${escapeHtml(point.sourceRecords)}</dd></div>
+          <div><dt>Briefs</dt><dd>${escapeHtml(point.savedBriefs)}</dd></div>
+        </dl>
+        <div class="recovery-point-actions">
+          <button type="button" data-recovery-restore="${escapeAttr(point.id)}">Restore</button>
+          <button type="button" data-recovery-export="${escapeAttr(point.id)}">Export</button>
+          <button type="button" data-recovery-delete="${escapeAttr(point.id)}">Delete</button>
+        </div>
+      </article>
+    `).join("")
+    : `<div class="empty-list">Recovery Vault is empty. Create a restore point before importing snapshots or testing a new upload.</div>`;
+  els.recoveryVaultList.querySelectorAll("button[data-recovery-restore]").forEach((button) => {
+    button.addEventListener("click", () => restoreRecoveryPoint(button.dataset.recoveryRestore));
+  });
+  els.recoveryVaultList.querySelectorAll("button[data-recovery-export]").forEach((button) => {
+    button.addEventListener("click", () => exportRecoveryPoint(button.dataset.recoveryExport));
+  });
+  els.recoveryVaultList.querySelectorAll("button[data-recovery-delete]").forEach((button) => {
+    button.addEventListener("click", () => deleteRecoveryPoint(button.dataset.recoveryDelete));
+  });
+}
+
+function createRecoveryPoint() {
+  const snapshot = makeWorkspaceSnapshot();
+  const point = normalizeRecoveryPoint({
+    id: `recovery-${Date.now()}`,
+    label: `${snapshot.activeDesk?.selectedTicker || "Desk"} restore point`,
+    createdAt: new Date().toISOString(),
+    releaseLabel: RELEASE_LABEL,
+    dataVersion: DATA_VERSION,
+    checksum: snapshot.checksum,
+    artifactCount: Object.values(snapshot.counts || {}).reduce((sum, value) => sum + Number(value || 0), 0),
+    sourceRecords: snapshot.counts?.sourceRecords || 0,
+    savedBriefs: snapshot.counts?.savedBriefs || 0,
+    selectedTicker: snapshot.activeDesk?.selectedTicker || "",
+    question: snapshot.activeDesk?.question || "",
+    snapshot
+  });
+  if (!point) {
+    flashRecoveryVaultResult("Could not create restore point.", "error");
+    return;
+  }
+  state.recoveryVault = [point, ...(state.recoveryVault || []).filter((item) => item.checksum !== point.checksum)].slice(0, MAX_RECOVERY_POINTS);
+  saveRecoveryVault();
+  addSessionTimelineEvent({
+    type: "checkpoint",
+    title: "Recovery restore point created",
+    detail: `${point.artifactCount} artifacts captured in ${formatBytes(point.bytes)}.`,
+    ticker: point.selectedTicker || state.selectedTicker
+  }, { quiet: true });
+  renderRecoveryVault();
+  flashRecoveryVaultResult("Restore point created in this browser.", "success");
+}
+
+function exportLatestRecoveryPoint() {
+  const point = state.recoveryVault[0];
+  if (!point) {
+    flashRecoveryVaultResult("Create a restore point first.", "error");
+    return;
+  }
+  exportRecoveryPoint(point.id);
+}
+
+function exportRecoveryPoint(id) {
+  const point = (state.recoveryVault || []).find((item) => item.id === id);
+  if (!point) {
+    flashRecoveryVaultResult("Restore point not found.", "error");
+    return;
+  }
+  const created = new Date(point.createdAt);
+  const date = Number.isNaN(created.getTime()) ? new Date().toISOString().slice(0, 10) : created.toISOString().slice(0, 10);
+  const ticker = (point.selectedTicker || "desk").toLowerCase();
+  downloadTextFile(`niveshscope-recovery-point-v61-${ticker}-${date}.json`, JSON.stringify(point.snapshot, null, 2), "application/json;charset=utf-8");
+  addSessionTimelineEvent({
+    type: "export",
+    title: "Recovery point exported",
+    detail: `${point.label} was downloaded as a portable snapshot.`,
+    ticker: point.selectedTicker || state.selectedTicker
+  }, { quiet: true });
+  flashRecoveryVaultResult("Recovery point exported.", "success");
+}
+
+function restoreRecoveryPoint(id) {
+  const point = (state.recoveryVault || []).find((item) => item.id === id);
+  if (!point) {
+    flashRecoveryVaultResult("Restore point not found.", "error");
+    return;
+  }
+  const confirmed = window.confirm(`Restore ${point.label}? The desk will reload after local workspace stores are replaced.`);
+  if (!confirmed) return;
+  try {
+    applyWorkspaceSnapshotStorage(point.snapshot, `Recovery Vault: ${point.label}`);
+    flashRecoveryVaultResult("Restore point applied. Reloading workspace...", "success");
+    window.setTimeout(() => window.location.reload(), 650);
+  } catch (error) {
+    flashRecoveryVaultResult(`Could not restore point: ${error.message}`, "error");
+  }
+}
+
+function applyWorkspaceSnapshotStorage(snapshot, sourceLabel) {
+  const storage = normalizeWorkspaceSnapshotStorage(snapshot);
+  const allowedEntries = getWorkspaceSnapshotStorageEntries();
+  if (!Object.keys(storage).length) {
+    throw new Error("No workspace storage found in restore point.");
+  }
+  for (const [, key] of allowedEntries) {
+    if (!Object.prototype.hasOwnProperty.call(storage, key)) {
+      localStorage.removeItem(key);
+      continue;
+    }
+    const rawValue = storage[key];
+    if (rawValue === null || rawValue === undefined || rawValue === "") {
+      localStorage.removeItem(key);
+      continue;
+    }
+    const raw = typeof rawValue === "string" ? rawValue : JSON.stringify(rawValue);
+    JSON.parse(raw);
+    localStorage.setItem(key, raw);
+  }
+  const timeline = loadJson(STORAGE_KEYS.sessionTimeline, []);
+  timeline.unshift(normalizeTimelineEvent({
+    type: "import",
+    title: "Recovery point restored",
+    detail: `${sourceLabel} restored ${allowedEntries.length} workspace stores.`,
+    ticker: snapshot.activeDesk?.selectedTicker || state.selectedTicker
+  }));
+  saveJson(STORAGE_KEYS.sessionTimeline, timeline.filter(Boolean).slice(0, 60));
+}
+
+async function copyRecoveryVaultReport() {
+  const copied = await copyTextToClipboard(makeRecoveryVaultMarkdown());
+  flashRecoveryVaultResult(copied ? "Recovery Vault report copied." : "Clipboard blocked. Use Export latest instead.", copied ? "success" : "error");
+}
+
+function makeRecoveryVaultMarkdown() {
+  const current = makeWorkspaceSnapshotAudit();
+  const rows = (state.recoveryVault || []).map((point, index) => [
+    `${index + 1}. ${point.label}`,
+    `   Created: ${formatTimelineDate(point.createdAt)}`,
+    `   Checksum: ${point.checksum}`,
+    `   Artifacts: ${point.artifactCount}`,
+    `   Focus: ${point.selectedTicker || "Desk"}`
+  ].join("\n"));
+  return [
+    `# NiveshScope ${RELEASE_LABEL} Recovery Vault`,
+    "",
+    `Generated: ${new Date().toLocaleString()}`,
+    `Restore points: ${state.recoveryVault.length} / ${MAX_RECOVERY_POINTS}`,
+    `Current workspace artifacts: ${current.totalArtifacts}`,
+    `Current snapshot size: ${formatBytes(current.bytes)}`,
+    "",
+    "## Restore Points",
+    rows.length ? rows.join("\n\n") : "No restore points saved yet.",
+    "",
+    "_Recovery Vault is browser-local. Export important restore points before clearing browser data._"
+  ].join("\n");
+}
+
+function deleteRecoveryPoint(id) {
+  const before = state.recoveryVault.length;
+  state.recoveryVault = (state.recoveryVault || []).filter((point) => point.id !== id);
+  saveRecoveryVault();
+  renderRecoveryVault();
+  flashRecoveryVaultResult(before === state.recoveryVault.length ? "Restore point not found." : "Restore point deleted.", before === state.recoveryVault.length ? "error" : "success");
+}
+
+function clearRecoveryVault() {
+  if (!state.recoveryVault.length) {
+    flashRecoveryVaultResult("Recovery Vault is already empty.", "neutral");
+    return;
+  }
+  const confirmed = window.confirm("Clear all local restore points? Export important points first.");
+  if (!confirmed) return;
+  state.recoveryVault = [];
+  saveJson(STORAGE_KEYS.recoveryVault, []);
+  renderRecoveryVault();
+  flashRecoveryVaultResult("Recovery Vault cleared in this browser.", "neutral");
+}
+
+function flashRecoveryVaultResult(message, tone = "neutral") {
+  if (!els.recoveryVaultResult) return;
+  els.recoveryVaultResult.className = `builder-result is-${tone}`;
+  els.recoveryVaultResult.textContent = message;
+}
+
+function bindCommandPalette() {
+  if (!els.commandPaletteOpen || !els.commandPalette || !els.commandPaletteList) return;
+  renderCommandPalette();
+  els.commandPaletteOpen.addEventListener("click", () => openCommandPalette());
+  if (els.commandPaletteClose) {
+    els.commandPaletteClose.addEventListener("click", () => closeCommandPalette());
+  }
+  els.commandPalette.addEventListener("click", (event) => {
+    if (event.target.closest("[data-command-palette-close]")) closeCommandPalette();
+  });
+  if (els.commandPaletteSearch) {
+    els.commandPaletteSearch.addEventListener("input", () => renderCommandPalette());
+    els.commandPaletteSearch.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        closeCommandPalette();
+        return;
+      }
+      if (event.key !== "Enter") return;
+      const first = els.commandPaletteList.querySelector("[data-command-target]");
+      if (!first) return;
+      event.preventDefault();
+      runCommandPaletteTarget(first.dataset.commandTarget);
+    });
+  }
+  els.commandPaletteList.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-command-target]");
+    if (!button) return;
+    runCommandPaletteTarget(button.dataset.commandTarget);
+  });
+  document.addEventListener("keydown", (event) => {
+    const key = String(event.key || "").toLowerCase();
+    if ((event.ctrlKey || event.metaKey) && key === "k") {
+      event.preventDefault();
+      openCommandPalette();
+      return;
+    }
+    if (key === "escape" && els.commandPalette.getAttribute("aria-hidden") === "false") {
+      event.preventDefault();
+      closeCommandPalette();
+    }
+  });
+}
+
+function openCommandPalette(query = "") {
+  if (!els.commandPalette) return;
+  els.commandPalette.setAttribute("aria-hidden", "false");
+  els.commandPalette.classList.add("is-open");
+  document.body.classList.add("command-palette-open");
+  if (els.commandPaletteSearch) {
+    els.commandPaletteSearch.value = query;
+  }
+  renderCommandPalette();
+  window.setTimeout(() => {
+    els.commandPaletteSearch?.focus();
+    els.commandPaletteSearch?.select();
+  }, 20);
+}
+
+function closeCommandPalette() {
+  if (!els.commandPalette) return;
+  els.commandPalette.setAttribute("aria-hidden", "true");
+  els.commandPalette.classList.remove("is-open");
+  document.body.classList.remove("command-palette-open");
+  els.commandPaletteOpen?.focus();
+}
+
+function renderCommandPalette() {
+  if (!els.commandPaletteList) return;
+  const query = String(els.commandPaletteSearch?.value || "").trim().toLowerCase();
+  const terms = query.split(/\s+/).filter(Boolean);
+  const items = buildCommandPaletteItems();
+  const matches = terms.length
+    ? items.filter((item) => terms.every((term) => item.search.includes(term)))
+    : items;
+  if (!matches.length) {
+    els.commandPaletteList.innerHTML = `
+      <div class="command-palette-empty">
+        <span>Empty</span>
+        <div>
+          <strong>No command found</strong>
+          <em>Try source, PDF, trust, run, queue, or a company ticker.</em>
+        </div>
+      </div>
+    `;
+    return;
+  }
+  els.commandPaletteList.innerHTML = matches.slice(0, 54).map((item) => `
+    <button class="command-palette-row" type="button" data-command-target="${escapeAttr(item.target)}">
+      <span>${escapeHtml(item.group)}</span>
+      <div>
+        <strong>${escapeHtml(item.label)}</strong>
+        <em>${escapeHtml(item.detail)}</em>
+      </div>
+    </button>
+  `).join("");
+}
+
+function buildCommandPaletteItems() {
+  const sectionItems = QUICK_NAV_SECTIONS.map((section) => ({
+    group: section.group,
+    label: section.label,
+    detail: section.detail,
+    target: `section:${section.href}`,
+    search: `${section.group} ${section.label} ${section.detail} ${section.href}`.toLowerCase()
+  }));
+  const actionItems = COMMAND_ACTIONS
+    .filter((action) => document.querySelector(action.selector))
+    .map((action) => ({
+      group: action.group,
+      label: action.label,
+      detail: action.detail,
+      target: `action:${action.selector}`,
+      search: `${action.group} ${action.label} ${action.detail} ${action.keywords}`.toLowerCase()
+    }));
+  const companyItems = getCompanies().map((company) => ({
+    group: "Company",
+    label: `${company.ticker} - ${company.name}`,
+    detail: "Focus this company and prepare a risk question.",
+    target: `company:${company.ticker}`,
+    search: `company ticker ${company.ticker} ${company.name} ${company.sector || ""}`.toLowerCase()
+  }));
+  return [
+    { group: "Home", label: "Top of NiveshScope", detail: "Return to the hero and main actions.", target: "top", search: "home top hero start niveshscope" },
+    ...sectionItems,
+    ...actionItems,
+    ...companyItems
+  ];
+}
+
+function runCommandPaletteTarget(target) {
+  closeCommandPalette();
+  if (target === "top") {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    return;
+  }
+  if (target.startsWith("section:")) {
+    const id = target.slice("section:".length).replace(/^#/, "");
+    const element = document.getElementById(id);
+    if (element) {
+      window.history.replaceState(null, "", `#${id}`);
+      element.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+    return;
+  }
+  if (target.startsWith("action:")) {
+    const selector = target.slice("action:".length);
+    const button = document.querySelector(selector);
+    if (button && !button.disabled) button.click();
+    return;
+  }
+  if (target.startsWith("company:")) {
+    focusCompanyFromCommand(target.slice("company:".length));
+  }
+}
+
+function focusCompanyFromCommand(ticker) {
+  const normalized = normalizeTicker(ticker);
+  const company = getCompanies().find((candidate) => candidate.ticker === normalized);
+  if (!company) return;
+  state.selectedTicker = normalized;
+  state.activeTickers.add(normalized);
+  if (els.queryInput) {
+    els.queryInput.value = `What are the risks for $${normalized}?`;
+    els.queryInput.focus();
+  }
+  if (els.importTickerSelect) els.importTickerSelect.value = normalized;
+  if (els.pasteTicker) els.pasteTicker.value = normalized;
+  renderCoverage();
+  renderContextBand();
+  renderCompanyDossier();
+  renderValuationOptions();
+  updateValuationFromCompany();
+  updateValuation();
+  drawSignalMap();
+  window.history.replaceState(null, "", "#desk");
+  document.querySelector("#desk")?.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function bindQuickNavigator() {
+  if (!els.quickNavToggle || !els.quickNavPanel || !els.quickNavList) return;
+  renderQuickNavigator();
+  els.quickNavToggle.addEventListener("click", () => {
+    setQuickNavigatorOpen(els.quickNavPanel.hidden);
+  });
+  if (els.quickNavClose) {
+    els.quickNavClose.addEventListener("click", () => setQuickNavigatorOpen(false));
+  }
+  if (els.quickNavSearch) {
+    els.quickNavSearch.addEventListener("input", () => renderQuickNavigator(els.quickNavSearch.value));
+    els.quickNavSearch.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") setQuickNavigatorOpen(false);
+    });
+  }
+  els.quickNavList.addEventListener("click", (event) => {
+    const link = event.target.closest("a");
+    if (!link) return;
+    setQuickNavigatorOpen(false);
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && !els.quickNavPanel.hidden) {
+      setQuickNavigatorOpen(false);
+    }
+  });
+  document.addEventListener("click", (event) => {
+    if (!els.quickNav || els.quickNavPanel.hidden || els.quickNav.contains(event.target)) return;
+    setQuickNavigatorOpen(false);
+  });
+}
+
+function setQuickNavigatorOpen(isOpen) {
+  if (!els.quickNavToggle || !els.quickNavPanel) return;
+  els.quickNavPanel.hidden = !isOpen;
+  els.quickNavToggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+  els.quickNavToggle.classList.toggle("is-open", isOpen);
+  if (isOpen && els.quickNavSearch) {
+    els.quickNavSearch.focus();
+    els.quickNavSearch.select();
+  }
+}
+
+function renderQuickNavigator(filter = "") {
+  if (!els.quickNavList) return;
+  const query = String(filter || "").trim().toLowerCase();
+  const matches = QUICK_NAV_SECTIONS.filter((section) => {
+    const haystack = `${section.group} ${section.label} ${section.detail}`.toLowerCase();
+    return !query || haystack.includes(query);
+  });
+  if (!matches.length) {
+    els.quickNavList.innerHTML = `<div class="quick-nav-empty">No matching section</div>`;
+    return;
+  }
+  let lastGroup = "";
+  els.quickNavList.innerHTML = matches.map((section) => {
+    const groupLabel = section.group !== lastGroup ? `<span class="quick-nav-group">${escapeHtml(section.group)}</span>` : "";
+    lastGroup = section.group;
+    return `
+      ${groupLabel}
+      <a class="quick-nav-link" href="${escapeAttr(section.href)}">
+        <strong>${escapeHtml(section.label)}</strong>
+        <span>${escapeHtml(section.detail)}</span>
+      </a>
+    `;
+  }).join("");
+}
+
+function bindScrollTopButton() {
+  if (!els.scrollTopButton) return;
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+  const updateVisibility = () => {
+    const isVisible = window.scrollY > 520;
+    els.scrollTopButton.classList.toggle("is-visible", isVisible);
+    els.scrollTopButton.setAttribute("aria-hidden", isVisible ? "false" : "true");
+    els.scrollTopButton.tabIndex = isVisible ? 0 : -1;
+  };
+  els.scrollTopButton.addEventListener("click", () => {
+    window.scrollTo({
+      top: 0,
+      behavior: reduceMotion.matches ? "auto" : "smooth"
+    });
+  });
+  window.addEventListener("scroll", updateVisibility, { passive: true });
+  window.addEventListener("resize", updateVisibility);
+  updateVisibility();
+}
+
 function bindEvents() {
+  bindProductTour();
+  bindSessionCoach();
+  bindResearchHandoff();
+  bindSessionTimeline();
+  bindWorkspaceSnapshot();
+  bindRecoveryVault();
+  bindPagesUploadWizard();
+  bindLiveSiteDoctor();
+  bindGithubReleaseHandoff();
+  bindPilotDemoRoom();
+  bindPilotFeedbackRoom();
+  bindCommandPalette();
+  bindQuickNavigator();
+  bindScrollTopButton();
+
   els.queryForm.addEventListener("submit", (event) => {
     event.preventDefault();
     submitCurrentQuestion();
@@ -2073,7 +3932,7 @@ function exportSourceCitationPack() {
     return;
   }
   const date = new Date().toISOString().slice(0, 10);
-  const filename = `niveshscope-source-citations-v47-${audit.ticker.toLowerCase()}-${date}.md`;
+  const filename = `niveshscope-source-citations-v61-${audit.ticker.toLowerCase()}-${date}.md`;
   downloadTextFile(filename, makeSourceCitationPackMarkdown(audit), "text/markdown;charset=utf-8");
   flashSourceCitationResult("Citation pack exported.", "success");
 }
@@ -2341,7 +4200,7 @@ function exportSourceReviewSheet() {
     return;
   }
   const date = new Date().toISOString().slice(0, 10);
-  downloadTextFile(`niveshscope-source-review-v47-${gate.intake.ticker.toLowerCase()}-${date}.md`, makeSourceReviewSheetMarkdown(gate), "text/markdown;charset=utf-8");
+  downloadTextFile(`niveshscope-source-review-v61-${gate.intake.ticker.toLowerCase()}-${date}.md`, makeSourceReviewSheetMarkdown(gate), "text/markdown;charset=utf-8");
   flashSourceReviewResult("Source review sheet exported.", "success");
 }
 
@@ -2624,7 +4483,7 @@ function exportGuidedSourceBrief() {
     return;
   }
   const date = new Date().toISOString().slice(0, 10);
-  const filename = `niveshscope-guided-source-task-v47-${task.company.ticker.toLowerCase()}-${task.requirement.key}-${date}.md`;
+  const filename = `niveshscope-guided-source-task-v61-${task.company.ticker.toLowerCase()}-${task.requirement.key}-${date}.md`;
   downloadTextFile(filename, makeGuidedSourceBrief(task), "text/markdown;charset=utf-8");
   flashGuidedSourceResult("Guided source brief exported.", "success");
 }
@@ -3191,6 +5050,7 @@ function addSourcePackDocFromBuilder() {
   renderClaimTraceInspector();
       renderAnswerQualityLab();
   renderLaunchControlRoom();
+  renderSessionCoach();
   resetSourceConfidenceChecks();
   renderFilingCapturePreview();
   renderSourceIntakeDoctor();
@@ -3199,6 +5059,17 @@ function addSourcePackDocFromBuilder() {
   renderGuidedSourceCollector();
   state.importReport = makeImportReport([doc], []);
   renderImportSummary();
+  addSessionTimelineEvent({
+    type: "source",
+    title: `${doc.ticker} ${shortDocType(doc.type)} added to live corpus`,
+    detail: `${sourceStatusLabel(doc)} evidence saved for ${doc.period || doc.date || "current period"}.`,
+    ticker: doc.ticker,
+    metrics: {
+      citations: state.currentCitations.length,
+      savedBriefs: state.notes.length,
+      realSources: countSourceQueueStatuses(buildSourceQueueItems()).real || 0
+    }
+  }, { quiet: true });
   flashBuilderResult(`${doc.ticker} ${doc.type} added as ${shortSourceStatus(doc)} evidence and enabled in the live corpus. Use Return to dossier to confirm completeness.`, "success");
   renderActiveSourceTask({
     ticker: doc.ticker,
@@ -4879,6 +6750,19 @@ function runAnalysis(question) {
   renderClaimTraceInspector();
       renderAnswerQualityLab();
   renderLaunchControlRoom();
+  renderSessionCoach();
+  addSessionTimelineEvent({
+    type: "analysis",
+    title: `${answerModel.meta.ticker || state.selectedTicker} answer generated`,
+    detail: `${citations.length} citations retrieved for: ${question}`,
+    ticker: answerModel.meta.ticker || state.selectedTicker,
+    question,
+    metrics: {
+      citations: citations.length,
+      savedBriefs: state.notes.length,
+      realSources: countSourceQueueStatuses(buildSourceQueueItems()).real || 0
+    }
+  }, { quiet: true });
   drawSignalMap(citations);
 }
 
@@ -4909,6 +6793,14 @@ function renderNoDocs(question) {
       renderAnswerQualityLab();
   renderLaunchControlRoom();
   renderContextBand();
+  renderSessionCoach();
+  addSessionTimelineEvent({
+    type: "analysis",
+    title: "Analysis blocked: no enabled documents",
+    detail: `No enabled documents were available for: ${question}`,
+    question,
+    ticker: state.selectedTicker
+  }, { quiet: true });
 }
 
 function renderNoHits(question) {
@@ -4938,6 +6830,14 @@ function renderNoHits(question) {
       renderAnswerQualityLab();
   renderLaunchControlRoom();
   renderContextBand();
+  renderSessionCoach();
+  addSessionTimelineEvent({
+    type: "analysis",
+    title: "Analysis returned low recall",
+    detail: `No strong source passages were retrieved for: ${question}`,
+    question,
+    ticker: state.selectedTicker
+  }, { quiet: true });
 }
 
 function buildAnswerModel(question, citations, intent, tickerFocus = null, guardMeta = null) {
@@ -5371,7 +7271,7 @@ function exportEvidenceVault() {
     return;
   }
   const date = new Date().toISOString().slice(0, 10);
-  downloadTextFile(`niveshscope-evidence-vault-v47-${date}.json`, JSON.stringify(makeEvidenceVaultJson(), null, 2), "application/json;charset=utf-8");
+  downloadTextFile(`niveshscope-evidence-vault-v61-${date}.json`, JSON.stringify(makeEvidenceVaultJson(), null, 2), "application/json;charset=utf-8");
   flashEvidenceVaultResult("Evidence Vault exported.", "success");
 }
 
@@ -10096,7 +11996,7 @@ async function copyTrustReport() {
 
 function exportTrustReport() {
   const date = new Date().toISOString().slice(0, 10);
-  downloadTextFile(`niveshscope-trust-center-v47-${date}.json`, JSON.stringify(makeTrustReportJson(makeTrustCenterAudit()), null, 2), "application/json;charset=utf-8");
+  downloadTextFile(`niveshscope-trust-center-v61-${date}.json`, JSON.stringify(makeTrustReportJson(makeTrustCenterAudit()), null, 2), "application/json;charset=utf-8");
   flashTrustCenterResult("Trust report JSON exported.", "success");
 }
 
@@ -10334,7 +12234,7 @@ function makeOperatorCoach(audit = makeLaunchAudit()) {
   if (releaseDoctor.score === 100 && !queue.some((item) => item.action === "release-doctor")) {
     push({
       status: "Ship",
-      title: "Copy the v47 root manifest",
+      title: "Copy the v61 root manifest",
       detail: "Use it during GitHub upload so the public page stays styled and hydrated.",
       action: "release-doctor",
       className: "is-ready",
@@ -10472,6 +12372,11 @@ function renderLaunchControlRoom() {
   }
   renderTrustCenter();
   renderReleaseDoctor(audit);
+  renderPagesUploadWizard(audit);
+  renderLiveSiteDoctor(audit);
+  renderGithubReleaseHandoff(audit);
+  renderPilotDemoRoom(audit);
+  renderPilotFeedbackRoom(audit);
   renderOperatorCoach(audit);
 }
 
@@ -10521,12 +12426,1311 @@ function renderReleaseDoctor(audit = makeLaunchAudit()) {
   }
 }
 
+function bindPagesUploadWizard() {
+  els.pagesUploadWizardOpen?.addEventListener("click", openPagesUploadWizard);
+  els.copyPagesUploadSteps?.addEventListener("click", copyPagesUploadSteps);
+  els.copyPagesUploadChecklist?.addEventListener("click", copyPagesUploadChecklist);
+  els.exportPagesUploadPlan?.addEventListener("click", handleExportPagesUploadPlan);
+  els.openPagesLiveUrl?.addEventListener("click", openPagesLiveSite);
+}
+
+function openPagesUploadWizard() {
+  renderPagesUploadWizard();
+  const panel = document.querySelector("#pages-upload-wizard");
+  if (!panel) return;
+  window.history.replaceState(null, "", "#pages-upload-wizard");
+  panel.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function renderPagesUploadWizard(audit = makeLaunchAudit()) {
+  if (!els.pagesUploadWizardSummary || !els.pagesUploadWizardSteps || !els.pagesUploadWizardFiles) return;
+  const upload = makePagesUploadWizardAudit(audit);
+  if (els.pagesUploadWizardStatus) els.pagesUploadWizardStatus.textContent = upload.statusLabel;
+  els.pagesUploadWizardSummary.innerHTML = `
+    <article class="pages-upload-hero ${escapeAttr(upload.statusClass)}">
+      <div>
+        <span>Upload Posture</span>
+        <strong>${escapeHtml(upload.statusLabel)}</strong>
+        <p>${escapeHtml(upload.summary)}</p>
+      </div>
+      <div class="launch-score">
+        <span>Upload score</span>
+        <strong>${escapeHtml(upload.score)}%</strong>
+      </div>
+    </article>
+    <div class="pages-upload-metrics">
+      ${upload.metrics.map((metric) => `
+        <article>
+          <span>${escapeHtml(metric.label)}</span>
+          <strong>${escapeHtml(metric.value)}</strong>
+          <p>${escapeHtml(metric.detail)}</p>
+        </article>
+      `).join("")}
+    </div>
+  `;
+  els.pagesUploadWizardSteps.innerHTML = `
+    <div class="launch-control-card-head">
+      <span>Upload path</span>
+      <strong>${escapeHtml(upload.steps.length)} steps</strong>
+    </div>
+    <ol>
+      ${upload.steps.map((step) => `
+        <li class="${escapeAttr(step.status)}">
+          <span>${escapeHtml(step.kicker)}</span>
+          <strong>${escapeHtml(step.title)}</strong>
+          <p>${escapeHtml(step.detail)}</p>
+        </li>
+      `).join("")}
+    </ol>
+  `;
+  els.pagesUploadWizardFiles.innerHTML = `
+    <div class="launch-control-card-head">
+      <span>GitHub root must show these</span>
+      <strong>${escapeHtml(upload.requiredRootItems.length)} items</strong>
+    </div>
+    <div class="pages-upload-file-grid">
+      ${upload.requiredRootItems.map((item) => `
+        <article class="${escapeAttr(item.mustBeRoot ? "is-root" : "is-folder")}">
+          <span>${escapeHtml(item.kind)}</span>
+          <strong>${escapeHtml(item.path)}</strong>
+          <p>${escapeHtml(item.role)}</p>
+        </article>
+      `).join("")}
+    </div>
+  `;
+}
+
+function makePagesUploadWizardAudit(audit = makeLaunchAudit()) {
+  const doctor = audit.releaseDoctor || makeReleaseDoctorAudit();
+  const recoveryPoints = (state.recoveryVault || []).length;
+  const hasRecovery = recoveryPoints > 0;
+  const rootFiles = RELEASE_ROOT_MANIFEST.filter((item) => item.kind === "file").length;
+  const rootFolders = RELEASE_ROOT_MANIFEST.filter((item) => item.kind === "folder").length;
+  const liveUrl = `${LIVE_SITE_URL}?v=61`;
+  const checks = [
+    { ok: doctor.score === 100, label: "Release Doctor", weight: 38 },
+    { ok: hasRecovery, label: "Recovery point", weight: 18 },
+    { ok: Boolean(RELEASE_PACKAGE_NAME.endsWith(".zip")), label: "ZIP package", weight: 14 },
+    { ok: RELEASE_ROOT_MANIFEST.some((item) => item.path === "index.html"), label: "Root index", weight: 14 },
+    { ok: RELEASE_ROOT_MANIFEST.some((item) => item.path === ".nojekyll"), label: "GitHub Pages guard", weight: 8 },
+    { ok: /^https:\/\/dhirajnyse\.github\.io\/niveshscope-india-research-desk\/$/i.test(LIVE_SITE_URL), label: "Live URL", weight: 8 }
+  ];
+  const score = checks.reduce((sum, check) => sum + (check.ok ? check.weight : 0), 0);
+  const statusLabel = score >= 90 ? "Ready to upload" : score >= 70 ? "Upload with one caution" : "Create backup first";
+  const statusClass = score >= 90 ? "is-ready" : score >= 70 ? "is-review" : "is-blocked";
+  const missing = checks.filter((check) => !check.ok).map((check) => check.label);
+  const summary = missing.length
+    ? `Before uploading, handle: ${missing.join(", ")}. The safest first move is creating a Recovery Vault restore point.`
+    : `Upload the contents inside ${RELEASE_PACKAGE_NAME} to the repository root, then verify ${liveUrl}.`;
+  const steps = [
+    {
+      kicker: hasRecovery ? "OK" : "Recommended",
+      title: hasRecovery ? "Recovery point exists" : "Create a Recovery Vault restore point",
+      detail: hasRecovery ? `${recoveryPoints} restore point${recoveryPoints === 1 ? "" : "s"} saved in this browser.` : "Click Recovery and create a restore point before changing the live site.",
+      status: hasRecovery ? "is-ready" : "is-review"
+    },
+    {
+      kicker: "Package",
+      title: `Use ${RELEASE_PACKAGE_NAME}`,
+      detail: "Open or unzip the package, then select the files and folders inside it. Do not upload the outer folder as one nested directory.",
+      status: "is-ready"
+    },
+    {
+      kicker: "GitHub",
+      title: "Upload contents to repository root",
+      detail: "The GitHub repository root should show index.html, app.js, styles.css, launch.css, assets, data, docs, scripts, .nojekyll, and the other root files directly.",
+      status: doctor.score === 100 ? "is-ready" : "is-review"
+    },
+    {
+      kicker: "Verify",
+      title: `Open ${liveUrl}`,
+      detail: "After GitHub Actions finishes, hard refresh with the cache-busting URL and confirm the top pill says Pilot feedback v61.",
+      status: "is-ready"
+    }
+  ];
+  const metrics = [
+    { label: "Package", value: RELEASE_PACKAGE_NAME, detail: "Upload the contents inside this ZIP." },
+    { label: "Live URL", value: liveUrl, detail: "Use this after GitHub Pages rebuilds." },
+    { label: "Root files", value: `${rootFiles} files`, detail: `${rootFolders} required folders must also sit at root.` },
+    { label: "Backup", value: hasRecovery ? `${recoveryPoints} restore point${recoveryPoints === 1 ? "" : "s"}` : "Missing", detail: hasRecovery ? "Recovery Vault is ready." : "Create one before upload." }
+  ];
+  return {
+    releaseLabel: RELEASE_LABEL,
+    packageName: RELEASE_PACKAGE_NAME,
+    liveUrl,
+    generatedAt: new Date().toISOString(),
+    statusLabel,
+    statusClass,
+    score,
+    summary,
+    checks,
+    metrics,
+    steps,
+    requiredRootItems: RELEASE_ROOT_MANIFEST.map((item) => ({
+      ...item,
+      mustBeRoot: !item.path.includes("/")
+    })),
+    wrongRootSignals: [
+      "The live page shows plain text or code-like text instead of the styled desk.",
+      "The GitHub root shows one folder named like the release package instead of index.html at the top level.",
+      "The browser console shows missing app.js, styles.css, data/*.json, or assets/*.svg files."
+    ]
+  };
+}
+
+function makePagesUploadStepsMarkdown(upload = makePagesUploadWizardAudit()) {
+  return [
+    `# NiveshScope ${RELEASE_LABEL} GitHub Pages Upload Steps`,
+    "",
+    `Package: ${upload.packageName}`,
+    `Live URL: ${upload.liveUrl}`,
+    `Upload score: ${upload.score}%`,
+    "",
+    "## Steps",
+    ...upload.steps.map((step, index) => `${index + 1}. ${step.title}\n   ${step.detail}`),
+    "",
+    "## Wrong Root Signals",
+    ...upload.wrongRootSignals.map((signal) => `- ${signal}`),
+    "",
+    "Rule: upload the contents inside the release ZIP/folder to the GitHub repository root."
+  ].join("\n");
+}
+
+function makePagesRootChecklistMarkdown(upload = makePagesUploadWizardAudit()) {
+  return [
+    `# NiveshScope ${RELEASE_LABEL} Root Checklist`,
+    "",
+    `Expected package: ${upload.packageName}`,
+    "",
+    "GitHub repository root should show:",
+    ...upload.requiredRootItems.map((item) => `- ${item.path} (${item.kind}) - ${item.role}`),
+    "",
+    `After upload, open ${upload.liveUrl} and confirm the status pill says Pilot feedback v61.`
+  ].join("\n");
+}
+
+async function copyPagesUploadSteps() {
+  const copied = await copyTextToClipboard(makePagesUploadStepsMarkdown());
+  flashPagesUploadWizardResult(copied ? "Upload steps copied." : "Clipboard blocked. Use Export upload plan instead.", copied ? "success" : "error");
+}
+
+async function copyPagesUploadChecklist() {
+  const copied = await copyTextToClipboard(makePagesRootChecklistMarkdown());
+  flashPagesUploadWizardResult(copied ? "Root checklist copied." : "Clipboard blocked. Use Export upload plan instead.", copied ? "success" : "error");
+}
+
+function handleExportPagesUploadPlan() {
+  const upload = makePagesUploadWizardAudit();
+  const date = new Date().toISOString().slice(0, 10);
+  flashPagesUploadWizardResult("Upload plan exported.", "success");
+  window.setTimeout(() => {
+    downloadTextFile(`niveshscope-pages-upload-plan-v61-${date}.json`, JSON.stringify(upload, null, 2), "application/json;charset=utf-8");
+  }, 60);
+}
+
+function openPagesLiveSite() {
+  window.open(`${LIVE_SITE_URL}?v=61`, "_blank", "noopener,noreferrer");
+  flashPagesUploadWizardResult("Live GitHub Pages URL opened in a new tab.", "success");
+}
+
+function flashPagesUploadWizardResult(message, tone = "neutral") {
+  if (!els.pagesUploadWizardResult) return;
+  els.pagesUploadWizardResult.className = `builder-result is-${tone}`;
+  els.pagesUploadWizardResult.textContent = message;
+}
+
+function bindLiveSiteDoctor() {
+  els.liveSiteDoctorOpen?.addEventListener("click", openLiveSiteDoctor);
+  els.refreshLiveSiteDoctor?.addEventListener("click", () => {
+    renderLiveSiteDoctor();
+    flashLiveSiteDoctorResult("Live site check refreshed.", "success");
+  });
+  els.copyLiveSiteVerification?.addEventListener("click", copyLiveSiteVerification);
+  els.exportLiveSiteVerification?.addEventListener("click", exportLiveSiteVerification);
+  els.openCacheBustedLive?.addEventListener("click", openCacheBustedLiveSite);
+}
+
+function openLiveSiteDoctor() {
+  renderLiveSiteDoctor();
+  const panel = document.querySelector("#live-site-doctor");
+  if (!panel) return;
+  window.history.replaceState(null, "", "#live-site-doctor");
+  panel.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function renderLiveSiteDoctor(audit = makeLaunchAudit()) {
+  if (!els.liveSiteDoctorSummary || !els.liveSiteDoctorChecks) return;
+  const doctor = makeLiveSiteDoctorAudit(audit);
+  if (els.liveSiteDoctorStatus) els.liveSiteDoctorStatus.textContent = doctor.statusLabel;
+  if (els.openCacheBustedLive) els.openCacheBustedLive.disabled = !doctor.expectedLiveUrl;
+  els.liveSiteDoctorSummary.innerHTML = `
+    <article class="live-site-hero ${escapeAttr(doctor.statusClass)}">
+      <div>
+        <span>${escapeHtml(doctor.modeLabel)}</span>
+        <strong>${escapeHtml(doctor.headline)}</strong>
+        <p>${escapeHtml(doctor.summary)}</p>
+      </div>
+      <div class="launch-score">
+        <span>Live score</span>
+        <strong>${escapeHtml(doctor.score)}%</strong>
+      </div>
+    </article>
+    <div class="live-site-metrics">
+      ${doctor.metrics.map((metric) => `
+        <article>
+          <span>${escapeHtml(metric.label)}</span>
+          <strong>${escapeHtml(metric.value)}</strong>
+          <p>${escapeHtml(metric.detail)}</p>
+        </article>
+      `).join("")}
+    </div>
+  `;
+  els.liveSiteDoctorChecks.innerHTML = `
+    <div class="launch-control-card-head">
+      <span>Deployment checks</span>
+      <strong>${escapeHtml(doctor.passCount)}/${escapeHtml(doctor.checks.length)} clear</strong>
+    </div>
+    <div class="live-site-check-grid">
+      ${doctor.checks.map((check) => `
+        <article class="${escapeAttr(check.className)}">
+          <span>${escapeHtml(check.status)}</span>
+          <strong>${escapeHtml(check.label)}</strong>
+          <p>${escapeHtml(check.detail)}</p>
+        </article>
+      `).join("")}
+    </div>
+    <div class="live-site-next">
+      <span>Next fix</span>
+      <strong>${escapeHtml(doctor.nextFix.title)}</strong>
+      <p>${escapeHtml(doctor.nextFix.detail)}</p>
+    </div>
+  `;
+}
+
+function makeLiveSiteDoctorAudit(audit = makeLaunchAudit()) {
+  const releaseNumber = (RELEASE_LABEL.match(/v(\d+)/) || [null, "61"])[1];
+  const expectedLiveUrl = `${LIVE_SITE_URL}?v=${releaseNumber}`;
+  let currentUrl = window.location.href;
+  let url;
+  try {
+    url = new URL(currentUrl);
+  } catch (error) {
+    url = new URL(expectedLiveUrl);
+    currentUrl = "Unknown browser URL";
+  }
+  const host = url.hostname.toLowerCase();
+  const path = url.pathname || "/";
+  const isLocalPreview = ["localhost", "127.0.0.1", "::1", ""].includes(host) || url.protocol === "file:";
+  const isGitHubPages = host === "dhirajnyse.github.io";
+  const correctLivePath = path === "/niveshscope-india-research-desk/" || path === "/niveshscope-india-research-desk/index.html";
+  const cacheToken = url.searchParams.get("v") || "";
+  const markerText = document.querySelector(".status-strip")?.textContent || "";
+  const appShellOk = Boolean(document.querySelector(".app-shell") && document.querySelector("#desk") && document.querySelector("#queryForm"));
+  const releaseMarkerOk = markerText.includes("Pilot feedback v61");
+  const dataOk = getCompanies().length >= 10 && state.documents.length >= 10;
+  const styleOk = Boolean(document.querySelector('link[href^="styles.css"]') && document.querySelector('link[href^="launch.css"]'));
+  const scriptOk = Boolean(document.querySelector('script[src^="app.js"]'));
+  const uploadWizardOk = Boolean(document.querySelector("#pages-upload-wizard") && document.querySelector("#pagesUploadWizardSummary"));
+  const bodyText = (document.body?.textContent || "").trim();
+  const plainTextRisk = !appShellOk || bodyText.startsWith("# ") || bodyText.includes("const DATA_VERSION =");
+  const releaseDoctor = audit.releaseDoctor || makeReleaseDoctorAudit();
+  const checks = [
+    {
+      label: "Styled app shell",
+      ok: appShellOk && !plainTextRisk,
+      weight: 18,
+      detail: appShellOk && !plainTextRisk ? "The deployed page is rendering the full NiveshScope interface." : "The page may be serving plain text or the wrong root file shape."
+    },
+    {
+      label: "Release marker",
+      ok: releaseMarkerOk,
+      weight: 18,
+      detail: releaseMarkerOk ? "The top status strip shows Pilot feedback v61." : "Hard refresh or upload the latest v61 files until the status strip changes."
+    },
+    {
+      label: "Data loaded",
+      ok: dataOk,
+      weight: 16,
+      detail: dataOk ? `${getCompanies().length} companies and ${state.documents.length} documents are available.` : "Company or document JSON did not load; check the data folder at repository root."
+    },
+    {
+      label: isLocalPreview ? "Local preview path" : "GitHub Pages path",
+      ok: isLocalPreview || (isGitHubPages && correctLivePath),
+      weight: 14,
+      detail: isLocalPreview ? "This is a local preview; use the live URL after upload." : isGitHubPages && correctLivePath ? "The browser is on the expected GitHub Pages project URL." : "Open the deployed project URL, not a nested upload folder or another repository path."
+    },
+    {
+      label: "Cache-busted URL",
+      ok: isLocalPreview ? Boolean(cacheToken) : cacheToken === releaseNumber,
+      weight: 10,
+      detail: cacheToken ? `Current cache token is ${cacheToken}.` : `Use ${expectedLiveUrl} to bypass stale browser cache.`
+    },
+    {
+      label: "Root asset links",
+      ok: styleOk && scriptOk,
+      weight: 12,
+      detail: styleOk && scriptOk ? "Stylesheets and app script are linked from the page root." : "Missing CSS or app.js usually means the ZIP contents were uploaded inside an extra folder."
+    },
+    {
+      label: "Upload tools available",
+      ok: uploadWizardOk,
+      weight: 6,
+      detail: uploadWizardOk ? "Upload Wizard is present for rollback and root-check instructions." : "Upload Wizard shell is missing from the current build."
+    },
+    {
+      label: "Release Doctor",
+      ok: releaseDoctor.score === 100,
+      weight: 6,
+      detail: `Release Doctor score is ${releaseDoctor.score}%.`
+    }
+  ];
+  const score = checks.reduce((sum, check) => sum + (check.ok ? check.weight : 0), 0);
+  const passCount = checks.filter((check) => check.ok).length;
+  const failed = checks.filter((check) => !check.ok);
+  const statusLabel = score >= 90 ? (isLocalPreview ? "Local preview verified" : "Live upload verified") : score >= 70 ? "Verify before sharing" : "Fix deployment shape";
+  const statusClass = score >= 90 ? "is-ready" : score >= 70 ? "is-review" : "is-blocked";
+  const headline = score >= 90
+    ? "This release is serving with the right shape."
+    : failed[0]?.label === "Release marker"
+      ? "The site is running, but the visible version is stale."
+      : "The live upload needs one more deployment check.";
+  const summary = score >= 90
+    ? `Share ${expectedLiveUrl} after GitHub Actions finishes and the browser shows Pilot feedback v61.`
+    : `Handle ${failed.map((check) => check.label).join(", ")} before sending the link to anyone else.`;
+  const nextFix = failed[0]
+    ? { title: failed[0].label, detail: failed[0].detail }
+    : { title: "Share verified URL", detail: `Use ${expectedLiveUrl} as the public verification link.` };
+  return {
+    releaseLabel: RELEASE_LABEL,
+    dataVersion: DATA_VERSION,
+    generatedAt: new Date().toISOString(),
+    modeLabel: isLocalPreview ? "Local preview" : isGitHubPages ? "GitHub Pages" : "External URL",
+    currentUrl,
+    expectedLiveUrl,
+    cacheToken: cacheToken || "none",
+    statusLabel,
+    statusClass,
+    headline,
+    summary,
+    score,
+    passCount,
+    checks: checks.map((check) => ({
+      ...check,
+      status: check.ok ? "OK" : "Check",
+      className: check.ok ? "is-ready" : "is-review"
+    })),
+    metrics: [
+      { label: "Current URL", value: isLocalPreview ? "Local preview" : host || "Unknown", detail: currentUrl },
+      { label: "Expected live", value: `v${releaseNumber}`, detail: expectedLiveUrl },
+      { label: "Release marker", value: releaseMarkerOk ? "v61 shown" : "Not confirmed", detail: markerText.replace(/\s+/g, " ").trim() || "No status strip text detected." },
+      { label: "Data corpus", value: dataOk ? "Loaded" : "Check data", detail: `${getCompanies().length} companies | ${state.documents.length} documents` }
+    ],
+    nextFix
+  };
+}
+
+function makeLiveSiteVerificationMarkdown(doctor = makeLiveSiteDoctorAudit()) {
+  return [
+    `# NiveshScope ${RELEASE_LABEL} Live Site Verification`,
+    "",
+    `Generated: ${doctor.generatedAt}`,
+    `Score: ${doctor.score}%`,
+    `Status: ${doctor.statusLabel}`,
+    `Current URL: ${doctor.currentUrl}`,
+    `Expected URL: ${doctor.expectedLiveUrl}`,
+    "",
+    "## Checks",
+    ...doctor.checks.map((check) => `- ${check.status}: ${check.label} - ${check.detail}`),
+    "",
+    `Next fix: ${doctor.nextFix.title} - ${doctor.nextFix.detail}`
+  ].join("\n");
+}
+
+async function copyLiveSiteVerification() {
+  const copied = await copyTextToClipboard(makeLiveSiteVerificationMarkdown());
+  flashLiveSiteDoctorResult(copied ? "Live verification copied." : "Clipboard blocked. Use Export verification instead.", copied ? "success" : "error");
+}
+
+function exportLiveSiteVerification() {
+  const doctor = makeLiveSiteDoctorAudit();
+  const date = new Date().toISOString().slice(0, 10);
+  flashLiveSiteDoctorResult("Live verification exported.", "success");
+  window.setTimeout(() => {
+    downloadTextFile(`niveshscope-live-site-verification-v61-${date}.json`, JSON.stringify(doctor, null, 2), "application/json;charset=utf-8");
+  }, 60);
+}
+
+function openCacheBustedLiveSite() {
+  const doctor = makeLiveSiteDoctorAudit();
+  window.open(doctor.expectedLiveUrl, "_blank", "noopener,noreferrer");
+  flashLiveSiteDoctorResult("Cache-busted live URL opened.", "success");
+}
+
+function flashLiveSiteDoctorResult(message, tone = "neutral") {
+  if (!els.liveSiteDoctorResult) return;
+  els.liveSiteDoctorResult.className = `builder-result is-${tone}`;
+  els.liveSiteDoctorResult.textContent = message;
+}
+
+function bindGithubReleaseHandoff() {
+  els.githubReleaseHandoffOpen?.addEventListener("click", openGithubReleaseHandoff);
+  els.copyGithubCommitMessage?.addEventListener("click", copyGithubCommitMessage);
+  els.copyGithubReleaseNotes?.addEventListener("click", copyGithubReleaseNotes);
+  els.exportGithubReleaseHandoff?.addEventListener("click", exportGithubReleaseHandoff);
+  els.openGithubRepository?.addEventListener("click", openGithubReleaseRepository);
+  els.openGithubReleaseLive?.addEventListener("click", openGithubReleaseLiveSite);
+}
+
+function openGithubReleaseHandoff() {
+  renderGithubReleaseHandoff();
+  const panel = document.querySelector("#github-release-handoff");
+  if (!panel) return;
+  window.history.replaceState(null, "", "#github-release-handoff");
+  panel.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function renderGithubReleaseHandoff(audit = makeLaunchAudit()) {
+  if (!els.githubReleaseSummary || !els.githubReleaseArtifacts || !els.githubReleasePreview) return;
+  const handoff = makeGithubReleaseHandoffAudit(audit);
+  if (els.githubReleaseStatus) els.githubReleaseStatus.textContent = handoff.statusLabel;
+  els.githubReleaseSummary.innerHTML = `
+    <article class="github-release-hero ${escapeAttr(handoff.statusClass)}">
+      <div>
+        <span>${escapeHtml(handoff.statusLabel)}</span>
+        <strong>${escapeHtml(handoff.headline)}</strong>
+        <p>${escapeHtml(handoff.summary)}</p>
+      </div>
+      <div class="launch-score">
+        <span>Handoff score</span>
+        <strong>${escapeHtml(handoff.score)}%</strong>
+      </div>
+    </article>
+    <div class="github-release-metrics">
+      ${handoff.metrics.map((metric) => `
+        <article>
+          <span>${escapeHtml(metric.label)}</span>
+          <strong>${escapeHtml(metric.value)}</strong>
+          <p>${escapeHtml(metric.detail)}</p>
+        </article>
+      `).join("")}
+    </div>
+  `;
+  els.githubReleaseArtifacts.innerHTML = `
+    <div class="launch-control-card-head">
+      <span>Release artifacts</span>
+      <strong>${escapeHtml(handoff.artifacts.length)} items</strong>
+    </div>
+    <div class="github-release-artifact-grid">
+      ${handoff.artifacts.map((artifact) => `
+        <article class="${escapeAttr(artifact.statusClass)}">
+          <span>${escapeHtml(artifact.kind)}</span>
+          <strong>${escapeHtml(artifact.name)}</strong>
+          <p>${escapeHtml(artifact.detail)}</p>
+        </article>
+      `).join("")}
+    </div>
+  `;
+  els.githubReleasePreview.innerHTML = `
+    <div class="launch-control-card-head">
+      <span>Commit preview</span>
+      <strong>${escapeHtml(handoff.branchLabel)}</strong>
+    </div>
+    <article>
+      <span>Commit title</span>
+      <strong>${escapeHtml(handoff.commitTitle)}</strong>
+      <p>${escapeHtml(handoff.commitBody.split("\n")[0])}</p>
+    </article>
+    <article>
+      <span>After upload</span>
+      <strong>${escapeHtml(handoff.nextStep.title)}</strong>
+      <p>${escapeHtml(handoff.nextStep.detail)}</p>
+    </article>
+  `;
+}
+
+function makeGithubReleaseHandoffAudit(audit = makeLaunchAudit()) {
+  const upload = makePagesUploadWizardAudit(audit);
+  const live = makeLiveSiteDoctorAudit(audit);
+  const releaseDoctor = audit.releaseDoctor || makeReleaseDoctorAudit();
+  const releaseNumber = (RELEASE_LABEL.match(/v(\d+)/) || [null, "61"])[1];
+  const expectedLiveUrl = `${LIVE_SITE_URL}?v=${releaseNumber}`;
+  const recoveryPoints = (state.recoveryVault || []).length;
+  const checks = [
+    { ok: RELEASE_LABEL.includes(`v${releaseNumber}`), label: "Release label", weight: 12 },
+    { ok: RELEASE_PACKAGE_NAME.endsWith(".zip") && RELEASE_PACKAGE_NAME.includes(`v${releaseNumber}`), label: "Release ZIP", weight: 14 },
+    { ok: upload.score >= 80, label: "Upload plan", weight: 14 },
+    { ok: live.score >= 90, label: "Live verification", weight: 18 },
+    { ok: releaseDoctor.score === 100, label: "Root manifest", weight: 14 },
+    { ok: recoveryPoints > 0, label: "Recovery checkpoint", weight: 10 },
+    { ok: Boolean(REPOSITORY_URL), label: "Repository URL", weight: 8 },
+    { ok: Boolean(expectedLiveUrl), label: "Public URL", weight: 10 }
+  ];
+  const score = checks.reduce((sum, check) => sum + (check.ok ? check.weight : 0), 0);
+  const missing = checks.filter((check) => !check.ok);
+  const statusLabel = missing.length ? (score >= 72 ? "Handoff with caution" : "Complete release checks first") : "Ready for GitHub handoff";
+  const statusClass = missing.length ? (score >= 72 ? "is-review" : "is-blocked") : "is-ready";
+  const headline = missing.length
+    ? "Finish the remaining release evidence before committing."
+    : "v60 is packaged, verifiable, and ready to commit.";
+  const summary = missing.length
+    ? `Resolve ${missing.map((item) => item.label).join(", ")} before treating the release as complete.`
+    : "Copy the commit message, upload the ZIP contents to GitHub root, run Live Site Doctor, and archive the handoff report.";
+  const commitTitle = `Ship NiveshScope ${RELEASE_LABEL}`;
+  const commitBody = [
+    "Add GitHub Release Handoff to the launch workflow.",
+    "",
+    `- Package: ${RELEASE_PACKAGE_NAME}`,
+    `- Live verification URL: ${expectedLiveUrl}`,
+    "- Adds commit-message, release-note, repository, and verification handoff controls.",
+    "- Keeps Upload Wizard and Live Site Doctor connected for post-upload checks."
+  ].join("\n");
+  const artifacts = [
+    { kind: "ZIP", name: RELEASE_PACKAGE_NAME, detail: "Upload the contents inside this ZIP to the GitHub Pages repository root.", statusClass: "is-ready" },
+    { kind: "Root", name: "index.html / app.js / styles.css", detail: "Required root files must appear directly in the repository, not inside a nested release folder.", statusClass: releaseDoctor.score === 100 ? "is-ready" : "is-review" },
+    { kind: "Docs", name: "docs/GITHUB_RELEASE_HANDOFF.md", detail: "Release handoff operating note for future upload and commit routines.", statusClass: "is-ready" },
+    { kind: "Live", name: expectedLiveUrl, detail: "Open after GitHub Pages finishes publishing and confirm the v61 status marker.", statusClass: live.score >= 90 ? "is-ready" : "is-review" },
+    { kind: "Backup", name: recoveryPoints ? `${recoveryPoints} recovery point${recoveryPoints === 1 ? "" : "s"}` : "No recovery point", detail: recoveryPoints ? "Recovery Vault can roll back the browser workspace." : "Create one before replacing live files.", statusClass: recoveryPoints ? "is-ready" : "is-review" },
+    { kind: "Repo", name: REPOSITORY_URL, detail: "Use this repository for the Pages upload and commit record.", statusClass: "is-ready" }
+  ];
+  return {
+    releaseLabel: RELEASE_LABEL,
+    dataVersion: DATA_VERSION,
+    packageName: RELEASE_PACKAGE_NAME,
+    repositoryUrl: REPOSITORY_URL,
+    expectedLiveUrl,
+    generatedAt: new Date().toISOString(),
+    statusLabel,
+    statusClass,
+    headline,
+    summary,
+    score,
+    checks,
+    metrics: [
+      { label: "Package", value: RELEASE_PACKAGE_NAME, detail: "Release ZIP prepared for GitHub Pages upload." },
+      { label: "Upload", value: `${upload.score}%`, detail: upload.statusLabel },
+      { label: "Live check", value: `${live.score}%`, detail: live.statusLabel },
+      { label: "Commit", value: "Ready note", detail: commitTitle }
+    ],
+    artifacts,
+    branchLabel: "main branch upload",
+    commitTitle,
+    commitBody,
+    nextStep: missing.length
+      ? { title: `Fix ${missing[0].label}`, detail: "Open the related launch room before committing the update." }
+      : { title: "Upload and verify", detail: `Upload the ZIP contents, then open ${expectedLiveUrl} and run Live Site Doctor.` }
+  };
+}
+
+function makeGithubCommitMarkdown(handoff = makeGithubReleaseHandoffAudit()) {
+  return `${handoff.commitTitle}\n\n${handoff.commitBody}`;
+}
+
+function makeGithubReleaseNotesMarkdown(handoff = makeGithubReleaseHandoffAudit()) {
+  return [
+    `# NiveshScope ${RELEASE_LABEL} Release Handoff`,
+    "",
+    `Generated: ${handoff.generatedAt}`,
+    `Repository: ${handoff.repositoryUrl}`,
+    `Package: ${handoff.packageName}`,
+    `Live URL: ${handoff.expectedLiveUrl}`,
+    `Handoff score: ${handoff.score}%`,
+    "",
+    "## Commit Message",
+    "```text",
+    makeGithubCommitMarkdown(handoff),
+    "```",
+    "",
+    "## Release Artifacts",
+    ...handoff.artifacts.map((artifact) => `- ${artifact.kind}: ${artifact.name} - ${artifact.detail}`),
+    "",
+    "## Post-Upload Checks",
+    "- Confirm the repository root shows index.html, app.js, styles.css, launch.css, assets, data, docs, scripts, .nojekyll, README.md, and SECURITY.md.",
+    `- Open ${handoff.expectedLiveUrl}.`,
+    "- Confirm the status strip says Pilot feedback v61.",
+    "- Run Live Site Doctor and export the verification report.",
+    "- Keep this handoff note with the GitHub commit or release record."
+  ].join("\n");
+}
+
+async function copyGithubCommitMessage() {
+  const copied = await copyTextToClipboard(makeGithubCommitMarkdown());
+  flashGithubReleaseResult(copied ? "GitHub commit message copied." : "Clipboard blocked. Use Export handoff instead.", copied ? "success" : "error");
+}
+
+async function copyGithubReleaseNotes() {
+  const copied = await copyTextToClipboard(makeGithubReleaseNotesMarkdown());
+  flashGithubReleaseResult(copied ? "Release notes copied." : "Clipboard blocked. Use Export handoff instead.", copied ? "success" : "error");
+}
+
+function exportGithubReleaseHandoff() {
+  const handoff = makeGithubReleaseHandoffAudit();
+  const date = new Date().toISOString().slice(0, 10);
+  flashGithubReleaseResult("GitHub release handoff exported.", "success");
+  window.setTimeout(() => {
+    downloadTextFile(`niveshscope-github-release-handoff-v61-${date}.json`, JSON.stringify(handoff, null, 2), "application/json;charset=utf-8");
+  }, 60);
+}
+
+function openGithubReleaseRepository() {
+  window.open(REPOSITORY_URL, "_blank", "noopener,noreferrer");
+  flashGithubReleaseResult("GitHub repository opened.", "success");
+}
+
+function openGithubReleaseLiveSite() {
+  const handoff = makeGithubReleaseHandoffAudit();
+  window.open(handoff.expectedLiveUrl, "_blank", "noopener,noreferrer");
+  flashGithubReleaseResult("Live v61 verification URL opened.", "success");
+}
+
+function flashGithubReleaseResult(message, tone = "neutral") {
+  if (!els.githubReleaseResult) return;
+  els.githubReleaseResult.className = `builder-result is-${tone}`;
+  els.githubReleaseResult.textContent = message;
+}
+
+function bindPilotDemoRoom() {
+  els.pilotDemoRoomOpen?.addEventListener("click", openPilotDemoRoom);
+  els.loadPilotDemoQuestion?.addEventListener("click", loadPilotDemoQuestion);
+  els.copyPilotDemoScript?.addEventListener("click", copyPilotDemoScript);
+  els.copyPilotFollowup?.addEventListener("click", copyPilotFollowup);
+  els.exportPilotDemoPack?.addEventListener("click", exportPilotDemoPack);
+}
+
+function openPilotDemoRoom() {
+  renderPilotDemoRoom();
+  const panel = document.querySelector("#pilot-demo-room");
+  if (!panel) return;
+  window.history.replaceState(null, "", "#pilot-demo-room");
+  panel.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function renderPilotDemoRoom(audit = makeLaunchAudit()) {
+  if (!els.pilotDemoSummary || !els.pilotDemoScript || !els.pilotDemoQuestions) return;
+  const demo = makePilotDemoRoomAudit(audit);
+  if (els.pilotDemoStatus) els.pilotDemoStatus.textContent = demo.statusLabel;
+  els.pilotDemoSummary.innerHTML = `
+    <article class="pilot-demo-hero ${escapeAttr(demo.statusClass)}">
+      <div>
+        <span>${escapeHtml(demo.statusLabel)}</span>
+        <strong>${escapeHtml(demo.headline)}</strong>
+        <p>${escapeHtml(demo.summary)}</p>
+      </div>
+      <div class="launch-score">
+        <span>Demo score</span>
+        <strong>${escapeHtml(demo.readiness)}%</strong>
+      </div>
+    </article>
+    <div class="pilot-demo-metrics">
+      ${demo.metrics.map((metric) => `
+        <article>
+          <span>${escapeHtml(metric.label)}</span>
+          <strong>${escapeHtml(metric.value)}</strong>
+          <p>${escapeHtml(metric.detail)}</p>
+        </article>
+      `).join("")}
+    </div>
+  `;
+  els.pilotDemoScript.innerHTML = `
+    <div class="launch-control-card-head">
+      <span>5-minute script</span>
+      <strong>${escapeHtml(demo.agenda.length)} moves</strong>
+    </div>
+    <div class="pilot-demo-agenda-grid">
+      ${demo.agenda.map((item) => `
+        <article>
+          <span>${escapeHtml(item.time)}</span>
+          <strong>${escapeHtml(item.title)}</strong>
+          <p>${escapeHtml(item.line)}</p>
+        </article>
+      `).join("")}
+    </div>
+    <article class="pilot-demo-safety">
+      <span>Source safety line</span>
+      <strong>${escapeHtml(demo.safetyLines[0])}</strong>
+      <p>${escapeHtml(demo.safetyLines.slice(1).join(" "))}</p>
+    </article>
+  `;
+  els.pilotDemoQuestions.innerHTML = `
+    <div class="launch-control-card-head">
+      <span>Sample questions</span>
+      <strong>${escapeHtml(demo.sampleQuestions.length)} ready</strong>
+    </div>
+    <div class="pilot-demo-question-grid">
+      ${demo.sampleQuestions.map((item) => `
+        <article>
+          <span>${escapeHtml(item.ticker)}</span>
+          <strong>${escapeHtml(item.question)}</strong>
+          <p>${escapeHtml(item.why)}</p>
+        </article>
+      `).join("")}
+    </div>
+  `;
+}
+
+function makePilotDemoRoomAudit(audit = makeLaunchAudit()) {
+  const handoff = makeGithubReleaseHandoffAudit(audit);
+  const live = makeLiveSiteDoctorAudit(audit);
+  const gate = makeInvestmentGateAudit();
+  const sourceStatuses = countSourceQueueStatuses(buildSourceQueueItems());
+  const releaseNumber = (RELEASE_LABEL.match(/v(\d+)/) || [null, "61"])[1];
+  const sampleQuestions = [
+    {
+      ticker: "RELIANCE",
+      question: "What are the risks for $RELIANCE?",
+      why: "Shows source-backed risk factors, the selected-ticker guard, and the SYN warning before investment use."
+    },
+    {
+      ticker: "TCS",
+      question: "Compare $TCS and $HDFCBANK on margin durability and cash conversion.",
+      why: "Shows comparative analysis, citations, management tone, and quality checks in one quick answer."
+    },
+    {
+      ticker: "LT",
+      question: "What should I watch in $LT order book quality and working capital?",
+      why: "Shows how the desk turns an operating concern into source tasks and review follow-ups."
+    }
+  ];
+  const checks = [
+    { ok: handoff.score >= 72, label: "Release handoff", weight: 18, detail: `${handoff.score}% handoff score` },
+    { ok: live.score >= 80, label: "Live site", weight: 18, detail: `${live.score}% live-site doctor score` },
+    { ok: audit.score >= 55, label: "Launch control", weight: 16, detail: `${audit.score}% launch score` },
+    { ok: Boolean(sampleQuestions.length), label: "Demo questions", weight: 12, detail: `${sampleQuestions.length} questions ready` },
+    { ok: gate.score >= 10, label: "Readiness gate", weight: 12, detail: `${gate.score}% current gate score` },
+    { ok: sourceStatuses.synthetic > 0 || sourceStatuses.real > 0, label: "Evidence story", weight: 12, detail: `${sourceStatuses.real || 0} REAL, ${sourceStatuses.synthetic || 0} SYN sources` },
+    { ok: Boolean(REPOSITORY_URL && LIVE_SITE_URL), label: "Public links", weight: 12, detail: "Repository and public URL configured" }
+  ];
+  const readiness = checks.reduce((sum, check) => sum + (check.ok ? check.weight : 0), 0);
+  const missing = checks.filter((check) => !check.ok);
+  const statusLabel = readiness >= 86 ? "Pilot demo ready" : readiness >= 65 ? "Demo with caveats" : "Prepare demo first";
+  const statusClass = readiness >= 86 ? "is-ready" : readiness >= 65 ? "is-review" : "is-blocked";
+  const headline = readiness >= 86
+    ? "A five-minute founder demo is ready to run."
+    : "Use this room to keep the demo honest and focused.";
+  const summary = missing.length
+    ? `Lead with the product flow, then name the caveat: ${missing[0].label} still needs review.`
+    : "Open the desk, load the demo question, explain source safety, then close with the pilot ask.";
+  const agenda = [
+    { time: "0:00", title: "Open with the problem", line: "Indian equity research is scattered across annual reports, exchange filings, concalls, shareholding data, and notes." },
+    { time: "0:45", title: "Show the desk", line: "Load one concrete question and let the user see the cited answer, confidence, risk factors, and dossier side by side." },
+    { time: "2:00", title: "Show evidence control", line: "Point out the selected-ticker guard, SYN warning, source coverage, and REAL source replacement workflow." },
+    { time: "3:15", title: "Show operating workflow", line: "Jump to Source Studio, Coverage Map, or Readiness Gate to show how the team moves from demo evidence to reviewed evidence." },
+    { time: "4:30", title: "Close with pilot ask", line: "Ask for three companies, five source records each, and one pilot user who will test real research questions." }
+  ];
+  const safetyLines = [
+    "This demo separates product capability from investment-use readiness.",
+    "The starter corpus can include SYN evidence, so every answer is marked with source coverage, evidence quality, and the next REAL-source task.",
+    "Before investment use, annual report, concall, results, shareholding, and announcement records should be replaced with official URLs and reviewed text."
+  ];
+  const followup = [
+    `Subject: NiveshScope ${RELEASE_LABEL} pilot demo follow-up`,
+    "",
+    "Thanks for reviewing NiveshScope. The product path we showed was:",
+    "1. Ask a focused Indian equity question.",
+    "2. Read a cited answer with risk, tone, valuation, and source-quality checks.",
+    "3. Replace SYN starter evidence with official annual report, concall, results, shareholding, and announcement sources.",
+    "4. Use readiness gates before any committee or investment-use workflow.",
+    "",
+    "Suggested pilot: choose three companies, collect five official source records per company, and run five real research questions through the desk."
+  ].join("\n");
+  return {
+    releaseLabel: RELEASE_LABEL,
+    releaseNumber,
+    generatedAt: new Date().toISOString(),
+    readiness,
+    statusLabel,
+    statusClass,
+    headline,
+    summary,
+    checks,
+    metrics: [
+      { label: "Script", value: "5 min", detail: "Founder-led talk track with a clear close." },
+      { label: "Questions", value: sampleQuestions.length, detail: "RELIANCE, TCS/HDFCBANK, and LT demos." },
+      { label: "Evidence", value: `${sourceStatuses.real || 0} REAL`, detail: `${sourceStatuses.synthetic || 0} SYN starter records still visible.` },
+      { label: "Live", value: `${live.score}%`, detail: `${LIVE_SITE_URL}?v=${releaseNumber}` }
+    ],
+    agenda,
+    sampleQuestions,
+    safetyLines,
+    followup,
+    handoffScore: handoff.score,
+    liveScore: live.score,
+    launchScore: audit.score,
+    readinessGateScore: gate.score,
+    repositoryUrl: REPOSITORY_URL,
+    liveUrl: `${LIVE_SITE_URL}?v=${releaseNumber}`
+  };
+}
+
+function makePilotDemoScriptMarkdown(demo = makePilotDemoRoomAudit()) {
+  return [
+    `# NiveshScope ${RELEASE_LABEL} Pilot Demo Script`,
+    "",
+    `Generated: ${demo.generatedAt}`,
+    `Demo score: ${demo.readiness}%`,
+    `Status: ${demo.statusLabel}`,
+    `Live URL: ${demo.liveUrl}`,
+    "",
+    "## Opening",
+    demo.summary,
+    "",
+    "## 5-Minute Run",
+    ...demo.agenda.map((item) => `- ${item.time} ${item.title}: ${item.line}`),
+    "",
+    "## Demo Questions",
+    ...demo.sampleQuestions.map((item) => `- ${item.ticker}: ${item.question} (${item.why})`),
+    "",
+    "## Source Safety",
+    ...demo.safetyLines.map((line) => `- ${line}`),
+    "",
+    "## Close",
+    "Ask for three companies, five official source records per company, and five real research questions from one pilot user."
+  ].join("\n");
+}
+
+function makePilotFollowupMarkdown(demo = makePilotDemoRoomAudit()) {
+  return demo.followup;
+}
+
+function loadPilotDemoQuestion() {
+  const demo = makePilotDemoRoomAudit();
+  const question = demo.sampleQuestions[0]?.question || "What are the risks for $RELIANCE?";
+  if (els.queryInput) {
+    els.queryInput.value = question;
+    syncTickerFocus(question);
+  }
+  document.querySelector("#desk")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  runAnalysis(question);
+  addSessionTimelineEvent({
+    type: "checkpoint",
+    title: "Pilot demo question loaded",
+    detail: question,
+    ticker: "RELIANCE",
+    question
+  }, { quiet: true });
+  flashPilotDemoResult("Demo question loaded and analysis started.", "success");
+}
+
+async function copyPilotDemoScript() {
+  const copied = await copyTextToClipboard(makePilotDemoScriptMarkdown());
+  flashPilotDemoResult(copied ? "Pilot demo script copied." : "Clipboard blocked. Use Export demo pack instead.", copied ? "success" : "error");
+}
+
+async function copyPilotFollowup() {
+  const copied = await copyTextToClipboard(makePilotFollowupMarkdown());
+  flashPilotDemoResult(copied ? "Pilot follow-up copied." : "Clipboard blocked. Use Export demo pack instead.", copied ? "success" : "error");
+}
+
+function exportPilotDemoPack() {
+  const demo = makePilotDemoRoomAudit();
+  const date = new Date().toISOString().slice(0, 10);
+  const pack = {
+    ...demo,
+    scriptMarkdown: makePilotDemoScriptMarkdown(demo),
+    followupMarkdown: makePilotFollowupMarkdown(demo)
+  };
+  flashPilotDemoResult("Pilot demo pack exported.", "success");
+  window.setTimeout(() => {
+    downloadTextFile(`niveshscope-pilot-demo-pack-v61-${date}.json`, JSON.stringify(pack, null, 2), "application/json;charset=utf-8");
+  }, 60);
+}
+
+function flashPilotDemoResult(message, tone = "neutral") {
+  if (!els.pilotDemoResult) return;
+  els.pilotDemoResult.className = `builder-result is-${tone}`;
+  els.pilotDemoResult.textContent = message;
+}
+
+function bindPilotFeedbackRoom() {
+  els.pilotFeedbackRoomOpen?.addEventListener("click", openPilotFeedbackRoom);
+  els.pilotFeedbackForm?.addEventListener("submit", (event) => {
+    event.preventDefault();
+    savePilotFeedbackEntry();
+  });
+  els.openPilotFeedbackFollowup?.addEventListener("click", openPilotFeedbackFollowup);
+  els.copyPilotFeedbackReport?.addEventListener("click", copyPilotFeedbackReport);
+  els.exportPilotFeedbackReport?.addEventListener("click", exportPilotFeedbackReport);
+  els.clearPilotFeedbackForm?.addEventListener("click", clearPilotFeedbackForm);
+}
+
+function openPilotFeedbackRoom() {
+  renderPilotFeedbackCompanyOptions();
+  renderPilotFeedbackRoom();
+  const panel = document.querySelector("#pilot-feedback-room");
+  if (!panel) return;
+  window.history.replaceState(null, "", "#pilot-feedback-room");
+  panel.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function renderPilotFeedbackCompanyOptions() {
+  if (!els.pilotFeedbackCompany) return;
+  const current = els.pilotFeedbackCompany.value || state.selectedTicker || STARTER_PACK_TICKERS[0] || "";
+  els.pilotFeedbackCompany.innerHTML = getCompanies().map((company) => `
+    <option value="${escapeAttr(company.ticker)}"${company.ticker === current ? " selected" : ""}>${escapeHtml(company.ticker)} - ${escapeHtml(company.name)}</option>
+  `).join("");
+}
+
+function renderPilotFeedbackRoom(audit = makeLaunchAudit()) {
+  if (!els.pilotFeedbackSummary || !els.pilotFeedbackList) return;
+  if (els.pilotFeedbackDate && !els.pilotFeedbackDate.value) {
+    els.pilotFeedbackDate.value = new Date().toISOString().slice(0, 10);
+  }
+  if (els.pilotFeedbackCompany && state.selectedTicker) {
+    const hasSelected = Array.from(els.pilotFeedbackCompany.options).some((option) => option.value === state.selectedTicker);
+    if (hasSelected && !els.pilotFeedbackCompany.value) els.pilotFeedbackCompany.value = state.selectedTicker;
+  }
+  const feedback = makePilotFeedbackAudit(audit);
+  if (els.pilotFeedbackStatus) els.pilotFeedbackStatus.textContent = feedback.statusLabel;
+  els.pilotFeedbackSummary.innerHTML = `
+    <article class="pilot-feedback-hero ${escapeAttr(feedback.statusClass)}">
+      <div>
+        <span>${escapeHtml(feedback.statusLabel)}</span>
+        <strong>${escapeHtml(feedback.headline)}</strong>
+        <p>${escapeHtml(feedback.summary)}</p>
+      </div>
+      <div class="launch-score">
+        <span>Signal score</span>
+        <strong>${escapeHtml(feedback.score)}%</strong>
+      </div>
+    </article>
+    <div class="pilot-feedback-metrics">
+      ${feedback.metrics.map((metric) => `
+        <article>
+          <span>${escapeHtml(metric.label)}</span>
+          <strong>${escapeHtml(metric.value)}</strong>
+          <p>${escapeHtml(metric.detail)}</p>
+        </article>
+      `).join("")}
+    </div>
+    <div class="pilot-feedback-radar">
+      <div class="launch-control-card-head">
+        <span>Objection radar</span>
+        <strong>${escapeHtml(feedback.objectionRadar.length)} signals</strong>
+      </div>
+      <div class="pilot-feedback-radar-grid">
+        ${feedback.objectionRadar.map((item) => `
+          <article class="${escapeAttr(item.className)}">
+            <span>${escapeHtml(item.label)}</span>
+            <strong>${escapeHtml(item.count)}</strong>
+            <p>${escapeHtml(item.detail)}</p>
+          </article>
+        `).join("")}
+      </div>
+    </div>
+  `;
+  els.pilotFeedbackList.innerHTML = feedback.entries.length
+    ? `
+      <div class="launch-control-card-head">
+        <span>Saved feedback</span>
+        <strong>${escapeHtml(feedback.entries.length)} entries</strong>
+      </div>
+      ${feedback.entries.map((entry) => `
+        <article class="pilot-feedback-entry ${escapeAttr(entry.className)}">
+          <div>
+            <span>${escapeHtml(entry.outcomeLabel)} | ${escapeHtml(entry.profile)} | ${escapeHtml(formatShortDate(entry.date))}</span>
+            <strong>${escapeHtml(entry.name)} - ${escapeHtml(entry.ticker)}</strong>
+            <p>${escapeHtml(entry.signal || "No positive signal captured.")}</p>
+          </div>
+          <div>
+            <span>Objection</span>
+            <p>${escapeHtml(entry.objection || "No objection captured.")}</p>
+          </div>
+          <div>
+            <span>Next step</span>
+            <p>${escapeHtml(entry.nextStep || feedback.nextAction.detail)}</p>
+          </div>
+        </article>
+      `).join("")}
+    `
+    : `<div class="empty-list">No pilot feedback yet. Save one demo reaction to create an objection radar and follow-up pack.</div>`;
+}
+
+function normalizePilotFeedbackEntry(entry) {
+  if (!entry || typeof entry !== "object") return null;
+  const ticker = normalizeTicker(entry.ticker || state.selectedTicker || STARTER_PACK_TICKERS[0] || "RELIANCE");
+  const outcome = normalizePilotOutcome(entry.outcome);
+  const createdAt = entry.createdAt || new Date().toISOString();
+  const date = entry.date || createdAt.slice(0, 10);
+  const normalized = {
+    id: entry.id || `pilot-${Date.now()}-${Math.random().toString(16).slice(2, 8)}`,
+    name: String(entry.name || "Unnamed pilot").trim().slice(0, 90),
+    profile: String(entry.profile || "Investor").trim().slice(0, 40),
+    ticker,
+    companyName: getCompany(ticker)?.name || ticker,
+    outcome,
+    outcomeLabel: pilotOutcomeLabel(outcome),
+    signal: String(entry.signal || "").trim().slice(0, 900),
+    objection: String(entry.objection || "").trim().slice(0, 900),
+    nextStep: String(entry.nextStep || "").trim().slice(0, 900),
+    date,
+    createdAt
+  };
+  normalized.score = scorePilotFeedbackEntry(normalized);
+  normalized.className = pilotOutcomeClass(normalized.outcome);
+  normalized.objectionTags = classifyPilotObjections(normalized);
+  return normalized;
+}
+
+function normalizePilotOutcome(value) {
+  const key = String(value || "").toLowerCase();
+  if (["hot", "source-proof", "security", "pricing", "later"].includes(key)) return key;
+  if (key.includes("source")) return "source-proof";
+  if (key.includes("security") || key.includes("compliance")) return "security";
+  if (key.includes("price") || key.includes("pricing")) return "pricing";
+  if (key.includes("later")) return "later";
+  return "hot";
+}
+
+function pilotOutcomeLabel(outcome) {
+  return ({
+    hot: "Hot - wants pilot",
+    "source-proof": "Needs real source proof",
+    security: "Security / compliance question",
+    pricing: "Pricing / package question",
+    later: "Later / not urgent"
+  })[outcome] || "Pilot feedback";
+}
+
+function pilotOutcomeClass(outcome) {
+  return ({
+    hot: "is-ready",
+    "source-proof": "is-review",
+    security: "is-blocked",
+    pricing: "is-review",
+    later: "is-muted"
+  })[outcome] || "is-review";
+}
+
+function scorePilotFeedbackEntry(entry) {
+  const base = ({
+    hot: 92,
+    "source-proof": 74,
+    security: 62,
+    pricing: 68,
+    later: 42
+  })[entry.outcome] || 50;
+  const detailBoost = [entry.signal, entry.objection, entry.nextStep].filter((text) => String(text || "").length > 24).length * 4;
+  return Math.min(100, base + detailBoost);
+}
+
+function classifyPilotObjections(entry) {
+  const text = `${entry.outcome} ${entry.signal} ${entry.objection} ${entry.nextStep}`.toLowerCase();
+  const tags = [];
+  if (/source|real|official|citation|evidence|syn|annual|concall|nse|bse/.test(text)) tags.push("Source proof");
+  if (/security|compliance|audit|privacy|permission|role|login|auth|malware/.test(text)) tags.push("Security");
+  if (/price|pricing|cost|package|subscription|budget|rs|rupee/.test(text)) tags.push("Pricing");
+  if (/coverage|company|ticker|sector|watchlist|universe/.test(text)) tags.push("Coverage");
+  if (/pdf|export|workflow|upload|github|report|brief|memo/.test(text)) tags.push("Workflow");
+  if (!tags.length) tags.push(entry.outcome === "hot" ? "Conversion" : "General");
+  return tags;
+}
+
+function makePilotFeedbackAudit(audit = makeLaunchAudit()) {
+  const entries = (state.pilotFeedback || []).map(normalizePilotFeedbackEntry).filter(Boolean);
+  const hot = entries.filter((entry) => entry.outcome === "hot").length;
+  const blockers = entries.filter((entry) => ["source-proof", "security", "pricing"].includes(entry.outcome)).length;
+  const avgScore = entries.length
+    ? Math.round(entries.reduce((sum, entry) => sum + entry.score, 0) / entries.length)
+    : 0;
+  const tagCounts = entries.reduce((counts, entry) => {
+    for (const tag of entry.objectionTags) counts[tag] = (counts[tag] || 0) + 1;
+    return counts;
+  }, {});
+  const objectionRadar = Object.entries({
+    "Source proof": tagCounts["Source proof"] || 0,
+    Security: tagCounts.Security || 0,
+    Pricing: tagCounts.Pricing || 0,
+    Coverage: tagCounts.Coverage || 0,
+    Workflow: tagCounts.Workflow || 0,
+    Conversion: tagCounts.Conversion || 0
+  }).map(([label, count]) => ({
+    label,
+    count,
+    className: count ? (label === "Security" ? "is-blocked" : label === "Conversion" ? "is-ready" : "is-review") : "is-muted",
+    detail: pilotObjectionDetail(label, count)
+  }));
+  const nextAction = makePilotFeedbackNextAction(entries, audit, objectionRadar);
+  const score = entries.length ? Math.min(100, Math.round((avgScore * 0.7) + (hot ? 18 : 0) + Math.max(0, 12 - blockers * 2))) : 0;
+  const statusLabel = entries.length ? (hot ? "Pilot signal active" : "Feedback captured") : "No feedback yet";
+  const statusClass = entries.length ? (hot ? "is-ready" : "is-review") : "is-blocked";
+  const headline = entries.length
+    ? `${hot} hot signal${hot === 1 ? "" : "s"}, ${blockers} objection${blockers === 1 ? "" : "s"} to work.`
+    : "Capture the first demo reaction after a pilot call.";
+  const summary = entries.length
+    ? `${nextAction.title}: ${nextAction.detail}`
+    : "After each demo, save the strongest buying signal, the biggest objection, and the next proof task.";
+  return {
+    releaseLabel: RELEASE_LABEL,
+    generatedAt: new Date().toISOString(),
+    statusLabel,
+    statusClass,
+    headline,
+    summary,
+    score,
+    entries,
+    hot,
+    blockers,
+    avgScore,
+    objectionRadar,
+    nextAction,
+    metrics: [
+      { label: "Feedback", value: entries.length, detail: "Saved pilot reactions in this browser." },
+      { label: "Hot signals", value: hot, detail: "Conversations with direct pilot intent." },
+      { label: "Objections", value: blockers, detail: "Source, security, or pricing blockers to resolve." },
+      { label: "Launch score", value: `${audit.score}%`, detail: "Current product readiness context." }
+    ]
+  };
+}
+
+function pilotObjectionDetail(label, count) {
+  if (!count) return "No signal captured yet.";
+  return ({
+    "Source proof": "Replace SYN starter records with official source text.",
+    Security: "Prepare trust, audit, and production-control answers.",
+    Pricing: "Clarify pilot package, value proof, and subscription path.",
+    Coverage: "Show target ticker and sector coverage roadmap.",
+    Workflow: "Tighten export, PDF, upload, and handoff workflow.",
+    Conversion: "Use this as the next pilot-close candidate."
+  })[label] || "Review the latest notes.";
+}
+
+function makePilotFeedbackNextAction(entries, audit, radar) {
+  if (!entries.length) {
+    return { title: "Run a demo first", detail: "Open Pilot Demo Room, load a sample question, then save the reaction here.", target: "#pilot-demo-room" };
+  }
+  const strongest = radar.filter((item) => item.count > 0).sort((a, b) => b.count - a.count)[0];
+  if (strongest?.label === "Security") return { title: "Open Trust Center", detail: "Security is the strongest blocker. Prepare trust and production-control answers.", target: "#trust-center" };
+  if (strongest?.label === "Source proof") return { title: "Open Source Studio", detail: "Source proof is the strongest blocker. Replace the next SYN source with REAL evidence.", target: "#source-builder" };
+  if (strongest?.label === "Pricing") return { title: "Open pricing", detail: "Pricing is the strongest blocker. Clarify pilot plan and value proof.", target: "#pricing" };
+  if (strongest?.label === "Coverage") return { title: "Open Coverage Map", detail: "Coverage is the strongest blocker. Show ticker/source readiness.", target: "#coverage-command" };
+  if (strongest?.label === "Workflow") return { title: "Open Answer Quality", detail: "Workflow friction is visible. Tighten export and report quality.", target: "#answer-quality-lab" };
+  const hot = entries.find((entry) => entry.outcome === "hot");
+  if (hot) return { title: "Copy follow-up", detail: `${hot.name} looks ready for a concrete pilot ask.`, target: "#pilot-feedback-room" };
+  return { title: "Open Launch Control", detail: `Product score is ${audit.score}%. Work the highest blocker before the next pilot.`, target: "#launch-control-room" };
+}
+
+function makePilotFeedbackEntryFromForm() {
+  const name = String(els.pilotFeedbackName?.value || "").trim();
+  const signal = String(els.pilotFeedbackSignal?.value || "").trim();
+  const objection = String(els.pilotFeedbackObjection?.value || "").trim();
+  const nextStep = String(els.pilotFeedbackNextStep?.value || "").trim();
+  if (!name) return { error: "Add the pilot or account name first." };
+  if (!signal && !objection && !nextStep) return { error: "Add at least one signal, objection, or next follow-up." };
+  return {
+    entry: normalizePilotFeedbackEntry({
+      id: `pilot-${Date.now()}`,
+      name,
+      profile: els.pilotFeedbackProfile?.value || "Investor",
+      ticker: els.pilotFeedbackCompany?.value || state.selectedTicker,
+      outcome: els.pilotFeedbackOutcome?.value || "hot",
+      date: els.pilotFeedbackDate?.value || new Date().toISOString().slice(0, 10),
+      signal,
+      objection,
+      nextStep,
+      createdAt: new Date().toISOString()
+    })
+  };
+}
+
+function savePilotFeedbackEntry() {
+  const result = makePilotFeedbackEntryFromForm();
+  if (result.error) {
+    flashPilotFeedbackResult(result.error, "error");
+    return;
+  }
+  const entry = result.entry;
+  state.pilotFeedback = [entry, ...(state.pilotFeedback || [])].slice(0, 80);
+  saveJson(STORAGE_KEYS.pilotFeedback, state.pilotFeedback);
+  addSessionTimelineEvent({
+    type: "checkpoint",
+    title: `${entry.ticker} pilot feedback saved`,
+    detail: `${entry.outcomeLabel}: ${entry.nextStep || entry.objection || entry.signal}`,
+    ticker: entry.ticker,
+    question: els.queryInput?.value || ""
+  }, { quiet: true });
+  renderPilotFeedbackRoom();
+  renderWorkspaceSnapshot();
+  renderLaunchControlRoom();
+  flashPilotFeedbackResult("Pilot feedback saved.", "success");
+}
+
+function clearPilotFeedbackForm() {
+  if (els.pilotFeedbackName) els.pilotFeedbackName.value = "";
+  if (els.pilotFeedbackSignal) els.pilotFeedbackSignal.value = "";
+  if (els.pilotFeedbackObjection) els.pilotFeedbackObjection.value = "";
+  if (els.pilotFeedbackNextStep) els.pilotFeedbackNextStep.value = "";
+  if (els.pilotFeedbackDate) els.pilotFeedbackDate.value = new Date().toISOString().slice(0, 10);
+  if (els.pilotFeedbackOutcome) els.pilotFeedbackOutcome.value = "hot";
+  flashPilotFeedbackResult("Pilot feedback form cleared.", "neutral");
+}
+
+function openPilotFeedbackFollowup() {
+  const feedback = makePilotFeedbackAudit();
+  const target = feedback.nextAction.target || "#pilot-feedback-room";
+  window.history.replaceState(null, "", target);
+  document.querySelector(target)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  flashPilotFeedbackResult(`${feedback.nextAction.title} opened.`, "success");
+}
+
+function makePilotFeedbackMarkdown(feedback = makePilotFeedbackAudit()) {
+  return [
+    `# NiveshScope ${RELEASE_LABEL} Pilot Feedback Report`,
+    "",
+    `Generated: ${feedback.generatedAt}`,
+    `Status: ${feedback.statusLabel}`,
+    `Signal score: ${feedback.score}%`,
+    `Saved feedback: ${feedback.entries.length}`,
+    `Hot signals: ${feedback.hot}`,
+    `Objections: ${feedback.blockers}`,
+    "",
+    "## Next Move",
+    `${feedback.nextAction.title}: ${feedback.nextAction.detail}`,
+    "",
+    "## Objection Radar",
+    ...feedback.objectionRadar.map((item) => `- ${item.label}: ${item.count} - ${item.detail}`),
+    "",
+    "## Feedback Entries",
+    ...(feedback.entries.length ? feedback.entries.map((entry) => [
+      `### ${entry.name} - ${entry.ticker}`,
+      `Profile: ${entry.profile}`,
+      `Outcome: ${entry.outcomeLabel}`,
+      `Date: ${entry.date}`,
+      `Signal: ${entry.signal || "Not captured"}`,
+      `Objection: ${entry.objection || "Not captured"}`,
+      `Next step: ${entry.nextStep || "Not captured"}`
+    ].join("\n")) : ["No pilot feedback captured yet."])
+  ].join("\n");
+}
+
+async function copyPilotFeedbackReport() {
+  const copied = await copyTextToClipboard(makePilotFeedbackMarkdown());
+  flashPilotFeedbackResult(copied ? "Pilot feedback report copied." : "Clipboard blocked. Use Export feedback instead.", copied ? "success" : "error");
+}
+
+function exportPilotFeedbackReport() {
+  const feedback = makePilotFeedbackAudit();
+  const date = new Date().toISOString().slice(0, 10);
+  const pack = {
+    ...feedback,
+    markdown: makePilotFeedbackMarkdown(feedback)
+  };
+  flashPilotFeedbackResult("Pilot feedback exported.", "success");
+  window.setTimeout(() => {
+    downloadTextFile(`niveshscope-pilot-feedback-v61-${date}.json`, JSON.stringify(pack, null, 2), "application/json;charset=utf-8");
+  }, 60);
+}
+
+function flashPilotFeedbackResult(message, tone = "neutral") {
+  if (!els.pilotFeedbackResult) return;
+  els.pilotFeedbackResult.className = `builder-result is-${tone}`;
+  els.pilotFeedbackResult.textContent = message;
+}
+
 function makeReleaseDoctorAudit() {
   const runtimeChecks = [
     {
       label: "Visible release marker",
-      ok: Boolean(document.querySelector(".status-strip")?.textContent.includes("Source review v47")),
-      detail: "The top status pill should show Source review v47 after a hard refresh."
+      ok: Boolean(document.querySelector(".status-strip")?.textContent.includes("Pilot feedback v61")),
+      detail: "The top status pill should show Pilot feedback v61 after a hard refresh."
     },
     {
       label: "Main stylesheet linked",
@@ -10954,7 +14158,7 @@ function makeLaunchBlockers({ companyRows, starterRows, packet, realCoverage, re
 
 function makeLaunchTestPlan() {
   return [
-    "After uploading the ZIP contents to GitHub, confirm the top status pill says Source review v47.",
+    "After uploading the ZIP contents to GitHub, confirm the top status pill says Pilot feedback v61.",
     "Open Operator Coach and confirm it shows one next action with desk metrics.",
     "Open Launch Control and confirm Release Doctor says Root manifest ready.",
     "Copy the Release Doctor root manifest and compare it against the GitHub repository root before committing.",
@@ -10981,9 +14185,9 @@ function makeLaunchTestPlan() {
 
 function makeReleaseDoctorSmokeTests() {
   return [
-    "Open the GitHub Pages URL with a cache-busting query such as ?v=47.",
+    "Open the GitHub Pages URL with a cache-busting query such as ?v=49.",
     "Confirm the page is styled, not plain HTML text.",
-    "Confirm the top status pill says Source review v47.",
+    "Confirm the top status pill says Pilot feedback v61.",
     "Open Operator Coach and confirm the next-action card renders.",
     "Open Trust Center and confirm the score, checks, copy, and export controls render.",
     "Open Evidence Vault and confirm the empty research-memory state renders.",
@@ -11084,7 +14288,7 @@ function openLaunchBlocker() {
 function exportLaunchAuditPack() {
   const audit = makeLaunchAudit();
   const date = new Date().toISOString().slice(0, 10);
-  const filename = `niveshscope-launch-audit-v47-${date}.json`;
+  const filename = `niveshscope-launch-audit-v61-${date}.json`;
   downloadTextFile(filename, JSON.stringify(makeLaunchAuditJson(audit), null, 2), "application/json;charset=utf-8");
   flashLaunchControlResult("Launch audit pack exported.", "success");
 }
@@ -11147,7 +14351,7 @@ function makeLaunchUploadChecklistMarkdown(audit) {
     : "- No blockers detected.";
   const tests = audit.tests.map((test, index) => `${index + 1}. ${test}`).join("\n");
   return [
-    "# NiveshScope v47 Upload Checklist",
+    "# NiveshScope v61 Upload Checklist",
     "",
     `Status: ${audit.statusLabel} (${audit.score}%)`,
     `Generated: ${new Date().toLocaleString()}`,
@@ -11157,7 +14361,7 @@ function makeLaunchUploadChecklistMarkdown(audit) {
     `- Upload the contents of \`${RELEASE_PACKAGE_NAME}\` to the GitHub repository root.`,
     "- Do not upload the release folder itself as a nested folder.",
     "- Confirm `index.html`, `app.js`, `styles.css`, `launch.css`, `data/`, `assets/`, `docs/`, `scripts/`, `.github/`, and `.nojekyll` are at the root.",
-    "- After upload, refresh with `?v=47` and confirm the status pill says `Source review v47`.",
+    "- After upload, refresh with `?v=61` and confirm the status pill says `Pilot feedback v61`.",
     "- Commit through GitHub's upload screen.",
     "",
     "## Current Blockers",
@@ -11240,7 +14444,7 @@ async function copyOperatorCoachPlan() {
 function exportOperatorCoachPlan() {
   const coach = makeOperatorCoach(makeLaunchAudit());
   const date = new Date().toISOString().slice(0, 10);
-  downloadTextFile(`niveshscope-operator-plan-v47-${date}.json`, JSON.stringify(makeOperatorCoachJson(coach), null, 2), "application/json;charset=utf-8");
+  downloadTextFile(`niveshscope-operator-plan-v61-${date}.json`, JSON.stringify(makeOperatorCoachJson(coach), null, 2), "application/json;charset=utf-8");
   flashOperatorCoachResult("Operator plan exported.", "success");
 }
 
@@ -11300,7 +14504,7 @@ async function copyReleaseManifest() {
 function exportReleaseManifest() {
   const doctor = makeReleaseDoctorAudit();
   const date = new Date().toISOString().slice(0, 10);
-  downloadTextFile(`niveshscope-release-manifest-v47-${date}.json`, JSON.stringify(makeReleaseManifestJson(doctor), null, 2), "application/json;charset=utf-8");
+  downloadTextFile(`niveshscope-release-manifest-v61-${date}.json`, JSON.stringify(makeReleaseManifestJson(doctor), null, 2), "application/json;charset=utf-8");
   flashLaunchControlResult("Release manifest exported.", "success");
 }
 
@@ -12151,6 +15355,17 @@ function copyCurrentBrief() {
   } else {
     fallbackCopy(state.lastBrief);
   }
+  addSessionTimelineEvent({
+    type: "copy",
+    title: "Current brief copied",
+    detail: `${state.selectedTicker || "Desk"} brief text was copied from the top bar.`,
+    ticker: state.selectedTicker,
+    metrics: {
+      citations: state.currentCitations.length,
+      savedBriefs: state.notes.length,
+      realSources: countSourceQueueStatuses(buildSourceQueueItems()).real || 0
+    }
+  }, { quiet: true });
 }
 
 function fallbackCopy(text) {
@@ -12223,6 +15438,19 @@ function saveCurrentBrief() {
   state.notes = [note, ...state.notes].slice(0, 10);
   saveJson(STORAGE_KEYS.notes, state.notes);
   renderNotebook();
+  renderSessionCoach();
+  addSessionTimelineEvent({
+    type: "save",
+    title: `${note.ticker} brief saved`,
+    detail: `${note.intentLabel} saved with ${note.citationCount} citations and ${note.confidence}% confidence.`,
+    ticker: note.ticker,
+    question: meta.question || els.queryInput?.value || "",
+    metrics: {
+      citations: note.citationCount,
+      savedBriefs: state.notes.length,
+      realSources: note.realSourceCount || 0
+    }
+  }, { quiet: true });
   flashButtonLabel(els.saveBrief, "Saved");
 }
 
@@ -12408,6 +15636,17 @@ function exportCurrentBrief() {
   ].join("\n");
 
   downloadTextFile(filename, content, "text/markdown;charset=utf-8");
+  addSessionTimelineEvent({
+    type: "export",
+    title: `${ticker} Markdown brief exported`,
+    detail: `Markdown research brief downloaded with ${state.currentCitations.length} citations.`,
+    ticker,
+    metrics: {
+      citations: state.currentCitations.length,
+      savedBriefs: state.notes.length,
+      realSources: countSourceQueueStatuses(buildSourceQueueItems()).real || 0
+    }
+  }, { quiet: true });
   flashButtonLabel(els.exportBrief, "Saved");
 }
 
@@ -12434,6 +15673,17 @@ function exportPdfBrief() {
     title: makePdfReportTitle(meta, state.lastBrief)
   });
   downloadBinaryFile(filename, pdfBytes, "application/pdf");
+  addSessionTimelineEvent({
+    type: "export",
+    title: `${ticker} PDF brief exported`,
+    detail: `PDF research brief downloaded with gate score ${gate.score}%.`,
+    ticker,
+    metrics: {
+      citations: state.currentCitations.length,
+      savedBriefs: state.notes.length,
+      realSources: countSourceQueueStatuses(buildSourceQueueItems()).real || 0
+    }
+  }, { quiet: true });
   flashButtonLabel(els.exportPdfBrief, "Saved");
 }
 
@@ -13367,3 +16617,5 @@ function saveJson(key, value) {
     // Local storage can be blocked under some browser privacy settings.
   }
 }
+
+

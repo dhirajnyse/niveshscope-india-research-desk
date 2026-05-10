@@ -1,4 +1,4 @@
-# NiveshScope
+﻿# NiveshScope
 
 Evidence-backed Indian equity research for investors who want cited answers instead of headline summaries. NiveshScope lets users ask complex questions across annual reports, NSE/BSE announcements, concall transcripts, shareholding patterns, credit notes, and valuation scenarios.
 
@@ -58,6 +58,20 @@ Evidence-backed Indian equity research for investors who want cited answers inst
 - Phase 45 Guided Source Collector with one prioritized source task, official-link routing, checklist progress, and copy/export source briefs.
 - Phase 46 Source Citation Extractor with ranked passage extraction, section mapping, one-click builder fill, and copy/export citation packs before a source is added to the corpus.
 - Phase 47 Source Review Gate with pass/review/block scoring for source identity, URL trust, company discipline, citation structure, intake quality, REAL confidence, and sample-source safety before live-corpus save.
+- Phase 48 Back-to-Top Polish with a floating bottom-right arrow for long research pages, smooth scroll behavior, keyboard focus support, and reduced-motion handling.
+- Phase 49 Quick Navigator with a floating section drawer, room search, grouped workflow links, and one-click jumps across the expanded research desk.
+- Phase 50 Command Palette with `Find`, Ctrl+K/Cmd+K search, section jumps, action commands, report exports, source workflow triggers, and company focus commands.
+- Phase 51 Guided Product Tour with Tour and Start tour entry points, six-step onboarding, room jumps, progress controls, and a clear ask-source-verify-package mental model.
+- Phase 52 First Research Session Coach with a live first-session checklist, next-action routing, sample-question launch, source-task routing, tour routing, and export/save nudges.
+- Phase 53 Research Handoff Room with a pause/resume memo, live desk metrics, next-action routing, Markdown copy, and JSON export.
+- Phase 54 Session Timeline with a browser-local audit trail for analysis runs, source saves, brief saves, exports, handoffs, and manual checkpoints.
+- Phase 55 Workspace Snapshot with full browser-local backup, restore, manifest copy, checksum, and allowed-store import controls.
+- Phase 56 Recovery Vault with browser-local restore points, exportable checkpoints, recovery reports, and guarded restore actions.
+- Phase 57 Pages Upload Wizard with GitHub Pages upload steps, live URL verification, root checklist copy, and deployment-plan export.
+- Phase 58 Live Site Doctor with post-upload GitHub Pages verification, release-marker checks, cache-busted live URL checks, and shareable verification reports.
+- Phase 59 GitHub Release Handoff with copyable commit messages, release notes, repository links, artifact inventory, and exportable handoff records.
+- Phase 60 Pilot Demo Room with a five-minute founder script, sample question launcher, source-safety wording, pilot follow-up copy, and exportable demo pack.
+- Phase 61 Pilot Feedback Room with structured demo reactions, objection radar, follow-up routing, Markdown copy, JSON export, and workspace backup support.
 - INR crore valuation lens with revenue CAGR, FCF margin, terminal multiple, and discount-rate sensitivities.
 - Saved valuation cases stored locally in the browser.
 - One-click research outputs for risk memos, concall tone, valuation assumptions, peer comparison, and investment committee briefs.
@@ -152,6 +166,19 @@ v22 adds the first durable project foundation around the working desk:
 - `docs/GUIDED_SOURCE_COLLECTOR.md`: prioritized source-task routing, official links, and source-brief handoff.
 - `docs/SOURCE_CITATION_EXTRACTOR.md`: citation passage extraction, section mapping, and reviewer citation-pack workflow.
 - `docs/SOURCE_REVIEW_GATE.md`: source review scoring, save-block rules, review-sheet export, and production reviewer workflow.
+- `docs/QUICK_NAVIGATOR.md`: floating section navigator, grouped workflow links, search behavior, and accessibility notes.
+- `docs/COMMAND_PALETTE.md`: command search behavior, action routing, company focus, and production direction.
+- `docs/GUIDED_PRODUCT_TOUR.md`: onboarding path, step controls, product role, and production tour direction.
+- `docs/FIRST_RESEARCH_SESSION_COACH.md`: first-session checklist, next-action routing, operating score, and production onboarding direction.
+- `docs/RESEARCH_HANDOFF_ROOM.md`: pause/resume memo workflow, live metric sources, copy/export behavior, and production handoff direction.
+- `docs/SESSION_TIMELINE.md`: browser-local activity trail, checkpoint workflow, export behavior, and production audit-log direction.
+- `docs/WORKSPACE_SNAPSHOT.md`: browser-local backup/restore workflow, included local stores, manifest behavior, and production workspace-version direction.
+- `docs/WORKSPACE_RECOVERY_VAULT.md`: local restore-point workflow, vault rotation, recovery restore rules, and production recovery controls.
+- `docs/PAGES_UPLOAD_WIZARD.md`: GitHub Pages upload path, root checklist, live-site verification, and production deployment direction.
+- `docs/LIVE_SITE_DOCTOR.md`: post-upload live-site verification, stale-cache detection, root-shape checks, and production deployment-monitor direction.
+- `docs/GITHUB_RELEASE_HANDOFF.md`: GitHub commit, upload, verification, and archive handoff workflow.
+- `docs/PILOT_DEMO_ROOM.md`: five-minute pilot demo workflow, sample questions, source-safety wording, and pilot follow-up direction.
+- `docs/PILOT_FEEDBACK_ROOM.md`: pilot reaction capture, objection radar, follow-up routing, and feedback export workflow.
 - `docs/REAL_FILING_CAPTURE_MODE.md`: filing capture preview, readiness impact, confidence gate, and training sample workflow.
 - `docs/BRIEF_WORKBENCH.md`: memo readiness scoring, evidence-to-gap mapping, and packet export rules.
 - `docs/MEMO_REVIEW_ROOM.md`: human review workflow, decision log fields, and launch audit direction.
@@ -434,6 +461,132 @@ v47 adds a final source-review gate inside Source Pack Studio:
 - Opens the first fix directly so the operator can move from diagnosis to repair without hunting through the page.
 - Copies or exports a reviewer-ready Markdown sheet with source fields, gate score, check results, and extracted citation passages.
 
+## Back-to-Top Polish
+
+v48 adds a floating navigation button for the now-large research workspace:
+
+- Appears after the user scrolls down far enough to need it.
+- Sits at the bottom-right corner above the workspace without covering core controls.
+- Smoothly returns to the top of the page, while respecting reduced-motion browser settings.
+- Stays keyboard-accessible and hidden from tab order until it is visible.
+
+## Quick Navigator
+
+v49 adds a compact floating navigation drawer for the expanded product:
+
+- Opens from a small `Nav` button above the back-to-top control.
+- Groups the main rooms into Desk, Review, Portfolio, Output, Trust, Sources, and Launch.
+- Filters sections as the operator types, so Source Studio, Review Gate, Launch Control, and other rooms are easy to find.
+- Closes after a jump, on Escape, or when clicking outside the panel.
+
+## Command Palette
+
+v50 adds a fast command launcher for the expanded research desk:
+
+- Opens from the top-right `Find` button or with Ctrl+K/Cmd+K.
+- Searches across rooms, source workflows, export actions, trust controls, and company tickers.
+- Runs existing controls such as Run analysis, Scan disclosure, Export PDF, Load next source task, Run source review gate, and Export source pack.
+- Company commands focus the ticker, prepare a risk question, refresh the dossier, and return the operator to the main desk.
+
+## Guided Product Tour
+
+v51 adds a built-in onboarding layer for new operators:
+
+- Opens from the top-right `Tour` button or the hero `Start tour` action.
+- Walks through the desk in six steps: ask, source, paste/review, readiness, package, and navigate.
+- Each step can jump to the relevant room so the operator learns the product by moving through it.
+- Records tour completion locally so production can later evolve this into account-aware onboarding.
+
+## First Research Session Coach
+
+v52 adds a live cockpit for the first usable research loop:
+
+- Scores the path from first question to first saved brief.
+- Reads current citations, answer metadata, REAL source coverage, saved briefs, and tour completion.
+- Routes the operator to the next useful action: load a sample question, run analysis, open readiness, start source replacement, save the brief, export PDF, or open Find.
+- Keeps the expanded product approachable without hiding the advanced research rooms.
+
+## Research Handoff Room
+
+v53 adds a pause/resume layer for real working sessions:
+
+- Summarizes the current company, question, answer status, gate score, source coverage, QA score, and saved brief trail.
+- Creates a readable pause memo from the live desk state.
+- Routes `Open next action` through Operator Coach so the handoff can resume work, not just describe it.
+- Copies a Markdown handoff or exports JSON for records and future team workflows.
+
+## Session Timeline
+
+v54 adds a research-session memory layer:
+
+- Records key actions locally, including analysis runs, saved briefs, source records added to the live corpus, PDF/Markdown exports, handoff actions, and manual checkpoints.
+- Shows live counts for events, source activity, report activity, and checkpoints so the operator can see whether a session has real progress.
+- Copies a readable Markdown timeline or exports JSON for audit records, team handoff, or future backend ingestion.
+- Keeps this prototype browser-local while defining the production path toward authenticated audit logs and immutable research activity records.
+
+## Workspace Snapshot
+
+v55 adds a portable backup layer for the now-large browser workspace:
+
+- Exports the app-owned local stores for uploaded docs, saved briefs, source packs, source progress, evidence vault, reviews, decisions, tasks, valuation cases, tour state, and timeline.
+- Shows a snapshot inventory with artifact counts, storage size, active ticker, live question context, and store-by-store record counts.
+- Imports only known NiveshScope storage keys, then reloads the desk so a backup can restore the research workspace cleanly.
+- Copies a human-readable manifest with checksum so a release or handoff can record exactly what was backed up.
+
+## Recovery Vault
+
+v56 adds local restore points on top of Workspace Snapshot:
+
+- Creates up to five browser-local restore points without nesting the vault inside its own backups.
+- Shows the latest checkpoint, current workspace size, artifact count, and checksum before a restore is attempted.
+- Restores a selected checkpoint with a confirmation prompt, replaces allowed NiveshScope stores, and reloads the desk.
+- Exports a recovery point or copies a vault report so important checkpoints can be archived outside the browser.
+
+## Pages Upload Wizard
+
+v57 adds a clearer GitHub Pages deployment path:
+
+- Shows the exact release ZIP, live Pages verification URL, upload score, backup status, and required root files.
+- Gives four upload steps: create a Recovery Vault checkpoint, open the release package, upload the contents to the repository root, and verify the cache-busted live URL.
+- Copies upload steps or a root checklist so the operator can compare GitHub before committing the upload.
+- Exports a JSON upload plan for release records and future CI/deployment automation.
+
+## Live Site Doctor
+
+v58 adds a post-upload verification room:
+
+- Checks whether the running page is local preview, the expected GitHub Pages project URL, or a risky external/nested path.
+- Confirms the visible release marker says `Pilot feedback v61`, the app shell is styled, root assets are linked, and data JSON has loaded.
+- Opens the cache-busted public URL with `?v=61` so stale browser cache does not hide a fresh upload.
+- Copies or exports a live-site verification report for release records before the public link is shared.
+
+## GitHub Release Handoff
+
+v59 adds the operator handoff after upload and verification:
+
+- Prepares a suggested GitHub commit title and body for the current release.
+- Lists release artifacts including ZIP package, root files, docs, live URL, Recovery Vault status, and repository target.
+- Copies release notes with post-upload smoke checks so the GitHub commit or release record has the same operating context as the app.
+- Opens the GitHub repository and cache-busted live URL from the handoff room, then exports a JSON handoff pack for release history.
+
+## Pilot Demo Room
+
+v60 adds a founder-facing demo room:
+
+- Scores whether the current build is demo-ready and names the caveat when source or release checks are still weak.
+- Provides a five-minute script that opens with the Indian equity research pain, shows the desk, explains evidence controls, and closes with a pilot ask.
+- Loads a RELIANCE risk question into the desk so a live walkthrough can start without hunting for the right prompt.
+- Copies a follow-up note or exports a JSON demo pack for pilot conversations and release records.
+
+## Pilot Feedback Room
+
+v61 adds a pilot-learning loop after the demo:
+
+- Captures pilot/account name, user profile, focus company, outcome, strongest signal, objection, next step, and demo date.
+- Groups objections into source proof, security, pricing, coverage, workflow, and conversion radar cards.
+- Routes the next follow-up to Source Studio, Trust Center, Coverage Map, Pricing, Answer Quality, Launch Control, or Pilot Demo Room.
+- Copies a Markdown feedback report, exports a JSON pack, and includes feedback records in Workspace Snapshot backups.
+
 ## Waitlist capture
 
 The waitlist form posts to FormSubmit at `dhirajnyse@gmail.com` and also stores a local browser fallback. On the first live submission, FormSubmit sends an activation email to the destination address. Confirm that email once, then future waitlist submissions will arrive by email.
@@ -445,3 +598,4 @@ The bundled companies use real Indian listed-company tickers, but the starter di
 ## Live data roadmap
 
 The current public version is intentionally static and uses synthetic starter evidence. The next build should add a refreshable company library for NSE/BSE announcements, annual reports, quarterly results, concall notes, shareholding patterns, and quote or peer-context snapshots while keeping every answer traceable to cited source passages.
+
